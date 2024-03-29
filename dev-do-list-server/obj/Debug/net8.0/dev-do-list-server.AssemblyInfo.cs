@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("dev-do-list-server")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f9ad8a34017d9c202339d9b23613f5c3d11434b3")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+44fee6b12dd38e8f35612224279cba2f6461be97")]
 [assembly: System.Reflection.AssemblyProductAttribute("dev-do-list-server")]
 [assembly: System.Reflection.AssemblyTitleAttribute("dev-do-list-server")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

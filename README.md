@@ -9,3 +9,15 @@
 
 # Running the projects
 ## Server and Cli
+Open the Server and Cli in separate VS tabs, and press the run button.
+
+## Frontend
+1. Open the fronend folder in a terminal
+2. Install the packages
+    ```sh
+    npm install
+    ```
+3. Run the frontend
+    ```sh
+    npm run dev
+    ```

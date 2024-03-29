@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "Ut2HpYh7LBoCDvLwy9SVQRjaxU3m5dq8MXRZQD7e7bo=",
+  "Source": "dev-do-list-server",
+  "BasePath": "_content/dev-do-list-server",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}

@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace dev_do_list_server.Controllers
+namespace DevDoListServer.Controllers
 {
     [ApiController]
     [Route("[controller]")]

@@ -4,8 +4,8 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <InvariantGlobalization>true</InvariantGlobalization>
-    <RootNamespace>dev_do_list_server</RootNamespace>
+    <InvariantGlobalization>false</InvariantGlobalization>
+    <RootNamespace>DevDoListServer</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

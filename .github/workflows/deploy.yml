@@ -5,7 +5,7 @@ on:
     branches:
     - main
     paths:
-    - 'server/**'
+    - 'dev-do-list-server/**'
   workflow_dispatch:
 
 permissions:

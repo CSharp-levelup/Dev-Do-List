@@ -50,7 +50,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
-app.MapPost("/login", (HttpContext ctx, JwtOptions jwtOptions)
+app.MapPost("/authenticate", (HttpContext ctx, JwtOptions jwtOptions)
     => TokenEndpoint.Connect(ctx, jwtOptions));
 
 app.MapControllers().RequireAuthorization();

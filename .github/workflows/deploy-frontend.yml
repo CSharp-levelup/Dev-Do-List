@@ -32,6 +32,10 @@ jobs:
         with:
           node-version: 20.x
 
+      - name: Install dependencies
+        run: npm install
+        working-directory: dev-do-list-frontend
+
       - name: Build
         run: npm run build
         working-directory: dev-do-list-frontend

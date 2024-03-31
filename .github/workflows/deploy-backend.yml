@@ -62,5 +62,5 @@ jobs:
 
       - name: Deploy to Elastic Beanstalk
         run: |
-          aws elasticbeanstalk create-application-version --application-name ${{ secrets.APP_NAME }} --version-label ${{ github.run_id }} --source-bundle S3Bucket="${{ secrets.BUCKET_NAME }}",S3Key="application-${{ github.run_id }}.zip"
-          aws elasticbeanstalk update-environment --application-name ${{ secrets.APP_NAME }} --environment-name ${{ secrets.ENV_NAME }} --version-label ${{ github.run_id }}
+          aws elasticbeanstalk create-application-version --application-name ${{ secrets.BACKEND_APP_NAME }} --version-label ${{ github.run_id }} --source-bundle S3Bucket="${{ secrets.BUCKET_NAME }}",S3Key="application-${{ github.run_id }}.zip"
+          aws elasticbeanstalk update-environment --application-name ${{ secrets.BACKEND_APP_NAME }} --environment-name ${{ secrets.BACKEND_ENV_NAME }} --version-label ${{ github.run_id }}

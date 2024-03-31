@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,6 +9,7 @@ namespace DevDoListServer.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
+        [Authorize(Roles = "admin")]
         [HttpGet("Test/{id}")]
         [ProducesResponseType<string>(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -17,7 +19,7 @@ namespace DevDoListServer.Controllers
         {
             try
             {
-/*                throw new NotImplementedException();*/
+                /*                throw new NotImplementedException();*/
                 if (id == 0)
                     return Ok("Good Response");
 
@@ -32,6 +34,7 @@ namespace DevDoListServer.Controllers
             }
         }
 
+        [Authorize(Roles ="user")]
         [HttpGet("Test2/{id}")]
         public Results<Ok<string>, NotFound, Conflict<string>, StatusCodeHttpResult, Created> GetAuthWhatEver2([FromRoute] int id)
         {

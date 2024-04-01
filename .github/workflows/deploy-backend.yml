@@ -1,4 +1,4 @@
-name: Deploy New App Version
+name: Deploy New App Version (Backend)
 
 on:
   push:

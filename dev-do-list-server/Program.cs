@@ -4,21 +4,32 @@ using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Text;
 
-using dev_do_list_server.Models;
-using dev_do_list_server.Services;
+using DevDoListServer.Services;
+using DevDoListServer.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
 var signingKey = Environment.GetEnvironmentVariable("JWT_SECRET", EnvironmentVariableTarget.User);
-if(signingKey is null)
+if(string.IsNullOrWhiteSpace(signingKey))
 {
     throw new Exception("Signing Key does not exist");
 }
 var jwtOptions = new JwtOptions("https://localhost:7240", "https://localhost:7240", signingKey!, 3600);
+
+var connectionString = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING");
+if (string.IsNullOrWhiteSpace(connectionString))
+{
+    throw new Exception("Connection string does not exist");
+}
+var dbConnectionDetails = new DbConnectionDetails(connectionString);
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddSingleton(dbConnectionDetails);
+builder.Services.AddDbContext<AppDbContext>();
 builder.Services.AddSingleton(jwtOptions);
+builder.Services.AddScoped<UserService>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(opts =>

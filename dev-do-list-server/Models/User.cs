@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace dev_do_list_server.Models;
+﻿namespace DevDoListServer.Models;
 
 public partial class User
 {
@@ -9,5 +6,7 @@ public partial class User
 
     public string Username { get; set; } = null!;
 
-    public string Email { get; set; } = null!;
+    public string UserPicUrl { get; set; } = null!;
+
+    public virtual ICollection<Task> Tasks { get; set; } = new List<Task>();
 }

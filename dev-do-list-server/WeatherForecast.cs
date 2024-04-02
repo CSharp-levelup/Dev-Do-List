@@ -1,4 +1,4 @@
-namespace dev_do_list_server
+namespace DevDoListServer
 {
     public class WeatherForecast
     {

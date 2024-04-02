@@ -19,7 +19,7 @@ namespace DevDoListServer.Jwt
             {
                 return Results.BadRequest("No Authorization provided");
             }
-            var Hello = Environment.GetEnvironmentVariable("TEST", EnvironmentVariableTarget.User);
+            var Hello = Environment.GetEnvironmentVariable("TEST");
             var AuthHeader = headers.GetCommaSeparatedValues("Authorization")[0];
             var token = AuthHeader.Substring(7);
             var client = new HttpClient();

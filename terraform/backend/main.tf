@@ -275,6 +275,11 @@ resource "aws_elastic_beanstalk_environment" "env" {
     value     = var.connection_string
   }
   setting {
+    namespace = "aws:elasticbeanstalk:application:environment"
+    name      = "JWT_SECRET"
+    value     = var.jwt_secret
+  }
+  setting {
     namespace = "aws:elasticbeanstalk:healthreporting:system"
     name      = "SystemType"
     value     = "basic"

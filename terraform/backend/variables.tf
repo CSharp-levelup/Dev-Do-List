@@ -54,3 +54,9 @@ variable "connection_string" {
   description = "The connection string for the database."
   sensitive   = true
 }
+
+variable "jwt_secret" {
+  type        = string
+  description = "The secret for jwt"
+  sensitive   = true
+}

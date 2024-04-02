@@ -114,7 +114,7 @@ resource "aws_vpc_security_group_egress_rule" "bastion_sg" {
 #region Source Bundle Storage
 # Create an S3 bucket with versioning to store the API source bundle
 resource "aws_s3_bucket" "source" {
-  bucket        = "${var.naming_prefix}-source-bundle-bucket"
+  bucket        = "${var.naming_prefix}-source-bucket"
   force_destroy = true
   tags          = { Name = "${var.naming_prefix}-source-bucket" }
 }

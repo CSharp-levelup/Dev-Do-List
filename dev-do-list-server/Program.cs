@@ -9,8 +9,8 @@ using DevDoListServer.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var signingKey = Environment.GetEnvironmentVariable("JWT_SECRET", EnvironmentVariableTarget.User);
-if(string.IsNullOrWhiteSpace(signingKey))
+var signingKey = Environment.GetEnvironmentVariable("JWT_SECRET");
+if(signingKey is null)
 {
     throw new Exception("Signing Key does not exist");
 }

@@ -1,16 +1,45 @@
+﻿using DevDoListServer.Jwt;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System;
+using System.Text;
+
 using dev_do_list_server.Models;
 using dev_do_list_server.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
+var signingKey = Environment.GetEnvironmentVariable("JWT_SECRET", EnvironmentVariableTarget.User);
+if(signingKey is null)
+{
+    throw new Exception("Signing Key does not exist");
+}
+var jwtOptions = new JwtOptions("https://localhost:7240", "https://localhost:7240", signingKey!, 3600);
 builder.Services.AddControllers();
-builder.Services.AddDbContext<AppDbContext>();
-builder.Services.AddScoped<UserService>();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddSingleton(jwtOptions);
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(opts =>
+    {
+        //convert the string signing key to byte array
+        byte[] signingKeyBytes = Encoding.UTF8
+            .GetBytes(jwtOptions.SigningKey);
+
+        opts.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = jwtOptions.Issuer,
+            ValidAudience = jwtOptions.Audience,
+            IssuerSigningKey = new SymmetricSecurityKey(signingKeyBytes)
+        };
+    });
+
+builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
@@ -22,9 +51,11 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
+app.UseAuthentication();
 app.UseAuthorization();
+app.MapPost("/authenticate", (HttpContext ctx, JwtOptions jwtOptions)
+    => TokenEndpoint.Connect(ctx, jwtOptions));
 
-app.MapControllers();
+app.MapControllers().RequireAuthorization();
 
 app.Run();

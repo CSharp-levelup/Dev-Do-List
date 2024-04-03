@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using DevDoListServer.Models;
-using DevDoListServer.Services;
+using DevDoListServer.Repositories;
 
 namespace DevDoListServer.Controllers
 {
@@ -9,23 +9,23 @@ namespace DevDoListServer.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
-        private readonly UserService _userService;
+        private readonly UserRepository _userRepository;
 
-        public UserController( UserService userService)
+        public UserController(UserRepository userRepository)
         {
-            _userService = userService;
+            _userRepository = userRepository;
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<User>>> GetUsers()
         {
-            return await _userService.GetAllUsers();
+            return await _userRepository.GetAll();
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<User>> GetUser(int id)
+        public async Task<ActionResult<User>> GetUser([FromRoute] int id)
         {
-            var user = await _userService.GetUserById(id);
+            var user = await _userRepository.GetById(id);
 
             if (user == null)
             {
@@ -36,7 +36,7 @@ namespace DevDoListServer.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutUser(int id, User user)
+        public async Task<IActionResult> PutUser([FromRoute] int id, [FromBody] User user)
         {
             if (id != user.UserId)
             {
@@ -46,11 +46,11 @@ namespace DevDoListServer.Controllers
             
             try
             {
-                await _userService.UpdateUser(user);
+                await _userRepository.Update(user);
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!_userService.UserExists(id))
+                if (!_userRepository.UserExists(id))
                 {
                     return NotFound("User not found");
                 }
@@ -64,28 +64,27 @@ namespace DevDoListServer.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<User>> PostUser(User user)
+        public async Task<ActionResult<User>> PostUser([FromBody] User user)
         {
-            var createdUser = await _userService.CreateUser(user);
+            var createdUser = await _userRepository.Create(user);
 
             return CreatedAtAction("GetUser", new { id = createdUser.UserId }, createdUser);
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteUser(int id)
+        public async Task<IActionResult> DeleteUser([FromRoute] int id)
         {
-            var user = await _userService.GetUserById(id);
+            var user = await _userRepository.GetById(id);
 
             if (user == null)
             {
                 return NotFound("User not found");
             }
 
-            await _userService.DeleteUser(user);
+            await _userRepository.Delete(user);
 
             return NoContent();
         }
 
-       
     }
 }

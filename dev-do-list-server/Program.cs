@@ -3,9 +3,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Text;
-
-using DevDoListServer.Services;
 using DevDoListServer.Data;
+using DevDoListServer.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,7 +28,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddSingleton(dbConnectionDetails);
 builder.Services.AddDbContext<AppDbContext>();
 builder.Services.AddSingleton(jwtOptions);
-builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<UserRepository>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(opts =>
@@ -64,6 +63,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseExceptionHandler("/error");
 app.MapPost("/authenticate", (HttpContext ctx, JwtOptions jwtOptions)
     => TokenEndpoint.Connect(ctx, jwtOptions));
 

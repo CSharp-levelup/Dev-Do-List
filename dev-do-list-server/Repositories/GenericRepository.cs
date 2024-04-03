@@ -27,8 +27,7 @@ namespace DevDoListServer.Repositories
 
         public virtual async Task<List<T>> GetAll()
         {
-            var list = await context.Set<T>().ToListAsync();
-            return list;
+            return await context.Set<T>().ToListAsync();
         }
 
         public virtual async Task<T?> GetById(int id)

@@ -1,5 +1,6 @@
 ﻿using DevDoListServer.Data;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace DevDoListServer.Repositories
 {
@@ -40,6 +41,11 @@ namespace DevDoListServer.Repositories
             context.Entry(entity).State = EntityState.Modified;
             await saveChanges();
             return entity;
+        }
+
+        public virtual async Task<bool> Exists(Expression<Func<T, bool>> predicate)
+        {
+            return await context.Set<T>().AnyAsync(predicate);
         }
 
         protected async Task<int> saveChanges()

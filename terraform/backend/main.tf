@@ -271,7 +271,7 @@ resource "aws_elastic_beanstalk_environment" "env" {
   }
   setting {
     namespace = "aws:elasticbeanstalk:application:environment"
-    name      = "ConnectionStrings__DefaultConnection"
+    name      = "DB_CONNECTION_STRING"
     value     = var.connection_string
   }
   setting {

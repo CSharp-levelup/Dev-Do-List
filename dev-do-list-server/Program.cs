@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Text;
+using DevDoListServer.Data;
+using DevDoListServer.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,10 +14,21 @@ if(signingKey is null)
     throw new Exception("Signing Key does not exist");
 }
 var jwtOptions = new JwtOptions("https://localhost:7240", "https://localhost:7240", signingKey!, 3600);
+
+var connectionString = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING");
+if (string.IsNullOrWhiteSpace(connectionString))
+{
+    throw new Exception("Connection string does not exist");
+}
+var dbConnectionDetails = new DbConnectionDetails(connectionString);
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddSingleton(dbConnectionDetails);
+builder.Services.AddDbContext<AppDbContext>();
 builder.Services.AddSingleton(jwtOptions);
+builder.Services.AddScoped<UserRepository>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(opts =>
@@ -50,6 +63,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseExceptionHandler("/error");
 app.MapPost("/authenticate", (HttpContext ctx, JwtOptions jwtOptions)
     => TokenEndpoint.Connect(ctx, jwtOptions));
 

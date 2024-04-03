@@ -50,7 +50,7 @@ namespace DevDoListServer.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!_userRepository.UserExists(id))
+                if (!await _userRepository.Exists(e => e.UserId == id))
                 {
                     return NotFound("User not found");
                 }

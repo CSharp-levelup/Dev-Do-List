@@ -29,6 +29,7 @@ builder.Services.AddSingleton(dbConnectionDetails);
 builder.Services.AddDbContext<AppDbContext>();
 builder.Services.AddSingleton(jwtOptions);
 builder.Services.AddScoped<UserRepository>();
+builder.Services.AddScoped<StatusRepository>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(opts =>

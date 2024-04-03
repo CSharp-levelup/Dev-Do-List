@@ -7,7 +7,7 @@ public partial class AppDbContext : DbContext
 {
     private readonly string _connectionString;
 
-        public AppDbContext(DbContextOptions<AppDbContext> options, DbConnectionDetails dbConnectionDetails)
+    public AppDbContext(DbContextOptions<AppDbContext> options, DbConnectionDetails dbConnectionDetails)
         : base(options)
     {
         _connectionString = dbConnectionDetails.ConnectionString;

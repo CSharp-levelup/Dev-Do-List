@@ -1,6 +1,5 @@
 ﻿using DevDoListServer.Data;
 using DevDoListServer.Models;
-using Microsoft.EntityFrameworkCore;
 
 namespace DevDoListServer.Repositories
 {

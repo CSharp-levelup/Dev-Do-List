@@ -11,10 +11,11 @@ public partial class AppDbContext : DbContext
         : base(options)
     {
         _connectionString = dbConnectionDetails.ConnectionString;
-        Console.WriteLine("\n\n\n\n" + _connectionString);
     }
 
     public virtual DbSet<Comment> Comments { get; set; }
+
+    public virtual DbSet<Role> Roles { get; set; }
 
     public virtual DbSet<Status> Statuses { get; set; }
 
@@ -24,9 +25,7 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<User> Users { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        => optionsBuilder.UseSqlServer(_connectionString);
-
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) => optionsBuilder.UseSqlServer(_connectionString);
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Comment>(entity =>
@@ -43,6 +42,16 @@ public partial class AppDbContext : DbContext
                 .HasForeignKey(d => d.TaskId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_TaskComment");
+        });
+
+        modelBuilder.Entity<Role>(entity =>
+        {
+            entity.ToTable("Role");
+
+            entity.Property(e => e.RoleId).HasColumnName("RoleID");
+            entity.Property(e => e.RoleType)
+                .HasMaxLength(50)
+                .IsUnicode(false);
         });
 
         modelBuilder.Entity<Status>(entity =>
@@ -98,17 +107,23 @@ public partial class AppDbContext : DbContext
 
         modelBuilder.Entity<User>(entity =>
         {
-            entity.HasKey(e => e.UserId).HasName("PK_User");
+            entity.ToTable("User");
 
             entity.HasIndex(e => e.Username, "UQ_Username").IsUnique();
 
             entity.Property(e => e.UserId).HasColumnName("UserID");
+            entity.Property(e => e.RoleId).HasColumnName("RoleID");
             entity.Property(e => e.UserPicUrl)
                 .HasMaxLength(100)
                 .IsUnicode(false);
             entity.Property(e => e.Username)
                 .HasMaxLength(50)
                 .IsUnicode(false);
+
+            entity.HasOne(d => d.Role).WithMany(p => p.Users)
+                .HasForeignKey(d => d.RoleId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_UserRole");
         });
 
         OnModelCreatingPartial(modelBuilder);

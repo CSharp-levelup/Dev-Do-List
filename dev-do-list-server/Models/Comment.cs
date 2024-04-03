@@ -1,5 +1,4 @@
-﻿
-namespace DevDoListServer.Models;
+﻿namespace DevDoListServer.Models;
 
 public partial class Comment
 {

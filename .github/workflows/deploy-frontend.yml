@@ -45,7 +45,7 @@ jobs:
         working-directory: DevDoListBlazorApp
 
       - name: Upload artifact to S3
-        run: aws s3 cp dist.zip s3://${{ secrets.BUCKET_NAME }}/frontend-${{ github.run_id }}.zip
+        run: aws s3 cp site/site.zip s3://${{ secrets.BUCKET_NAME }}/frontend-${{ github.run_id }}.zip
         working-directory: DevDoListBlazorApp
 
   deploy:

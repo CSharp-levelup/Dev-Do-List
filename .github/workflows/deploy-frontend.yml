@@ -34,18 +34,15 @@ jobs:
 
       - name: Dotnet publish
         run: |
-          dotnet build -c Release ./DevDoListBlazorApp.csproj;
-          dotnet publish -r linux-x64 --configuration "Release" --self-contained "true" -o site;
+          dotnet publish -c Release -r linux-x64 --self-contained "true" -o site;
         working-directory: DevDoListBlazorApp
 
       - name: Package artifact
-        run: |
-          cd site;
-          zip site.zip *;
+        run: zip -r site.zip site/
         working-directory: DevDoListBlazorApp
 
       - name: Upload artifact to S3
-        run: aws s3 cp site/site.zip s3://${{ secrets.BUCKET_NAME }}/frontend-${{ github.run_id }}.zip
+        run: aws s3 cp site.zip s3://${{ secrets.BUCKET_NAME }}/frontend-${{ github.run_id }}.zip
         working-directory: DevDoListBlazorApp
 
   deploy:

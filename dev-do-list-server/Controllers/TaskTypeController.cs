@@ -1,88 +1,89 @@
 ﻿using DevDoListServer.Data;
 using DevDoListServer.Models;
+using DevDoListServer.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace DevDoListServer.Controllers;
 
-[Route("api/[controller]")]
+[Route("api/v1/tasktype")]
 [ApiController]
 public class TaskTypeController : ControllerBase
 {
-    private readonly AppDbContext _context;
+    private readonly TaskTypeRepository _taskTypeRepository;
 
-    public TaskTypeController(AppDbContext context)
+    public TaskTypeController(TaskTypeRepository taskTypeRepository)
     {
-        _context = context;
+        _taskTypeRepository = taskTypeRepository;
     }
-
-    // GET: api/TaskType
+    
     [HttpGet]
     public async Task<ActionResult<IEnumerable<TaskType>>> GetTaskTypes()
     {
-        return await _context.TaskTypes.ToListAsync();
+        return await _taskTypeRepository.GetAll();
     }
-
-    // GET: api/TaskType/5
+    
     [HttpGet("{id}")]
-    public async Task<ActionResult<TaskType>> GetTaskType(int id)
+    public async Task<ActionResult<TaskType>> GetTaskType([FromRoute] int id)
     {
-        var taskType = await _context.TaskTypes.FindAsync(id);
+        var taskType = await _taskTypeRepository.GetById(id);
 
-        if (taskType == null) return NotFound();
+        if (taskType == null)
+        {
+            return NotFound("Task type not found");
+        }
 
-        return taskType;
+        return Ok(taskType);
     }
 
-    // PUT: api/TaskType/5
-    // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
     [HttpPut("{id}")]
-    public async Task<IActionResult> PutTaskType(int id, TaskType taskType)
+    public async Task<IActionResult> PutTaskType([FromRoute] int id, [FromBody] TaskType taskType)
     {
-        if (id != taskType.TaskTypeId) return BadRequest();
+        if (id != taskType.TaskTypeId)
+        {
+            return BadRequest();
+        }
 
-        _context.Entry(taskType).State = EntityState.Modified;
-
+            
         try
         {
-            await _context.SaveChangesAsync();
+            await _taskTypeRepository.Update(taskType);
         }
         catch (DbUpdateConcurrencyException)
         {
-            if (!TaskTypeExists(id))
-                return NotFound();
-            throw;
+            if (!await _taskTypeRepository.Exists(e => e.TaskTypeId == id))
+            {
+                return NotFound("Task type not found");
+            }
+            else
+            {
+                throw;
+            }
         }
 
         return NoContent();
     }
 
-    // POST: api/TaskType
-    // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
     [HttpPost]
-    public async Task<ActionResult<TaskType>> PostTaskType(TaskType taskType)
+    public async Task<ActionResult<TaskType>> PostTaskType([FromBody] TaskType taskType)
     {
-        _context.TaskTypes.Add(taskType);
-        await _context.SaveChangesAsync();
+        var createdTaskType = await _taskTypeRepository.Create(taskType);
 
-        return CreatedAtAction("GetTaskType", new { id = taskType.TaskTypeId }, taskType);
+        return CreatedAtAction("GetTaskType", new { id = createdTaskType.TaskTypeId }, createdTaskType);
     }
-
-    // DELETE: api/TaskType/5
+    
     [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteTaskType(int id)
+    public async Task<IActionResult> DeleteTaskType([FromRoute] int id)
     {
-        var taskType = await _context.TaskTypes.FindAsync(id);
-        if (taskType == null) return NotFound();
+        var taskType = await _taskTypeRepository.GetById(id);
 
-        _context.TaskTypes.Remove(taskType);
-        await _context.SaveChangesAsync();
+        if (taskType == null)
+        {
+            return NotFound("Task Type not found");
+        }
+
+        await _taskTypeRepository.Delete(taskType);
 
         return NoContent();
-    }
-
-    private bool TaskTypeExists(int id)
-    {
-        return _context.TaskTypes.Any(e => e.TaskTypeId == id);
     }
 }

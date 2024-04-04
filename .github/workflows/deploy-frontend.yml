@@ -39,12 +39,12 @@ jobs:
         working-directory: DevDoListBlazorApp
 
       - name: Package artifact
-        run: zip -r site.zip bin/Release/net8.0/linux-x64/publish/*
-        working-directory: DevDoListBlazorApp
+        run: zip -r ../site.zip *
+        working-directory: DevDoListBlazorApp/bin/Release/net8.0/linux-x64/publish
 
       - name: Upload artifact to S3
         run: aws s3 cp site.zip s3://${{ secrets.BUCKET_NAME }}/frontend-${{ github.run_id }}.zip
-        working-directory: DevDoListBlazorApp
+        working-directory: DevDoListBlazorApp/bin/Release/net8.0/linux-x64
 
   deploy:
     runs-on: ubuntu-latest

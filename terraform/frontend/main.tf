@@ -151,6 +151,11 @@ resource "aws_elastic_beanstalk_environment" "env" {
     value     = aws_security_group.eb_sg.id
   }
   setting {
+    namespace = "aws:elasticbeanstalk:application:environment"
+    name      = "CLIENT_ID"
+    value     = var.client_id
+  }
+  setting {
     namespace = "aws:elasticbeanstalk:environment"
     name      = "EnvironmentType"
     value     = "SingleInstance"

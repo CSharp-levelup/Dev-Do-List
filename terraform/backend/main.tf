@@ -114,7 +114,7 @@ resource "aws_vpc_security_group_egress_rule" "bastion_sg" {
 #region Source Bundle Storage
 # Create an S3 bucket with versioning to store the API source bundle
 resource "aws_s3_bucket" "source" {
-  bucket        = "${var.naming_prefix}-source-bundle-bucket"
+  bucket        = "${var.naming_prefix}-source-bucket"
   force_destroy = true
   tags          = { Name = "${var.naming_prefix}-source-bucket" }
 }
@@ -271,8 +271,13 @@ resource "aws_elastic_beanstalk_environment" "env" {
   }
   setting {
     namespace = "aws:elasticbeanstalk:application:environment"
-    name      = "ConnectionStrings__DefaultConnection"
+    name      = "DB_CONNECTION_STRING"
     value     = var.connection_string
+  }
+  setting {
+    namespace = "aws:elasticbeanstalk:application:environment"
+    name      = "JWT_SECRET"
+    value     = var.jwt_secret
   }
   setting {
     namespace = "aws:elasticbeanstalk:healthreporting:system"

@@ -1,6 +1,6 @@
 @dev_do_list_server_HostAddress = http://localhost:5026
 
-GET {{dev_do_list_server_HostAddress}}/weatherforecast/
+GET {{dev_do_list_server_HostAddress}}/api/v1/user
 Accept: application/json
 
 ###

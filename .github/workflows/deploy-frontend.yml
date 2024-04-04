@@ -5,7 +5,7 @@ on:
     branches:
     - main
     paths:
-    - 'dev-do-list-frontend/**'
+    - 'DevDoListBlazorApp/**'
   workflow_dispatch:
 
 permissions:
@@ -27,26 +27,24 @@ jobs:
           role-session-name: github-dev-do-list-build
           aws-region: eu-west-1
 
-      - name: Setup node
-        uses: actions/setup-node@v4
+      - name: Setup dotnet cli
+        uses: actions/setup-dotnet@v4
         with:
-          node-version: 20.x
+          dotnet-version: 8.0.202
 
-      - name: Install dependencies
-        run: npm install
-        working-directory: dev-do-list-frontend
-
-      - name: Build
-        run: npm run build
-        working-directory: dev-do-list-frontend
+      - name: Dotnet publish
+        run: |
+          dotnet build -c Release ./DevDoListBlazorApp.csproj;
+          dotnet publish -r linux-x64 --configuration "Release" --self-contained "true";
+        working-directory: DevDoListBlazorApp
 
       - name: Package artifact
-        run: zip -r dist.zip dist Procfile;
-        working-directory: dev-do-list-frontend
+        run: zip -r ../site.zip *
+        working-directory: DevDoListBlazorApp/bin/Release/net8.0/linux-x64/publish
 
       - name: Upload artifact to S3
-        run: aws s3 cp dist.zip s3://${{ secrets.BUCKET_NAME }}/frontend-${{ github.run_id }}.zip
-        working-directory: dev-do-list-frontend
+        run: aws s3 cp site.zip s3://${{ secrets.BUCKET_NAME }}/frontend-${{ github.run_id }}.zip
+        working-directory: DevDoListBlazorApp/bin/Release/net8.0/linux-x64
 
   deploy:
     runs-on: ubuntu-latest

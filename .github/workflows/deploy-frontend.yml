@@ -34,6 +34,7 @@ jobs:
 
       - name: Dotnet publish
         run: |
+          dotnet build -c Release ./DevDoListBlazorApp.csproj;
           dotnet publish -r linux-x64 --configuration "Release" --self-contained "true" -o site;
         working-directory: DevDoListBlazorApp
 

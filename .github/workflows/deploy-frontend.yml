@@ -34,11 +34,11 @@ jobs:
 
       - name: Dotnet publish
         run: |
-          dotnet publish -c Release -r linux-x64 --self-contained "true" -o site;
+          dotnet publish -r linux-x64 --configuration "Release" --self-contained "true" -o site;
         working-directory: DevDoListBlazorApp
 
       - name: Package artifact
-        run: zip -r site.zip site/
+        run: zip -r site.zip site
         working-directory: DevDoListBlazorApp
 
       - name: Upload artifact to S3

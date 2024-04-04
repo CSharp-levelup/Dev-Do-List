@@ -68,6 +68,6 @@ app.UseExceptionHandler("/error");
 app.MapPost("/authenticate", (HttpContext ctx, JwtOptions jwtOptions)
     => TokenEndpoint.Connect(ctx, jwtOptions));
 
-app.MapControllers().RequireAuthorization();
-
+//app.MapControllers().RequireAuthorization();
+app.MapControllers();
 app.Run();

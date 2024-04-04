@@ -39,7 +39,7 @@ jobs:
         working-directory: DevDoListBlazorApp
 
       - name: Package artifact
-        run: zip -r site.zip bin/Release/net8.0/linux-x64/publish
+        run: zip -r site.zip bin/Release/net8.0/linux-x64/publish/*
         working-directory: DevDoListBlazorApp
 
       - name: Upload artifact to S3

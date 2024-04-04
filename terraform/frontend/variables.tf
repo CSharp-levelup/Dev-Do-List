@@ -34,7 +34,7 @@ variable "naming_prefix" {
 }
 
 variable "client_id" {
-  type = string
+  type        = string
   description = "The client ID for oauth environment variable"
-  sensitive = true
+  sensitive   = true
 }

@@ -30,6 +30,7 @@ builder.Services.AddDbContext<AppDbContext>();
 builder.Services.AddSingleton(jwtOptions);
 builder.Services.AddScoped<UserRepository>();
 builder.Services.AddScoped<StatusRepository>();
+builder.Services.AddScoped<TaskTypeRepository>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(opts =>
@@ -69,5 +70,4 @@ app.MapPost("/authenticate", (HttpContext ctx, JwtOptions jwtOptions)
     => TokenEndpoint.Connect(ctx, jwtOptions));
 
 app.MapControllers().RequireAuthorization();
-
 app.Run();

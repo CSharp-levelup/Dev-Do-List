@@ -19,7 +19,7 @@ namespace DevDoListServer.Services
 
             if (user == null)
             {
-                var role = _roleRepository.FindByRoleType("user");
+                var role = _roleRepository.FindByRoleType(RoleType.User);
                 var newUser = new User()
                 {
                     Username = githubUser.login,
@@ -31,7 +31,7 @@ namespace DevDoListServer.Services
                 return role.RoleType.ToString();
             }
             var userRole = await _roleRepository.GetById(user.RoleId);
-            return userRole is null ? "user" : userRole.RoleType.ToString();
+            return userRole is null ? RoleType.User : userRole.RoleType.ToString();
         }
     }
 }

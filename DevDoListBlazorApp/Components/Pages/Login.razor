@@ -12,12 +12,12 @@
     <div class="input-container-login">
         @if (VerificationUri == null && UserCode == null)
         {
-          <div class="input-container-title-login">
-            Login to your GitHub account
-          </div>
-          <div class="login-button-container">
-            <button class="login-button" @onclick="HandleLogin">Login</button>
-          </div>
+            <div class="input-container-title-login">
+                Login to your GitHub account
+            </div>
+            <div class="login-button-container">
+                <button class="login-button" @onclick="HandleLogin">Login</button>
+            </div>
         }
         else
         {
@@ -30,119 +30,130 @@
             </div>
         }
     </div>
-    
 </div>
 
 @code {
-  private string VerificationUri { get; set; }
-  private string UserCode { get; set; }
+    private string VerificationUri { get; set; }
+    private string UserCode { get; set; }
+    private bool checkedLoggedIn = false;
 
-  private async Task HandleLogin()
-  {
-    var request = new HttpRequestMessage(HttpMethod.Post, "https://github.com/login/device/code");
-    string clientId = GetClientId();
-    request.Content = new FormUrlEncodedContent(new Dictionary<string, string>
+    protected override async Task OnAfterRenderAsync(bool firstRender) // Takes user straight to dashboard page if they already have an access token stored
+    {
+        if (firstRender && !checkedLoggedIn)
+        {
+            // Check if the user is already logged in
+            var jwtToken = await LocalStorageService.GetItem<string>("accessToken");
+            if (!string.IsNullOrEmpty(jwtToken))
+            {
+                // User is already logged in, redirect to dashboard
+                NavigationManager.NavigateTo("/dashboard");
+            }
+            checkedLoggedIn = true;
+        }
+    }
+
+    private async Task HandleLogin()
+    {
+        var request = new HttpRequestMessage(HttpMethod.Post, "https://github.com/login/device/code");
+        string clientId = GetClientId();
+        request.Content = new FormUrlEncodedContent(new Dictionary<string, string>
         {
             { "client_id", clientId },
             { "scope", "user" }
         });
-    var response = await HttpClient.SendAsync(request);
-    if (response.IsSuccessStatusCode)
-    {
-      var responseContent = await response.Content.ReadAsStringAsync();
-      var jsonResponse = HttpUtility.ParseQueryString(responseContent);
-
-      var deviceCode = jsonResponse["device_code"].ToString();
-      UserCode = jsonResponse["user_code"].ToString();
-      VerificationUri = jsonResponse["verification_uri"].ToString();
-      await InvokeAsync(StateHasChanged); // Allows the page to rerender and show the user code and url
-
-      var bearerToken = await GetBearerToken(deviceCode);
-
-      await SetJwtToken(bearerToken);
-
-      NavigationManager.NavigateTo("/dashboard");
-    }
-    }
-
-  
-
-  private string GetClientId()
-  {
-      var clientId = Environment.GetEnvironmentVariable("CLIENT_ID");
-      if (clientId is null)
-      {
-        throw new Exception("Client id does not exist");
-      }
-      return clientId;
-  }
-
-  private async Task<string> GetBearerToken(string deviceCode)
-  {
-      int pollingInterval = 5000; // 5 seconds
-
-      while (true)
-      {
-        try
+        var response = await HttpClient.SendAsync(request);
+        if (response.IsSuccessStatusCode)
         {
-            // Make a request to GitHub's token endpoint to check authentication status
-            var request = new HttpRequestMessage(HttpMethod.Post, "https://github.com/login/oauth/access_token");
-            string clientId = GetClientId();
-            request.Content = new FormUrlEncodedContent(new Dictionary<string, string>
+            var responseContent = await response.Content.ReadAsStringAsync();
+            var jsonResponse = HttpUtility.ParseQueryString(responseContent);
+
+            var deviceCode = jsonResponse["device_code"].ToString();
+            UserCode = jsonResponse["user_code"].ToString();
+            VerificationUri = jsonResponse["verification_uri"].ToString();
+            await InvokeAsync(StateHasChanged); // Allows the page to rerender and show the user code and url
+
+            var bearerToken = await GetBearerToken(deviceCode);
+
+            await SetJwtToken(bearerToken);
+
+            NavigationManager.NavigateTo("/dashboard");
+        }
+    }
+
+    private string GetClientId()
+    {
+        var clientId = Environment.GetEnvironmentVariable("CLIENT_ID");
+        if (clientId is null)
+        {
+            throw new Exception("Client id does not exist");
+        }
+        return clientId;
+    }
+
+    private async Task<string> GetBearerToken(string deviceCode)
+    {
+        int pollingInterval = 5000; // 5 seconds
+
+        while (true)
+        {
+            try
             {
-                { "client_id", clientId },
-                { "device_code", deviceCode },
-                { "grant_type", "urn:ietf:params:oauth:grant-type:device_code" }
-            });
-
-            var response = await HttpClient.SendAsync(request);
-
-            if (response.IsSuccessStatusCode)
-            {
-                var responseContent = await response.Content.ReadAsStringAsync();
-                var jsonResponse = HttpUtility.ParseQueryString(responseContent);
-
-                // Check if authentication is successful
-                if (jsonResponse.AllKeys.Contains("access_token"))
+                // Make a request to GitHub's token endpoint to check authentication status
+                var request = new HttpRequestMessage(HttpMethod.Post, "https://github.com/login/oauth/access_token");
+                string clientId = GetClientId();
+                request.Content = new FormUrlEncodedContent(new Dictionary<string, string>
                 {
-                    // Authentication is successful, retrieve the bearer token
-                    var bearerToken = jsonResponse["access_token"].ToString();
+                    { "client_id", clientId },
+                    { "device_code", deviceCode },
+                    { "grant_type", "urn:ietf:params:oauth:grant-type:device_code" }
+                });
 
-                    return bearerToken;
+                var response = await HttpClient.SendAsync(request);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var responseContent = await response.Content.ReadAsStringAsync();
+                    var jsonResponse = HttpUtility.ParseQueryString(responseContent);
+
+                    // Check if authentication is successful
+                    if (jsonResponse.AllKeys.Contains("access_token"))
+                    {
+                        // Authentication is successful, retrieve the bearer token
+                        var bearerToken = jsonResponse["access_token"].ToString();
+
+                        return bearerToken;
+                    }
+                }
+                else
+                {
+                  // Handle non-successful response status codes
                 }
             }
-            else
+            catch (Exception ex)
             {
-              // Handle non-successful response status codes
-              // For example, log the error or retry the request
+              // Handle exceptions
+            }
+
+          // Wait for the next polling interval before making the next request
+          await Task.Delay(pollingInterval);
+        }
+    }
+
+    private async Task SetJwtToken(string bearerToken)
+    {
+        var token_request = new HttpRequestMessage(HttpMethod.Post, "http://dev-do-list-backend.eu-west-1.elasticbeanstalk.com/authenticate");
+        token_request.Headers.Add("Authorization", $"Bearer {bearerToken}");
+        var token_response = await HttpClient.SendAsync(token_request);
+        if (token_response.IsSuccessStatusCode)
+        {
+            var responseContent = await token_response.Content.ReadAsStringAsync();
+            var jsonResponse = JObject.Parse(responseContent);
+
+            if (jsonResponse.ContainsKey("access_token"))
+            {
+                var jwtToken = jsonResponse["access_token"].ToString();
+                await LocalStorageService.SetItem("accessToken", jwtToken);
             }
         }
-        catch (Exception ex)
-        {
-          // Handle exceptions
-          // For example, log the exception or retry the request
-        }
-
-        // Wait for the next polling interval before making the next request
-        await Task.Delay(pollingInterval);
-      }
-  }
-
-  private async Task SetJwtToken(string bearerToken)
-  {
-      var token_request = new HttpRequestMessage(HttpMethod.Post, "http://dev-do-list-backend.eu-west-1.elasticbeanstalk.com/authenticate");
-      token_request.Headers.Add("Authorization", $"Bearer {bearerToken}");
-      var token_response = await HttpClient.SendAsync(token_request);
-      if (token_response.IsSuccessStatusCode)
-      {
-          var responseContent = await token_response.Content.ReadAsStringAsync();
-          var jsonResponse = JObject.Parse(responseContent);
-
-          if (jsonResponse.ContainsKey("access_token"))
-          {
-              var jwtToken = jsonResponse["access_token"].ToString();
-              await LocalStorageService.SetItem("accessToken", jwtToken);
-          }
-      }
-  }
+    }
 }

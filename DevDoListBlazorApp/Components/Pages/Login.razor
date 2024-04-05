@@ -12,7 +12,7 @@
 
 <div class="login-page">
     <div class="input-container-login">
-        @if (VerificationUri == null && UserCode == null)
+        @if (string.IsNullOrEmpty(VerificationUri) && string.IsNullOrEmpty(UserCode))
         {
             <div class="input-container-title-login">
                 Login to your GitHub account
@@ -47,7 +47,6 @@
             var jwtToken = await LocalStorageService.GetItem<string>("accessToken");
             if (!string.IsNullOrEmpty(jwtToken))
             {
-                // User is already logged in, redirect to dashboard
                 NavigationManager.NavigateTo("/dashboard");
             }
             checkedLoggedIn = true;
@@ -95,8 +94,10 @@
     private async Task<string> GetBearerToken(string deviceCode)
     {
         int pollingInterval = 5000; // 5 seconds
+        int maxRetries = 5;
+        int retryCount = 0; // Incremenet on failures to avoid infinite loop
 
-        while (true)
+        while (retryCount < maxRetries)
         {
             try
             {
@@ -120,25 +121,26 @@
                     // Check if authentication is successful
                     if (jsonResponse.AllKeys.Contains("access_token"))
                     {
-                        // Authentication is successful, retrieve the bearer token
-                        var bearerToken = jsonResponse["access_token"].ToString();
+                        string bearerToken = jsonResponse["access_token"].ToString();
 
                         return bearerToken;
                     }
                 }
                 else
                 {
-                  // Handle non-successful response status codes
+                    retryCount++;
                 }
             }
             catch (Exception ex)
             {
-              // Handle exceptions
+                retryCount++;
             }
 
-          // Wait for the next polling interval before making the next request
-          await Task.Delay(pollingInterval);
+            // Wait for the next polling interval before making the next request
+            await Task.Delay(pollingInterval);
         }
+        
+        throw new InvalidOperationException("Maximum retry attempts exceeded.");
     }
 
     private async Task SetJwtToken(string bearerToken)

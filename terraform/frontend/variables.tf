@@ -32,3 +32,9 @@ variable "naming_prefix" {
   type        = string
   description = "The prefix to use for naming resources."
 }
+
+variable "client_id" {
+  type        = string
+  description = "The client ID for oauth environment variable"
+  sensitive   = true
+}

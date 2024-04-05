@@ -33,7 +33,7 @@ builder.Services.AddScoped<UserRepository>();
 builder.Services.AddScoped<StatusRepository>();
 builder.Services.AddScoped<RoleRepository>();
 builder.Services.AddScoped<AuthService>();
-
+builder.Services.AddScoped<TaskTypeRepository>();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(opts =>
     {
@@ -69,5 +69,4 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.UseExceptionHandler("/error");
 app.MapControllers().RequireAuthorization();
-
 app.Run();

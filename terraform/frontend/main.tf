@@ -117,7 +117,7 @@ resource "aws_elastic_beanstalk_application" "app" {
 resource "aws_elastic_beanstalk_environment" "env" {
   name                = "${var.naming_prefix}-env"
   application         = aws_elastic_beanstalk_application.app.name
-  solution_stack_name = "64bit Amazon Linux 2023 v6.1.2 running Node.js 20 "
+  solution_stack_name = "64bit Amazon Linux 2023 v3.0.5 running .NET 6"
   cname_prefix        = var.naming_prefix
 
   setting {
@@ -149,6 +149,11 @@ resource "aws_elastic_beanstalk_environment" "env" {
     namespace = "aws:autoscaling:launchconfiguration"
     name      = "SecurityGroups"
     value     = aws_security_group.eb_sg.id
+  }
+  setting {
+    namespace = "aws:elasticbeanstalk:application:environment"
+    name      = "CLIENT_ID"
+    value     = var.client_id
   }
   setting {
     namespace = "aws:elasticbeanstalk:environment"

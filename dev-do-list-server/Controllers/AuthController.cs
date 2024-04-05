@@ -1,49 +1,74 @@
-﻿using Microsoft.AspNetCore.Http.HttpResults;
+﻿using Azure.Core;
+using DevDoListServer.Jwt;
+using DevDoListServer.Models;
+using DevDoListServer.Services;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
+using System.Net;
 using System.Security.Claims;
 using System.Text;
-using System.Net;
-using Newtonsoft.Json;
-using DevDoListServer.Models;
+using System.Text.Json;
 
-namespace DevDoListServer.Jwt
+namespace DevDoListServer.Controllers
 {
-    public static class TokenEndpoint
+    [Route("api/v1/[controller]")]
+    [ApiController]
+    [AllowAnonymous]
+    public class AuthController(JwtOptions jwtOptions, AuthService authService) : ControllerBase
     {
-        public static async Task<IResult> Connect(HttpContext ctx, JwtOptions jwtOptions)
+        private readonly JwtOptions _jwtOptions = jwtOptions;
+        private readonly AuthService _authService = authService;
+
+        [HttpPost]
+        
+        public async Task<ActionResult> Authenticate()
         {
-            // validates the content type of the request
-            var headers = ctx.Request.Headers;
-            if(headers.ContainsKey("Authorization") == false)
+            var auth = Request.Headers.Authorization;
+            if (auth.IsNullOrEmpty())
             {
-                return Results.BadRequest("No Authorization provided");
+                return BadRequest("No Authorization Provided");
             }
-            var Hello = Environment.GetEnvironmentVariable("TEST");
-            var AuthHeader = headers.GetCommaSeparatedValues("Authorization")[0];
-            var token = AuthHeader.Substring(7);
+            if (auth[0] is null)
+            {
+                return BadRequest("Incorrect Authorization Provided");
+            }
+            var authToken = auth[0];
+            if (authToken == null)
+            {
+                return BadRequest();
+            }
+            if (authToken.Contains("Bearer") == false)
+            {
+                return BadRequest("No Bearer Token Provided");
+            }
+            var gitHubToken = authToken.ToString()[7..];
+            if (gitHubToken == null)
+            {
+                return BadRequest("No Bearer Token Provided");
+            }
             var client = new HttpClient();
             var request = new HttpRequestMessage(HttpMethod.Get, "https://api.github.com/user");
-            request.Headers.Add("Authorization", "Bearer " + token);
+            request.Headers.Add("Authorization", "Bearer " + gitHubToken);
             request.Headers.Add("User-Agent", "request");
             var response = await client.SendAsync(request);
             if (response.StatusCode != HttpStatusCode.OK)
             {
-                return Results.BadRequest("Invalid Credentials");
+                return BadRequest("Invalid Credentials");
             }
-
             var responseString = await response.Content.ReadAsStringAsync();
-            var githubUser = JsonConvert.DeserializeObject<GithubUser>(responseString)!;
-            //creates the access token (jwt token)
-            var tokenExpiration = TimeSpan.FromSeconds(jwtOptions.ExpirationSeconds);
+            var githubUser = JsonSerializer.Deserialize<GithubUser>(responseString)!;
+            var role = await authService.AuthenticateUser(githubUser);
+            var tokenExpiration = TimeSpan.FromSeconds(_jwtOptions.ExpirationSeconds);
             var accessToken = CreateAccessToken(
-                jwtOptions,
+                _jwtOptions,
                 githubUser.login,
                 TimeSpan.FromMinutes(1440),
-                new[] { "user" });
+                new[] { role });
 
             //returns a json response with the access token
-            return Results.Ok(new
+            return Ok(new
             {
                 access_token = accessToken,
                 expiration = (int)tokenExpiration.TotalSeconds,
@@ -51,8 +76,7 @@ namespace DevDoListServer.Jwt
             });
         }
 
-        //
-        static string CreateAccessToken(
+        private string CreateAccessToken(
           JwtOptions jwtOptions,
           string username,
           TimeSpan expiration,

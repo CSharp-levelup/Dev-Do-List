@@ -2,6 +2,8 @@
 using Microsoft.EntityFrameworkCore;
 using DevDoListServer.Models;
 using DevDoListServer.Repositories;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.OpenApi.Extensions;
 
 namespace DevDoListServer.Controllers
 {
@@ -64,6 +66,7 @@ namespace DevDoListServer.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = RoleType.Admin)]
         public async Task<ActionResult<User>> PostUser([FromBody] User user)
         {
             var createdUser = await _userRepository.Create(user);

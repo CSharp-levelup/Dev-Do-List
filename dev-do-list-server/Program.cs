@@ -5,11 +5,12 @@ using System;
 using System.Text;
 using DevDoListServer.Data;
 using DevDoListServer.Repositories;
+using DevDoListServer.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 var signingKey = Environment.GetEnvironmentVariable("JWT_SECRET");
-if(signingKey is null)
+if (signingKey is null)
 {
     throw new Exception("Signing Key does not exist");
 }
@@ -31,6 +32,7 @@ builder.Services.AddSingleton(jwtOptions);
 builder.Services.AddScoped<UserRepository>();
 builder.Services.AddScoped<StatusRepository>();
 builder.Services.AddScoped<RoleRepository>();
+builder.Services.AddScoped<AuthService>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(opts =>
@@ -66,9 +68,6 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseExceptionHandler("/error");
-app.MapPost("/authenticate", (HttpContext ctx, JwtOptions jwtOptions)
-    => TokenEndpoint.Connect(ctx, jwtOptions));
-
 app.MapControllers().RequireAuthorization();
 
 app.Run();

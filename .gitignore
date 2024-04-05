@@ -33,3 +33,4 @@ msbuild.wrn
 # Visual Studio 2015
 .vs/
 /dev-do-list-server/dev-do-list-server.csproj.user
+.idea/

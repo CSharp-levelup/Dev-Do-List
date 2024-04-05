@@ -9,6 +9,7 @@
 @inject HttpClient HttpClient
 @inject LocalStorageService LocalStorageService
 @inject NavigationManager NavigationManager
+@inject IJSRuntime JsRuntime
 
 <div class="login-page">
     <div class="input-container-login">
@@ -73,11 +74,18 @@
             VerificationUri = jsonResponse["verification_uri"].ToString();
             await InvokeAsync(StateHasChanged); // Allows the page to rerender and show the user code and url
 
-            var bearerToken = await GetBearerToken(deviceCode);
+            try
+            {
+                var bearerToken = await GetBearerToken(deviceCode);
+                await SetJwtToken(bearerToken);
 
-            await SetJwtToken(bearerToken);
-
-            NavigationManager.NavigateTo("/dashboard");
+                NavigationManager.NavigateTo("/dashboard");
+            }
+            catch(InvalidOperationException ex)
+            {
+                await JsRuntime.InvokeVoidAsync("alert", ex.Message); // Alert
+                return;
+            }
         }
     }
 
@@ -140,7 +148,7 @@
             await Task.Delay(pollingInterval);
         }
         
-        throw new InvalidOperationException("Maximum retry attempts exceeded.");
+        throw new InvalidOperationException("Something went wrong during the authentication process.");
     }
 
     private async Task SetJwtToken(string bearerToken)

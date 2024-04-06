@@ -1,4 +1,4 @@
-﻿using DevDoListServer.Models;
+﻿using DevDoListServer.Models.Dtos;
 using DevDoListServer.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -12,31 +12,31 @@ public class RoleController(RoleRepository roleRepository) : ControllerBase
     private readonly RoleRepository roleRepository = roleRepository;
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<RoleDto>>> GetRoles()
+    public async Task<ActionResult<IEnumerable<RoleResponseDto>>> GetRoles()
     {
         var roles = await roleRepository.GetAll();
-        var roleDtos = roles.Select(role => new RoleDto(role));
+        var roleDtos = roles.Select(role => new RoleResponseDto(role));
         return Ok(roleDtos);
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<RoleDto>> GetRole([FromRoute] int id)
+    public async Task<ActionResult<RoleResponseDto>> GetRole([FromRoute] int id)
     {
         var role = await roleRepository.GetById(id);
 
         if (role == null) return NotFound("Role not found");
 
-        return new RoleDto(role);
+        return new RoleResponseDto(role);
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> PutRole([FromRoute] int id, [FromBody] Role role)
+    public async Task<IActionResult> PutRole([FromRoute] int id, [FromBody] RoleUpdateDto roleUpdateDto)
     {
-        if (id != role.RoleId) return BadRequest();
+        if (id != roleUpdateDto.RoleId) return BadRequest();
 
         try
         {
-            return Ok(await roleRepository.Update(role));
+            return Ok(await roleRepository.Update(roleUpdateDto.ToRole()));
         }
         catch (DbUpdateConcurrencyException)
         {
@@ -47,10 +47,10 @@ public class RoleController(RoleRepository roleRepository) : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<RoleDto>> PostRole([FromBody] Role role)
+    public async Task<ActionResult<RoleResponseDto>> PostRole([FromBody] RoleCreateDto roleCreateDto)
     {
-        var createdRole = await roleRepository.Create(role);
-        var roleDto = new RoleDto(createdRole);
+        var createdRole = await roleRepository.Create(roleCreateDto.ToRole());
+        var roleDto = new RoleResponseDto(createdRole);
         return CreatedAtAction("GetRole", new { id = roleDto.RoleId }, roleDto);
     }
 

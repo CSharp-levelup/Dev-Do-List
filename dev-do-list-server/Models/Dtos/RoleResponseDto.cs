@@ -1,8 +1,8 @@
-﻿namespace DevDoListServer.Models;
+﻿namespace DevDoListServer.Models.Dtos;
 
-public class RoleDto
+public class RoleResponseDto
 {
-    public RoleDto(Role role)
+    public RoleResponseDto(Role role)
     {
         RoleId = role.RoleId;
         RoleType = role.RoleType;

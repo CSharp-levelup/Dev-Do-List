@@ -28,7 +28,7 @@ namespace dev_do_list_cli.Services
                 var verificationUri = jsonResponse["verification_uri"].ToString();
 
                 Console.WriteLine($"Code: {userCode}");
-                Console.WriteLine($"Copy the code above and enter it in the following link: \n{verificationUri}");
+                Console.WriteLine($"Copy the code above and enter it in the following link: \n> {verificationUri}");
 
                 var bearerToken = await GetBearerToken(deviceCode);
                 await SetJwtToken(bearerToken);
@@ -102,8 +102,10 @@ namespace dev_do_list_cli.Services
 
                 JwtToken = jsonResponse.access_token;
             }
-
-            throw new InvalidOperationException("Something went wrong during the authentication process.");
+            else
+            {
+                throw new InvalidOperationException("Something went wrong during the authentication process.");
+            }
         }
     }
 }

@@ -30,23 +30,21 @@ jobs:
       - name: Setup dotnet cli
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 6.x
+          dotnet-version: 8.x
 
       - name: Dotnet publish
         run: |
           dotnet restore;
-          dotnet publish -r linux-x64 --configuration "Release" --self-contained "true" -o site;
+          dotnet publish -r linux-x64 --configuration "Release" --self-contained "true";
         working-directory: dev-do-list-server
 
       - name: Package artifact
-        run: |
-          cd site;
-          zip site.zip *;
-        working-directory: dev-do-list-server
+        run: zip -r ../site.zip *
+        working-directory: dev-do-list-server/bin/Release/net8.0/linux-x64/publish
 
       - name: Upload artifact to S3
-        run: aws s3 cp site/site.zip s3://${{ secrets.BUCKET_NAME }}/application-${{ github.run_id }}.zip
-        working-directory: dev-do-list-server
+        run: aws s3 cp site.zip s3://${{ secrets.BUCKET_NAME }}/application-${{ github.run_id }}.zip
+        working-directory: dev-do-list-server/bin/Release/net8.0/linux-x64
 
   deploy:
     runs-on: ubuntu-latest

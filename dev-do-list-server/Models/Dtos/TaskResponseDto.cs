@@ -1,11 +1,8 @@
-﻿namespace DevDoListServer.Models;
+﻿namespace DevDoListServer.Models.Dtos;
 
-public class TaskDto
+public class TaskResponseDto
 {
-    
-    public TaskDto(){}
-
-    public TaskDto(Task task)
+    public TaskResponseDto(Task task)
     {
         this.TaskId = task.TaskId;
         this.Title = task.Title;

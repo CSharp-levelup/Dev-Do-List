@@ -1,8 +1,8 @@
+using DevDoListServer.Jwt;
+using DevDoListServer.Models.Dtos;
+using DevDoListServer.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using DevDoListServer.Models;
-using DevDoListServer.Repositories;
-using DevDoListServer.Jwt;
 
 namespace DevDoListServer.Controllers
 {
@@ -18,16 +18,16 @@ namespace DevDoListServer.Controllers
         }
         
         [HttpGet]
-        public async Task<ActionResult<TaskDto>> GetTasks([FromHeader(Name = "Authorization")] string authToken)
+        public async Task<ActionResult<TaskResponseDto>> GetTasks([FromHeader(Name = "Authorization")] string authToken)
         {
             var username = JwtUtils.GetClaim(authToken, "username");
             var tasks = await _taskRepository.FindAll(task => task.User.Username == username);
-            var dtos = tasks.Select(t => new TaskDto(t));
+            var dtos = tasks.Select(t => new TaskResponseDto(t));
             return Ok(dtos);
         }
         
         [HttpGet("{id}")]
-        public async Task<ActionResult<TaskDto>> GetTask([FromRoute] int id)
+        public async Task<ActionResult<TaskResponseDto>> GetTask([FromRoute] int id)
         {
             var task = await _taskRepository.GetById(id);
 
@@ -36,13 +36,13 @@ namespace DevDoListServer.Controllers
                 return NotFound("Task not found");
             }
 
-            return Ok(new TaskDto(task));
+            return Ok(new TaskResponseDto(task));
         }
         
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutTask([FromRoute] int id,[FromBody] Models.Task task)
+        public async Task<IActionResult> PutTask([FromRoute] int id, [FromBody] TaskUpdateDTO taskUpdateDto)
         {
-            if (id != task.TaskId)
+            if (id != taskUpdateDto.TaskId)
             {
                 return BadRequest();
             }
@@ -50,7 +50,7 @@ namespace DevDoListServer.Controllers
             
             try
             {
-                await _taskRepository.Update(task);
+                await _taskRepository.Update(taskUpdateDto.ToTask());
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -68,10 +68,10 @@ namespace DevDoListServer.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<TaskDto>> PostTask([FromBody] Models.Task task)
+        public async Task<ActionResult<TaskResponseDto>> PostTask([FromBody] TaskCreateDto taskCreateDto)
         {
-            var createdTask = await _taskRepository.Create(task);
-            var taskDto = new TaskDto(createdTask);
+            var createdTask = await _taskRepository.Create(taskCreateDto.ToTask());
+            var taskDto = new TaskResponseDto(createdTask);
             return CreatedAtAction("GetTask", new { id = taskDto.UserId }, taskDto);
         }
 

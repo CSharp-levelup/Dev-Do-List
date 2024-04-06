@@ -1,7 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using DevDoListServer.Models;
+﻿using DevDoListServer.Models.Dtos;
 using DevDoListServer.Repositories;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace DevDoListServer.Controllers
 {
@@ -17,13 +17,15 @@ namespace DevDoListServer.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Status>>> GetStatuses()
+        public async Task<ActionResult<IEnumerable<StatusDto>>> GetStatuses()
         {
-            return await _statusRepository.GetAll();
+            var statuses = await _statusRepository.GetAll();
+            var statusDtos = statuses.Select(status => new StatusDto(status)).ToList();
+            return Ok(statusDtos);
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Status>> GetStatus([FromRoute] int id)
+        public async Task<ActionResult<StatusDto>> GetStatus([FromRoute] int id)
         {
             var status = await _statusRepository.GetById(id);
 
@@ -32,11 +34,11 @@ namespace DevDoListServer.Controllers
                 return NotFound("Status not found");
             }
 
-            return status;
+            return new StatusDto(status);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutStatus([FromRoute] int id, [FromBody] Status status)
+        public async Task<IActionResult> PutStatus([FromRoute] int id, [FromBody] StatusDto status)
         {
             if (id != status.StatusId)
             {
@@ -45,7 +47,7 @@ namespace DevDoListServer.Controllers
 
             try
             {
-                await _statusRepository.Update(status);
+                await _statusRepository.Update(status.ToStatus());
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -63,14 +65,13 @@ namespace DevDoListServer.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Status>> PostStatus([FromBody] Status status)
+        public async Task<ActionResult<StatusDto>> PostStatus([FromBody] StatusCreateDto status)
         {
-            var createdStatus = await _statusRepository.Create(status);
-
-            return CreatedAtAction("GetStatus", new { id = createdStatus.StatusId }, createdStatus);
+            var createdStatus = await _statusRepository.Create(status.ToStatus());
+            var statusDto = new StatusDto(createdStatus);
+            return CreatedAtAction("GetStatus", new { id = statusDto.StatusId }, statusDto);
         }
-
-        // DELETE: api/Status/5
+        
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteStatus([FromRoute] int id)
         {

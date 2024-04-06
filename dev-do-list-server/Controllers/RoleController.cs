@@ -19,7 +19,7 @@ namespace DevDoListServer.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Role>> GetStatus([FromRoute] int id)
+        public async Task<ActionResult<Role>> GetRole([FromRoute] int id)
         {
             var role = await roleRepository.GetById(id);
 

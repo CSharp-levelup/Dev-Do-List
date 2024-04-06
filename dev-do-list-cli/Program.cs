@@ -1,30 +1,33 @@
 ﻿using dev_do_list_cli.Services;
 
-Console.WriteLine("Welcome to the Dev To Do List!\n");
-Thread.Sleep(2000);
+Console.WriteLine("WELCOME TO DEV TO DO!\n");
 
 bool loggedIn = false;
 var loginService = new LoginService();
+
+help();
 while (!loggedIn)
 {
-    Console.WriteLine("\nDev-To-Do-List Options");
-    Console.WriteLine("1. Login");
-    Console.WriteLine("2. Exit");
-    Console.Write("Enter your choice: ");
-
+    Console.Write("$ ");
     string? choice = Console.ReadLine()?.Trim();
-
-    Console.WriteLine("-----------------------------");
+    if (string.IsNullOrEmpty(choice))
+    {
+        continue;
+    }
+    var choiceParameters = choice.Split(" ");
 
     try
     {
-        switch (choice)
+        switch (choiceParameters[0].Trim())
         {
-            case "1":
+            case "help":
+                help();
+                break;
+            case "login":
                 await loginService.HandleLogin();
                 loggedIn = true;
                 break;
-            case "2":
+            case "exit":
                 exit();
                 break;
             default:
@@ -38,40 +41,67 @@ while (!loggedIn)
     }
 }
 
+help();
 while (true)
 {
-    Console.WriteLine("\nDev-To-Do-List Options");
-    Console.WriteLine("1. View tasks");
-    Console.WriteLine("2. Add a new task");
-    Console.WriteLine("3. Update a task");
-    Console.WriteLine("4. Delete a task");
-    Console.WriteLine("5. Exit");
-    Console.Write("Enter your choice: ");
-
+    Console.Write("$ ");
     string? choice = Console.ReadLine()?.Trim();
-
-    Console.WriteLine("-----------------------------");
-
-    switch (choice)
+    if (string.IsNullOrEmpty(choice))
     {
-        case "1":
+        continue;
+    }
+    var choiceParameters = choice.Split(" ");
+
+    switch (choiceParameters[0].Trim())
+    {
+        case "help":
+            help();
+            break;
+        case "list":
             // Logic for getting all tasks for a user
             break;
-        case "2":
+        case "details":
             // Logic for adding a task
             break;
-        case "3":
+        case "add":
             // Logic for updating a task
             break;
-        case "4":
+        case "delete":
             // Logic for deleting a task
             break;
-        case "5":
+        case "update":
+            // Logic for updating a task's status
+            break;
+        case "comment":
+            // Logic for adding a comment to a task
+            break;
+        case "exit":
             exit();
             break;
         default:
             Console.WriteLine("Invalid input. Please enter the number of the option you would like to choose.");
             break;
+    }
+}
+
+void help()
+{
+    if (!loggedIn)
+    {
+        Console.WriteLine("\nhelp - Show available commands");
+        Console.WriteLine("login - Login with github");
+        Console.WriteLine("exit - Exit the application\n");
+    }
+    else
+    {
+        Console.WriteLine("\nhelp - Show available commands");
+        Console.WriteLine("list - List all tasks");
+        Console.WriteLine("details - Get details of a task");
+        Console.WriteLine("add - Add a new task");
+        Console.WriteLine("delete - Delete a task");
+        Console.WriteLine("update - Update a task's status");
+        Console.WriteLine("comment - Add a comment to a task");
+        Console.WriteLine("exit - Exit the application\n");
     }
 }
 

@@ -7,5 +7,9 @@ namespace DevDoListServer.Repositories
     {
         public UserRepository(AppDbContext context) : base(context) { }
 
+        public User? FindByUserName(string username)
+        {
+           return context.Users.Where(u => u.Username == username).FirstOrDefault();
+        }
     }
 }

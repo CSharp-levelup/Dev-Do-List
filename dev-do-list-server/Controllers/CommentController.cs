@@ -24,7 +24,7 @@ namespace DevDoListServer.Controllers
             
             var comments = await _commentRepository.FindAll(c => c.TaskId == taskId);
             var comment = comments.FirstOrDefault();
-            if (comment != null && comment.Task.User.Username != username)
+            if (comment != null && comment.Task!.User!.Username != username)
             {
                 return Unauthorized();
             }
@@ -57,29 +57,28 @@ namespace DevDoListServer.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutComment([FromRoute] int id, [FromBody] Comment comment)
+        public async Task<IActionResult> PutComment([FromHeader(Name = "Authorization")] string authToken, [FromRoute] int id, [FromBody] Comment comment)
         {
             if (id != comment.CommentId)
             {
                 return BadRequest();
             }
             
-            try
-            {
-                await _commentRepository.Update(comment);
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!await _commentRepository.Exists(e => e.CommentId == id))
-                {
-                    return NotFound("Comment not found");
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            var username = JwtUtils.GetClaim(authToken, "username");
+            var originalComment = await _commentRepository.GetById(id);
 
+            if (originalComment == null)
+            {
+                return NotFound("Comment not found");
+            }
+            
+            if (originalComment.Task!.User!.Username != username)
+            {
+                return Unauthorized();
+            }
+          
+            await _commentRepository.Update(comment);
+            
             return NoContent();
         }
         

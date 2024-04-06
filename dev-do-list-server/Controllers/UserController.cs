@@ -1,9 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using DevDoListServer.Models;
+﻿using DevDoListServer.Models;
+using DevDoListServer.Models.Dtos;
 using DevDoListServer.Repositories;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.OpenApi.Extensions;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace DevDoListServer.Controllers
 {
@@ -19,13 +19,14 @@ namespace DevDoListServer.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<User>>> GetUsers()
+        public async Task<ActionResult<IEnumerable<UserDto>>> GetUsers()
         {
-            return await _userRepository.GetAll();
+            var users = await _userRepository.GetAll();
+            return users.Select(user => new UserDto(user)).ToList();
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<User>> GetUser([FromRoute] int id)
+        public async Task<ActionResult<UserDto>> GetUser([FromRoute] int id)
         {
             var user = await _userRepository.GetById(id);
 
@@ -34,13 +35,13 @@ namespace DevDoListServer.Controllers
                 return NotFound("User not found");
             }
 
-            return Ok(user);
+            return Ok(new UserDto(user));
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutUser([FromRoute] int id, [FromBody] User user)
+        public async Task<IActionResult> PutUser([FromRoute] int id, [FromBody] UserDto userDto)
         {
-            if (id != user.UserId)
+            if (id != userDto.UserId)
             {
                 return BadRequest();
             }
@@ -48,7 +49,7 @@ namespace DevDoListServer.Controllers
             
             try
             {
-                await _userRepository.Update(user);
+                await _userRepository.Update(userDto.ToUser());
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -67,11 +68,11 @@ namespace DevDoListServer.Controllers
 
         [HttpPost]
         [Authorize(Roles = RoleType.Admin)]
-        public async Task<ActionResult<User>> PostUser([FromBody] User user)
+        public async Task<ActionResult<User>> PostUser([FromBody] UserCreateDto userCreateDto)
         {
-            var createdUser = await _userRepository.Create(user);
-
-            return CreatedAtAction("GetUser", new { id = createdUser.UserId }, createdUser);
+            var createdUser = await _userRepository.Create(userCreateDto.ToUser());
+            var userDto = new UserDto(createdUser);
+            return CreatedAtAction("GetUser", new { id = userDto.UserId }, userDto);
         }
 
         [HttpDelete("{id}")]

@@ -91,15 +91,21 @@ namespace DevDoListServer.Controllers
         }
         
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteComment([FromRoute] int id)
+        public async Task<IActionResult> DeleteComment([FromHeader(Name = "Authorization")] string authToken, [FromRoute] int id)
         {
             var comment = await _commentRepository.GetById(id);
-
+            var username = JwtUtils.GetClaim(authToken, "username");
+            
             if (comment == null)
             {
                 return NotFound("Comment not found");
             }
-
+            
+            if (comment.Task!.User!.Username != username)
+            {
+                return Unauthorized();
+            }
+            
             await _commentRepository.Delete(comment);
 
             return NoContent();

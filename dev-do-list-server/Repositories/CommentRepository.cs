@@ -1,5 +1,7 @@
-﻿using DevDoListServer.Data;
+﻿using System.Linq.Expressions;
+using DevDoListServer.Data;
 using DevDoListServer.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace DevDoListServer.Repositories;
 
@@ -17,5 +19,13 @@ public class CommentRepository: GenericRepository<Comment>
         }
 
         return comment;
+    }
+
+    public async override Task<ICollection<Comment>> FindAll(Expression<Func<Comment, bool>> predicate)
+    {
+        return await context.Comments.Where(predicate)
+            .Include(c => c.Task)
+            .ThenInclude(t => t.User)
+            .ToListAsync();
     }
 }

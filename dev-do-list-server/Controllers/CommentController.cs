@@ -17,10 +17,23 @@ namespace DevDoListServer.Controllers
             _commentRepository = commentRepository;
         }
         
-        [HttpGet("/task/{taskId}")]
-        public async Task<ActionResult<IEnumerable<CommentDto>>> GetCommentsForTask([FromRoute] int taskId)
-        {
+        [HttpGet("task/{taskId}")]
+        public async Task<ActionResult<IEnumerable<CommentDto>>> GetCommentsForTask([FromHeader(Name = "Authorization")] string authToken, [FromRoute] int taskId)
+        { 
+            var username = JwtUtils.GetClaim(authToken, "username");
+            
             var comments = await _commentRepository.FindAll(c => c.TaskId == taskId);
+            var comment = comments.FirstOrDefault();
+            if (comment != null && comment.Task.User.Username != username)
+            {
+                return Unauthorized();
+            }
+
+            if (comment == null)
+            {
+                return NotFound();
+            }
+            
             return comments.Select(comment => new CommentDto(comment)).ToList();
         }
         

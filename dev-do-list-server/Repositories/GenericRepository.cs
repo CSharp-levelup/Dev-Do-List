@@ -48,6 +48,16 @@ namespace DevDoListServer.Repositories
             return await context.Set<T>().AnyAsync(predicate);
         }
 
+        public virtual async Task<T> FindSingle(Expression<Func<T, bool>> predicate)
+        {
+            return await context.Set<T>().SingleAsync(predicate);
+        }
+
+        public virtual async Task<ICollection<T>> FindAll(Expression<Func<T, bool>> predicate)
+        {
+            return await context.Set<T>().Where(predicate).ToListAsync();
+        }
+
         protected async Task<int> saveChanges()
         {
             return await context.SaveChangesAsync();

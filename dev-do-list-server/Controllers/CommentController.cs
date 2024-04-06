@@ -1,8 +1,8 @@
 using DevDoListServer.Jwt;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using DevDoListServer.Models;
+using DevDoListServer.Models.Dtos;
 using DevDoListServer.Repositories;
+using Microsoft.AspNetCore.Mvc;
 
 namespace DevDoListServer.Controllers
 {

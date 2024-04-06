@@ -12,7 +12,7 @@ public class TaskResponseDto
         this.UserId = task.UserId;
         this.StatusId = task.StatusId;
         this.TaskTypeId = task.TaskTypeId;
-        this.Comments = task.Comments;
+        Comments = task.Comments.Select(comment => new CommentDto(comment)).ToList();
     }
     
     public int TaskId { get; set; }
@@ -31,5 +31,5 @@ public class TaskResponseDto
 
     public int TaskTypeId { get; set; }
 
-    public ICollection<Comment> Comments { get; set; }
+    public ICollection<CommentDto> Comments { get; set; }
 }

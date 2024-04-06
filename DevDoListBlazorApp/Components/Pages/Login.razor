@@ -1,10 +1,10 @@
 ﻿@page "/"
 @layout LoginLayout
 @rendermode InteractiveServer
-@using Newtonsoft.Json
-@using Newtonsoft.Json.Linq;
 @using DevDoListBlazorApp.Components.Layout;
+@using DevDoListBlazorApp.Models;
 @using System.Web;
+@using System.Text.Json;
 @using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 @inject HttpClient HttpClient
 @inject ProtectedSessionStorage ProtectedSessionStorage
@@ -159,13 +159,10 @@
         if (token_response.IsSuccessStatusCode)
         {
             var responseContent = await token_response.Content.ReadAsStringAsync();
-            var jsonResponse = JObject.Parse(responseContent);
+            var jsonResponse = JsonSerializer.Deserialize<AuthToken>(responseContent)!;
 
-            if (jsonResponse.ContainsKey("access_token"))
-            {
-                var jwtToken = jsonResponse["access_token"].ToString();
-                await ProtectedSessionStorage.SetAsync("accessToken", jwtToken);
-            }
+            var jwtToken = jsonResponse.access_token;
+            await ProtectedSessionStorage.SetAsync("accessToken", jwtToken);
         }
     }
 }

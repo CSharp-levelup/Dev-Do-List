@@ -10,5 +10,5 @@ public partial class Comment
 
     public DateTime DateCommented { get; set; }
 
-    public virtual Task Task { get; set; } = null!;
+    public virtual Task? Task { get; set; }
 }

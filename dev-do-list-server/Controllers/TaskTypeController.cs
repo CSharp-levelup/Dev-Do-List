@@ -1,5 +1,4 @@
-﻿using DevDoListServer.Data;
-using DevDoListServer.Models;
+﻿using DevDoListServer.Models;
 using DevDoListServer.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;

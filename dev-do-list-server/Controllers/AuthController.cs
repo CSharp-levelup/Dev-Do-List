@@ -13,7 +13,7 @@ using System.Text.Json;
 
 namespace DevDoListServer.Controllers
 {
-    [Route("api/v1/[controller]")]
+    [Route("api/v1/auth")]
     [ApiController]
     [AllowAnonymous]
     public class AuthController(JwtOptions jwtOptions, AuthService authService) : ControllerBase
@@ -59,7 +59,7 @@ namespace DevDoListServer.Controllers
             }
             var responseString = await response.Content.ReadAsStringAsync();
             var githubUser = JsonSerializer.Deserialize<GithubUser>(responseString)!;
-            var role = await authService.AuthenticateUser(githubUser);
+            var role = await _authService.AuthenticateUser(githubUser);
             var tokenExpiration = TimeSpan.FromSeconds(_jwtOptions.ExpirationSeconds);
             var accessToken = CreateAccessToken(
                 _jwtOptions,

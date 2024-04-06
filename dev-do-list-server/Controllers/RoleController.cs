@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DevDoListServer.Controllers
 {
-    [Route("api/v1/[controller]")]
+    [Route("api/v1/role")]
     [ApiController]
     public class RoleController(RoleRepository roleRepository) : ControllerBase
     {

@@ -3,9 +3,9 @@
 @using System.Collections.Generic
 @using System.Linq
 @using System
-@using DevDoListBlazorApp.Services;
-@inject LocalStorageService LocalStorageService;
-@inject NavigationManager NavigationManager;
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
+@inject ProtectedSessionStorage ProtectedSessionStorage
+@inject NavigationManager NavigationManager
 
 <div class="dashboard-page">
         <div class="dash-container">
@@ -47,8 +47,8 @@
         if (firstRender && !checkedLoggedIn)
         {
             // Check if the user is not logged in
-            var jwtToken = await LocalStorageService.GetItem<string>("accessToken");
-            if (string.IsNullOrEmpty(jwtToken))
+            var jwtToken = await ProtectedSessionStorage.GetAsync<string>("accessToken");
+            if (string.IsNullOrEmpty(jwtToken.Value))
             {
                 // User is not logged in, redirect to login page
                 NavigationManager.NavigateTo("/");

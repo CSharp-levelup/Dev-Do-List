@@ -1,5 +1,4 @@
 using DevDoListServer.Jwt;
-using DevDoListServer.Models;
 using DevDoListServer.Models.Dtos;
 using DevDoListServer.Repositories;
 using Microsoft.AspNetCore.Mvc;
@@ -57,9 +56,10 @@ namespace DevDoListServer.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutComment([FromHeader(Name = "Authorization")] string authToken, [FromRoute] int id, [FromBody] Comment comment)
+        public async Task<IActionResult> PutComment([FromHeader(Name = "Authorization")] string authToken,
+            [FromRoute] int id, [FromBody] CommentDto commentDto)
         {
-            if (id != comment.CommentId)
+            if (id != commentDto.CommentId)
             {
                 return BadRequest();
             }
@@ -76,16 +76,16 @@ namespace DevDoListServer.Controllers
             {
                 return Unauthorized();
             }
-          
-            await _commentRepository.Update(comment);
+
+            await _commentRepository.Update(commentDto.ToComment());
             
             return NoContent();
         }
         
         [HttpPost]
-        public async Task<ActionResult<CommentDto>> PostComment([FromBody] Comment comment)
+        public async Task<ActionResult<CommentDto>> PostComment([FromBody] CommentCreateDto commentCreateDto)
         {
-            var createdComment = await _commentRepository.Create(comment);
+            var createdComment = await _commentRepository.Create(commentCreateDto.ToComment());
             var commentDto = new CommentDto(createdComment);
             return CreatedAtAction("GetComment", new { id = commentDto.CommentId }, commentDto);
         }

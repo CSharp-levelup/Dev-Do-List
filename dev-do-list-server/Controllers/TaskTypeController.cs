@@ -1,4 +1,4 @@
-﻿using DevDoListServer.Models;
+﻿using DevDoListServer.Models.Dtos;
 using DevDoListServer.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -17,13 +17,15 @@ public class TaskTypeController : ControllerBase
     }
     
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<TaskType>>> GetTaskTypes()
+    public async Task<ActionResult<IEnumerable<TaskTypeDto>>> GetTaskTypes()
     {
-        return await _taskTypeRepository.GetAll();
+        var taskTypes = await _taskTypeRepository.GetAll();
+        var dtos = taskTypes.Select(taskType => new TaskTypeDto(taskType)).ToList();
+        return Ok(dtos);
     }
     
     [HttpGet("{id}")]
-    public async Task<ActionResult<TaskType>> GetTaskType([FromRoute] int id)
+    public async Task<ActionResult<TaskTypeDto>> GetTaskType([FromRoute] int id)
     {
         var taskType = await _taskTypeRepository.GetById(id);
 
@@ -32,11 +34,11 @@ public class TaskTypeController : ControllerBase
             return NotFound("Task type not found");
         }
 
-        return Ok(taskType);
+        return Ok(new TaskTypeDto(taskType));
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> PutTaskType([FromRoute] int id, [FromBody] TaskType taskType)
+    public async Task<IActionResult> PutTaskType([FromRoute] int id, [FromBody] TaskTypeDto taskType)
     {
         if (id != taskType.TaskTypeId)
         {
@@ -46,7 +48,7 @@ public class TaskTypeController : ControllerBase
             
         try
         {
-            await _taskTypeRepository.Update(taskType);
+            await _taskTypeRepository.Update(taskType.ToTaskType());
         }
         catch (DbUpdateConcurrencyException)
         {
@@ -64,11 +66,11 @@ public class TaskTypeController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<TaskType>> PostTaskType([FromBody] TaskType taskType)
+    public async Task<ActionResult<TaskTypeDto>> PostTaskType([FromBody] TaskTypeCreateDto taskType)
     {
-        var createdTaskType = await _taskTypeRepository.Create(taskType);
-
-        return CreatedAtAction("GetTaskType", new { id = createdTaskType.TaskTypeId }, createdTaskType);
+        var createdTaskType = await _taskTypeRepository.Create(taskType.ToTaskType());
+        var taskTypeDto = new TaskTypeDto(createdTaskType);
+        return CreatedAtAction("GetTaskType", new { id = taskTypeDto.TaskTypeId }, taskTypeDto);
     }
     
     [HttpDelete("{id}")]

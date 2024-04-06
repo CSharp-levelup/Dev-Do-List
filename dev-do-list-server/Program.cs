@@ -34,6 +34,7 @@ builder.Services.AddScoped<UserRepository>();
 builder.Services.AddScoped<StatusRepository>();
 builder.Services.AddScoped<TaskTypeRepository>();
 builder.Services.AddScoped<TaskRepository>();
+builder.Services.AddScoped<CommentRepository>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(opts =>

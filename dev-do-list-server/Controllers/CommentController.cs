@@ -1,0 +1,96 @@
+using DevDoListServer.Jwt;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using DevDoListServer.Models;
+using DevDoListServer.Repositories;
+
+namespace DevDoListServer.Controllers
+{
+    [Route("api/v1/comment")]
+    [ApiController]
+    public class CommentController : ControllerBase
+    {
+        private readonly CommentRepository _commentRepository;
+
+        public CommentController(CommentRepository commentRepository)
+        {
+            _commentRepository = commentRepository;
+        }
+        
+        [HttpGet("/task/{taskId}")]
+        public async Task<ActionResult<IEnumerable<CommentDto>>> GetCommentsForTask([FromRoute] int taskId)
+        {
+            var comments = await _commentRepository.FindAll(c => c.TaskId == taskId);
+            return comments.Select(comment => new CommentDto(comment)).ToList();
+        }
+        
+        [HttpGet("{id}")]
+        public async Task<ActionResult<CommentDto>> GetComment([FromHeader(Name = "Authorization")] string authToken, [FromRoute] int id)
+        {
+            var username = JwtUtils.GetClaim(authToken, "username");
+            var comment = await _commentRepository.GetById(id);
+
+            if (comment == null)
+            {
+                return NotFound("Comment not found");
+            }
+
+            if (comment.Task.User.Username != username)
+            {
+                return Unauthorized();
+            }
+
+            return new CommentDto(comment);
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutComment([FromRoute] int id, [FromBody] Comment comment)
+        {
+            if (id != comment.CommentId)
+            {
+                return BadRequest();
+            }
+            
+            try
+            {
+                await _commentRepository.Update(comment);
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!await _commentRepository.Exists(e => e.CommentId == id))
+                {
+                    return NotFound("Comment not found");
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return NoContent();
+        }
+        
+        [HttpPost]
+        public async Task<ActionResult<CommentDto>> PostComment([FromBody] Comment comment)
+        {
+            var createdComment = await _commentRepository.Create(comment);
+            var commentDto = new CommentDto(createdComment);
+            return CreatedAtAction("GetComment", new { id = commentDto.CommentId }, commentDto);
+        }
+        
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteComment([FromRoute] int id)
+        {
+            var comment = await _commentRepository.GetById(id);
+
+            if (comment == null)
+            {
+                return NotFound("Comment not found");
+            }
+
+            await _commentRepository.Delete(comment);
+
+            return NoContent();
+        }
+    }
+}

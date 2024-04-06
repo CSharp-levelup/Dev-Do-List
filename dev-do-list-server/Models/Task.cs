@@ -20,9 +20,9 @@ public partial class Task
 
     public virtual ICollection<Comment> Comments { get; set; } = new List<Comment>();
 
-    public virtual Status Status { get; set; } = null!;
+    public virtual Status? Status { get; set; } = null!;
 
-    public virtual TaskType TaskType { get; set; } = null!;
+    public virtual TaskType? TaskType { get; set; } = null!;
 
-    public virtual User User { get; set; } = null!;
+    public virtual User? User { get; set; } = null!;
 }

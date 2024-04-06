@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Text;
+using System.Text.Json.Serialization;
 using DevDoListServer.Data;
 using DevDoListServer.Repositories;
 using DevDoListServer.Services;
@@ -23,7 +24,8 @@ if (string.IsNullOrWhiteSpace(connectionString))
 }
 var dbConnectionDetails = new DbConnectionDetails(connectionString);
 
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddJsonOptions(x =>
+    x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddSingleton(dbConnectionDetails);
@@ -34,6 +36,7 @@ builder.Services.AddScoped<StatusRepository>();
 builder.Services.AddScoped<RoleRepository>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<TaskTypeRepository>();
+builder.Services.AddScoped<TaskRepository>();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(opts =>
     {
@@ -69,4 +72,5 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.UseExceptionHandler("/error");
 app.MapControllers().RequireAuthorization();
+
 app.Run();

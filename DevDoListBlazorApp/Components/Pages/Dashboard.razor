@@ -3,6 +3,9 @@
 @using System.Collections.Generic
 @using System.Linq
 @using System
+@using DevDoListBlazorApp.Services;
+@inject LocalStorageService LocalStorageService;
+@inject NavigationManager NavigationManager;
 
 <div class="dashboard-page">
         <div class="dash-container">
@@ -37,6 +40,22 @@
     string errorNotes = "";
     string errorCategories = "";
     bool showAscDesc = false;
+    bool checkedLoggedIn = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender) // Redirects to login page if they do not have a token
+    {
+        if (firstRender && !checkedLoggedIn)
+        {
+            // Check if the user is not logged in
+            var jwtToken = await LocalStorageService.GetItem<string>("accessToken");
+            if (string.IsNullOrEmpty(jwtToken))
+            {
+                // User is not logged in, redirect to login page
+                NavigationManager.NavigateTo("/");
+            }
+            checkedLoggedIn = true;
+        }
+    }
 
     // Navigation
 

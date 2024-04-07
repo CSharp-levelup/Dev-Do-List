@@ -46,7 +46,7 @@ public class RoleController(RoleRepository roleRepository) : ControllerBase
 
         try
         {
-            return Ok(await roleRepository.Update(roleUpdateDto.ToRole()));
+            await roleRepository.Update(roleUpdateDto.ToRole());
         }
         catch (DbUpdateConcurrencyException)
         {

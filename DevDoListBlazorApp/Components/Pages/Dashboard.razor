@@ -1,11 +1,13 @@
 @page "/dashboard"
 @rendermode InteractiveServer
+@using DevDoListBlazorApp.Models
+@using DevDoListBlazorApp.Services
+@using DevDoListBlazorApp.Components.Shared
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
 @using System.Collections.Generic
-@using System.Linq
-@using System
-@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 @inject ProtectedSessionStorage ProtectedSessionStorage
 @inject NavigationManager NavigationManager
+@inject IJSRuntime JsRuntime
 
 <div class="dashboard-page">
         <div class="dash-container">
@@ -14,10 +16,10 @@
             </div>
             <div class="card-container-dash">
                 <div class="card-container-grid">
-                    @* @foreach (var data in usersNotes)
+                    foreach (var data in usersNotes)
                     {
-                        <DataCards Data="@data" CurCategory="@currentCategory" />
-                    } *@
+                        <DataCards Data="userNotes" CurCategory="All"/>
+                    }
                 </div>
                 @if (!string.IsNullOrEmpty(errorNotes))
                 {
@@ -28,11 +30,6 @@
 </div>
 
 @code {
-    // Server information
-    // const string hostname = "localhost";
-    // const int port = 8080;
-
-    // General data
     List<Note> usersNotes = new List<Note>();
     List<string> categories = new List<string>();
     string currentCategory = "All";
@@ -55,20 +52,16 @@
             }
             checkedLoggedIn = true;
         }
-    }
 
-    // Navigation
-
-    protected override void OnInitialized()
-    {
         // Fetch data on component initialization
-        @* FetchNotesData();
-        FetchCategoriesData(); *@
+        // FetchNotesData();
+        // Fetch Categories Data - could hardcode
+   
     }
 
     void HandleNew()
     {
-        @* navigate.NavigateTo("/NewNote"); *@
+        NavigationManager.NavigateTo("/NewNote");
     }
 
     void ToggleAscDesc()
@@ -81,14 +74,12 @@
     {
         errorNotes = "";
         // Fetch notes data
-        // Example: usersNotes = await httpClient.GetFromJsonAsync<List<Note>>("api/notes");
     }
 
     void FetchCategoriesData()
     {
         errorCategories = "";
         // Fetch categories data
-        // Example: categories = await httpClient.GetFromJsonAsync<List<string>>("api/categories");
     }
 
     void HandleSort()
@@ -97,20 +88,4 @@
         // Sort usersNotes based on sortOrder
         // Example: usersNotes = sortOrder == "asc" ? usersNotes.OrderBy(n => n.LastEdited).ToList() : usersNotes.OrderByDescending(n => n.LastEdited).ToList();
     }
-}
-
-@code {
-    // Define Note class
-    public class Note
-    {
-        public string Title { get; set; }
-        public DateTime LastEdited { get; set; }
-        // Add other properties as needed
-    }
-
-    // Paths to image files
-    @* string asc = "../assets/asc.svg";
-    string desc = "../assets/desc.svg";
-    string newNote = "../assets/new_note.svg"; *@
-    // string logo = "../assets/logo_export.svg";
 }

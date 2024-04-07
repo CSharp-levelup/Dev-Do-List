@@ -3,13 +3,11 @@ using DevDoListServer.Models;
 
 namespace DevDoListServer.Repositories
 {
-    public class UserRepository : GenericRepository<User>
+    public class UserRepository(AppDbContext context) : GenericRepository<User>(context)
     {
-        public UserRepository(AppDbContext context) : base(context) { }
-
         public User? FindByUserName(string username)
         {
-           return context.Users.Where(u => u.Username == username).FirstOrDefault();
+           return context.Users.FirstOrDefault(u => u.Username == username);
         }
     }
 }

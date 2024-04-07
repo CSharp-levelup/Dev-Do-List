@@ -1,4 +1,5 @@
-﻿using DevDoListServer.Models;
+﻿using DevDoListServer.Jwt;
+using DevDoListServer.Models;
 using DevDoListServer.Models.Dtos;
 using DevDoListServer.Repositories;
 using Microsoft.AspNetCore.Authorization;
@@ -40,7 +41,21 @@ namespace DevDoListServer.Controllers
 
             return Ok(new UserDto(user));
         }
+        [HttpGet("loggedIn")]
+        [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(UserDto))]
+        public async Task<ActionResult<UserDto>> GetUserByUsername([FromHeader(Name = "Authorization")] string authToken)
+        {
+            var username = JwtUtils.GetClaim(authToken, "username");
+            var user = await _userRepository.FindSingle(u => u.Username == username);
 
+            if (user is null)
+            {
+                return NotFound("User not found");
+            }
+
+            return Ok(new UserDto(user));
+        }
+        
         [HttpPut("{id}")]
         [SwaggerResponse(StatusCodes.Status204NoContent)]
         [SwaggerResponse(StatusCodes.Status401Unauthorized)]

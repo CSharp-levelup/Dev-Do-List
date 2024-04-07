@@ -3,13 +3,11 @@ using DevDoListServer.Models;
 
 namespace DevDoListServer.Repositories
 {
-    public class RoleRepository : GenericRepository<Role>
+    public class RoleRepository(AppDbContext context) : GenericRepository<Role>(context)
     {
-        public RoleRepository(AppDbContext context) : base(context) { }
-
-        public Role? FindByRoleType(string role)
+        public async Task<Role?> FindByRoleType(string role)
         {
-            return context.Roles.Where(u => u.RoleType == role).FirstOrDefault();
+            return await base.FindSingle(r => r.RoleType == role);
         }
     }
 }

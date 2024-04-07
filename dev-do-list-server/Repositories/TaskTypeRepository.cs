@@ -3,8 +3,5 @@ using DevDoListServer.Models;
 
 namespace DevDoListServer.Repositories
 {
-    public class TaskTypeRepository: GenericRepository<TaskType>
-    {
-        public TaskTypeRepository(AppDbContext context) : base(context) { }
-    }
+    public class TaskTypeRepository(AppDbContext context) : GenericRepository<TaskType>(context);
 }

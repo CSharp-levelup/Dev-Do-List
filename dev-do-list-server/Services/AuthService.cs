@@ -15,11 +15,11 @@ namespace DevDoListServer.Services
 
         public async Task<string> AuthenticateUser(GithubUser githubUser)
         {
-            var user = _userRepository.FindByUserName(githubUser.login);
+            var user = await _userRepository.FindByUsername(githubUser.login);
 
             if (user == null)
             {
-                var role = _roleRepository.FindByRoleType(RoleType.User);
+                var role = await _roleRepository.FindByRoleType(RoleType.User);
                 var newUser = new User()
                 {
                     Username = githubUser.login,

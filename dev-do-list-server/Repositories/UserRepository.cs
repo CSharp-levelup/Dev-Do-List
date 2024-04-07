@@ -5,9 +5,9 @@ namespace DevDoListServer.Repositories
 {
     public class UserRepository(AppDbContext context) : GenericRepository<User>(context)
     {
-        public User? FindByUserName(string username)
+        public async Task<User?> FindByUsername(string username)
         {
-           return context.Users.FirstOrDefault(u => u.Username == username);
+            return await base.FindSingle(u => u.Username == username);
         }
     }
 }

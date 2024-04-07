@@ -7,7 +7,6 @@ Console.WriteLine("|__/|__ \\/   |__/\\__/  |__|__) |  ");
 Console.ResetColor();
 
 bool loggedIn = false;
-var taskService = new TaskService();
 
 help();
 while (!loggedIn)
@@ -45,6 +44,11 @@ while (!loggedIn)
     }
 }
 
+var taskService = new TaskService();
+await taskService.RefreshLocalStatuses();
+await taskService.RefreshLocalTypes();
+await taskService.RefreshLocalTasks();
+
 help();
 while (true)
 {
@@ -65,7 +69,14 @@ while (true)
             await taskService.List();
             break;
         case "details":
-            // Logic for adding a task
+            if (choiceParameters.Count() != 2)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("Error: Please provide the id of the task you wish to see the details of");
+                Console.ResetColor();
+                break;
+            }
+            taskService.Details(choiceParameters[1].Trim());
             break;
         case "add":
             await taskService.Create();

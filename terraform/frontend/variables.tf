@@ -38,3 +38,9 @@ variable "client_id" {
   description = "The client ID for oauth environment variable"
   sensitive   = true
 }
+
+variable "server_url" {
+  type        = string
+  description = "The url for the server environment variable"
+  sensitive   = true
+}

@@ -1,13 +1,13 @@
 ﻿@page "/"
 @layout LoginLayout
 @rendermode InteractiveServer
-@using Newtonsoft.Json
-@using Newtonsoft.Json.Linq;
-@using DevDoListBlazorApp.Services;
 @using DevDoListBlazorApp.Components.Layout;
+@using DevDoListBlazorApp.Models;
 @using System.Web;
+@using System.Text.Json;
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 @inject HttpClient HttpClient
-@inject LocalStorageService LocalStorageService
+@inject ProtectedSessionStorage ProtectedSessionStorage
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JsRuntime
 
@@ -45,8 +45,8 @@
         if (firstRender && !checkedLoggedIn)
         {
             // Check if the user is already logged in
-            var jwtToken = await LocalStorageService.GetItem<string>("accessToken");
-            if (!string.IsNullOrEmpty(jwtToken))
+            var jwtToken = await ProtectedSessionStorage.GetAsync<string>("accessToken");
+            if (!string.IsNullOrEmpty(jwtToken.Value))
             {
                 NavigationManager.NavigateTo("/dashboard");
             }
@@ -147,25 +147,22 @@
             // Wait for the next polling interval before making the next request
             await Task.Delay(pollingInterval);
         }
-        
+
         throw new InvalidOperationException("Something went wrong during the authentication process.");
     }
 
     private async Task SetJwtToken(string bearerToken)
     {
-        var token_request = new HttpRequestMessage(HttpMethod.Post, "http://dev-do-list-backend.eu-west-1.elasticbeanstalk.com/authenticate");
+        var token_request = new HttpRequestMessage(HttpMethod.Post, "http://dev-do-list-backend.eu-west-1.elasticbeanstalk.com/api/v1/auth");
         token_request.Headers.Add("Authorization", $"Bearer {bearerToken}");
         var token_response = await HttpClient.SendAsync(token_request);
         if (token_response.IsSuccessStatusCode)
         {
             var responseContent = await token_response.Content.ReadAsStringAsync();
-            var jsonResponse = JObject.Parse(responseContent);
+            var jsonResponse = JsonSerializer.Deserialize<AuthToken>(responseContent)!;
 
-            if (jsonResponse.ContainsKey("access_token"))
-            {
-                var jwtToken = jsonResponse["access_token"].ToString();
-                await LocalStorageService.SetItem("accessToken", jwtToken);
-            }
+            var jwtToken = jsonResponse.access_token;
+            await ProtectedSessionStorage.SetAsync("accessToken", jwtToken);
         }
     }
 }

@@ -1,1 +1,40 @@
 @page "/profile"
+@rendermode InteractiveServer
+@using DevDoListBlazorApp.Models
+@using DevDoListBlazorApp.Services
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
+@inject ProtectedSessionStorage ProtectedSessionStorage
+@inject NavigationManager NavigationManager
+<div class="flex">
+    @if (_user is not null)
+    {
+        <div>
+            <img class="avatar-img" src="@_user.userPicUrl" alt="Profile Image"/>
+        </div>
+        <div class="username">
+            <h1> @_user.username</h1>
+            
+        </div>
+    }
+</div>
+
+@code
+{
+    private User? _user = null;
+    private string _accessToken = string.Empty;
+    private UserService? _userService;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var token = await ProtectedSessionStorage.GetAsync<string>("accessToken");
+            if (token.Success == false) NavigationManager.NavigateTo("/");
+            _accessToken = token.Value;
+            string? accessToken = this._accessToken;
+            if (accessToken != null) _userService = new UserService(accessToken);
+            _user = await _userService.GetUserByUsername();
+            StateHasChanged();
+        }
+    }
+}

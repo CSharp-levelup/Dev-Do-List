@@ -62,7 +62,7 @@ while (true)
             help();
             break;
         case "list":
-            // Logic for getting all tasks for a user
+            await taskService.List();
             break;
         case "details":
             // Logic for adding a task

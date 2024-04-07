@@ -8,7 +8,7 @@ namespace dev_do_list_cli.Services
         public static string? Username { get; set; }
         public static int UserId { get; set; }
 
-        public static async System.Threading.Tasks.Task GetUserDetails()
+        public static async Task GetUserDetails()
         {
             using HttpClient client = new HttpClient();
             client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", LoginService.JwtToken);
@@ -19,7 +19,7 @@ namespace dev_do_list_cli.Services
             if (response.IsSuccessStatusCode)
             {
                 var responseString = await response.Content.ReadAsStringAsync();
-                var responseContent = JsonSerializer.Deserialize<User>(responseString);
+                var responseContent = JsonSerializer.Deserialize<UserResponse>(responseString);
 
                 Username = responseContent.username;
                 UserId = responseContent.userId;

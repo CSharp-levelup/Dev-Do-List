@@ -7,7 +7,7 @@ namespace dev_do_list_cli.Services
     public static class LoginService
     {
         public static string? JwtToken {  get; set; }
-        public static async System.Threading.Tasks.Task HandleLogin()
+        public static async Task HandleLogin()
         {
             var request = new HttpRequestMessage(HttpMethod.Post, "https://github.com/login/device/code");
             request.Content = new FormUrlEncodedContent(new Dictionary<string, string>
@@ -85,13 +85,13 @@ namespace dev_do_list_cli.Services
                 }
 
                 // Wait for the next polling interval before making the next request
-                await System.Threading.Tasks.Task.Delay(pollingInterval);
+                await Task.Delay(pollingInterval);
             }
 
             throw new InvalidOperationException("Something went wrong during the authentication process.");
         }
 
-        private static async System.Threading.Tasks.Task SetJwtToken(string bearerToken)
+        private static async Task SetJwtToken(string bearerToken)
         {
             var token_request = new HttpRequestMessage(HttpMethod.Post, "http://dev-do-list-backend.eu-west-1.elasticbeanstalk.com/api/v1/auth");
             token_request.Headers.Add("Authorization", $"Bearer {bearerToken}");

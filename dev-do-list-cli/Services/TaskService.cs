@@ -7,9 +7,9 @@ namespace dev_do_list_cli.Services
 {
     public class TaskService
     {
-        public async System.Threading.Tasks.Task Create()
+        public async Task Create()
         {
-            Models.Task task = new();
+            TaskCreate task = new();
 
             using HttpClient client = new();
             client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", LoginService.JwtToken);
@@ -30,12 +30,12 @@ namespace dev_do_list_cli.Services
             // Fetch task type options
             var taskTypeRequest = new HttpRequestMessage(HttpMethod.Get, "http://dev-do-list-backend.eu-west-1.elasticbeanstalk.com/api/v1/tasktype");
             var taskTypeResponse = await client.SendAsync(taskTypeRequest);
-            List<TaskType> taskTypes = [];
+            List<TaskTypeResponse> taskTypes = [];
 
             if (taskTypeResponse.IsSuccessStatusCode)
             {
                 var taskTypeResponseString = await taskTypeResponse.Content.ReadAsStringAsync();
-                taskTypes = JsonSerializer.Deserialize<List<TaskType>>(taskTypeResponseString) ?? [];
+                taskTypes = JsonSerializer.Deserialize<List<TaskTypeResponse>>(taskTypeResponseString) ?? [];
                 if (taskTypes.Count == 0)
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
@@ -116,12 +116,12 @@ namespace dev_do_list_cli.Services
             // Fetch statuses
             var statusRequest = new HttpRequestMessage(HttpMethod.Get, "http://dev-do-list-backend.eu-west-1.elasticbeanstalk.com/api/v1/status");
             var statusResponse = await client.SendAsync(statusRequest);
-            List<Status> statuses = [];
+            List<StatusResponse> statuses = [];
 
             if (statusResponse.IsSuccessStatusCode)
             {
                 var statusResponseString = await statusResponse.Content.ReadAsStringAsync();
-                statuses = JsonSerializer.Deserialize<List<Status>>(statusResponseString) ?? [];
+                statuses = JsonSerializer.Deserialize<List<StatusResponse>>(statusResponseString) ?? [];
             }
 
             task.statusId = statuses.FirstOrDefault(s => s.statusType.ToLower() == "not started")?.statusId ?? -1;
@@ -155,6 +155,59 @@ namespace dev_do_list_cli.Services
             }
 
             return;
+        }
+    
+        public async Task List()
+        {
+            using HttpClient client = new();
+            client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", LoginService.JwtToken);
+
+            try
+            {
+                // Fetch all tasks
+                var taskRequest = new HttpRequestMessage(HttpMethod.Get, $"http://dev-do-list-backend.eu-west-1.elasticbeanstalk.com/api/v1/task");
+                var taskResponse = await client.SendAsync(taskRequest);
+                List<TaskResponse> tasks = [];
+
+                if (taskResponse.IsSuccessStatusCode)
+                {
+                    var taskTypeResponseString = await taskResponse.Content.ReadAsStringAsync();
+                    tasks = JsonSerializer.Deserialize<List<TaskResponse>>(taskTypeResponseString) ?? [];
+                    if (tasks.Count == 0)
+                    {
+                        Console.WriteLine("Your to do list is empty");
+                        return;
+                    }
+
+                    // Fetch statuses
+                    var statusRequest = new HttpRequestMessage(HttpMethod.Get, "http://dev-do-list-backend.eu-west-1.elasticbeanstalk.com/api/v1/status");
+                    var statusResponse = await client.SendAsync(statusRequest);
+                    List<StatusResponse> statuses = [];
+
+                    if (statusResponse.IsSuccessStatusCode)
+                    {
+                        var statusResponseString = await statusResponse.Content.ReadAsStringAsync();
+                        statuses = JsonSerializer.Deserialize<List<StatusResponse>>(statusResponseString) ?? [];
+                    }
+
+                    Console.WriteLine($"{"ID",-5}{"Task",-35}{"Status",-10}");
+                    Console.WriteLine("--------------------------------------------------");
+                    for (int i = 0; i < tasks.Count; i++)
+                    {
+                        Console.WriteLine($"{$"{i + 1}.", -5}{tasks[i].title, -35}{statuses.First(s => s.statusId == tasks[i].statusId).statusType, -10}");
+                    }
+                }
+                else
+                {
+                    throw new Exception("Error fetching tasks");
+                }
+            }
+            catch(Exception)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("Error: Unable to fetch your tasks at the moment.");
+                return;
+            }
         }
     }
 }

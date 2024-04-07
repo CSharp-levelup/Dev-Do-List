@@ -1,6 +1,6 @@
 ﻿namespace dev_do_list_cli.Models
 {
-    public class Task
+    public class TaskCreate
     {
         public string title { get; set; }
 

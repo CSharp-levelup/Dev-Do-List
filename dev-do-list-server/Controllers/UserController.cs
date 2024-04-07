@@ -41,7 +41,7 @@ namespace DevDoListServer.Controllers
 
             return Ok(new UserDto(user));
         }
-        [HttpGet("username")]
+        [HttpGet("loggedIn")]
         [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(UserDto))]
         public async Task<ActionResult<UserDto>> GetUserByUsername([FromHeader(Name = "Authorization")] string authToken)
         {

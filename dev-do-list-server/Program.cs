@@ -1,12 +1,11 @@
-﻿using DevDoListServer.Jwt;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using System;
-using System.Text;
+﻿using System.Text;
 using System.Text.Json.Serialization;
 using DevDoListServer.Data;
+using DevDoListServer.Jwt;
 using DevDoListServer.Repositories;
 using DevDoListServer.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 

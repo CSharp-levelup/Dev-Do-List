@@ -1,11 +1,8 @@
-﻿namespace DevDoListServer.Models;
+﻿namespace DevDoListServer.Models.Dtos;
 
-public class TaskDto
+public class TaskResponseDto
 {
-    
-    public TaskDto(){}
-
-    public TaskDto(Task task)
+    public TaskResponseDto(Task task)
     {
         this.TaskId = task.TaskId;
         this.Title = task.Title;
@@ -15,7 +12,7 @@ public class TaskDto
         this.UserId = task.UserId;
         this.StatusId = task.StatusId;
         this.TaskTypeId = task.TaskTypeId;
-        this.Comments = task.Comments;
+        Comments = task.Comments.Select(comment => new CommentDto(comment)).ToList();
     }
     
     public int TaskId { get; set; }
@@ -34,5 +31,5 @@ public class TaskDto
 
     public int TaskTypeId { get; set; }
 
-    public ICollection<Comment> Comments { get; set; }
+    public ICollection<CommentDto> Comments { get; set; }
 }

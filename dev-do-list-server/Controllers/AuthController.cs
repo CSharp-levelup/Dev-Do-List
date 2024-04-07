@@ -1,15 +1,16 @@
-﻿using Azure.Core;
-using DevDoListServer.Jwt;
-using DevDoListServer.Models;
-using DevDoListServer.Services;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
+﻿using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
+using DevDoListServer.Jwt;
+using DevDoListServer.Models;
+using DevDoListServer.Models.Dtos;
+using DevDoListServer.Services;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace DevDoListServer.Controllers
 {
@@ -22,7 +23,8 @@ namespace DevDoListServer.Controllers
         private readonly AuthService _authService = authService;
 
         [HttpPost]
-        
+        [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(JwtDto))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult> Authenticate()
         {
             var auth = Request.Headers.Authorization;
@@ -68,7 +70,7 @@ namespace DevDoListServer.Controllers
                 new[] { role });
 
             //returns a json response with the access token
-            return Ok(new
+            return Ok(new JwtDto
             {
                 access_token = accessToken,
                 expiration = (int)tokenExpiration.TotalSeconds,

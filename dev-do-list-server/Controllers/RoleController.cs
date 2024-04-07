@@ -1,82 +1,84 @@
-﻿using DevDoListServer.Models;
+﻿using DevDoListServer.Models.Dtos;
 using DevDoListServer.Repositories;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Swashbuckle.AspNetCore.Annotations;
 
-namespace DevDoListServer.Controllers
+namespace DevDoListServer.Controllers;
+
+[Route("api/v1/role")]
+[ApiController]
+public class RoleController(RoleRepository roleRepository) : ControllerBase
 {
-    [Route("api/v1/role")]
-    [ApiController]
-    public class RoleController(RoleRepository roleRepository) : ControllerBase
+    private readonly RoleRepository roleRepository = roleRepository;
+
+    [HttpGet]
+    [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(IEnumerable<RoleResponseDto>))]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized)]
+    public async Task<ActionResult<IEnumerable<RoleResponseDto>>> GetRoles()
     {
-        private readonly RoleRepository roleRepository = roleRepository;
+        var roles = await roleRepository.GetAll();
+        var roleDtos = roles.Select(role => new RoleResponseDto(role));
+        return Ok(roleDtos);
+    }
 
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Role>>> GetRoles()
+    [HttpGet("{id}")]
+    [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(CommentDto))]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized)]
+    [SwaggerResponse(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<RoleResponseDto>> GetRole([FromRoute] int id)
+    {
+        var role = await roleRepository.GetById(id);
+
+        if (role == null) return NotFound("Role not found");
+
+        return new RoleResponseDto(role);
+    }
+
+    [HttpPut("{id}")]
+    [SwaggerResponse(StatusCodes.Status204NoContent)]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized)]
+    [SwaggerResponse(StatusCodes.Status404NotFound)]
+    [SwaggerResponse(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> PutRole([FromRoute] int id, [FromBody] RoleUpdateDto roleUpdateDto)
+    {
+        if (id != roleUpdateDto.RoleId) return BadRequest();
+
+        try
         {
-            return await roleRepository.GetAll();
+            await roleRepository.Update(roleUpdateDto.ToRole());
         }
-
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Role>> GetRole([FromRoute] int id)
+        catch (DbUpdateConcurrencyException)
         {
-            var role = await roleRepository.GetById(id);
-
-            if (role == null)
-            {
+            if (!await roleRepository.Exists(e => e.RoleId == id))
                 return NotFound("Role not found");
-            }
-
-            return role;
+            throw;
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutRole([FromRoute] int id, [FromBody] Role role)
-        {
-            if (id != role.RoleId)
-            {
-                return BadRequest();
-            }
+        return NoContent();
+    }
 
-            try
-            {
-               return Ok(await roleRepository.Update(role));
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!await roleRepository.Exists(e => e.RoleId == id))
-                {
-                    return NotFound("Role not found");
-                }
-                else
-                {
-                    throw;
-                }
-            }
+    [HttpPost]
+    [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(RoleResponseDto))]
+    public async Task<ActionResult<RoleResponseDto>> PostRole([FromBody] RoleCreateDto roleCreateDto)
+    {
+        var createdRole = await roleRepository.Create(roleCreateDto.ToRole());
+        var roleDto = new RoleResponseDto(createdRole);
+        return CreatedAtAction("GetRole", new { id = roleDto.RoleId }, roleDto);
+    }
 
-        }
+    [HttpDelete("{id}")]
+    [SwaggerResponse(StatusCodes.Status204NoContent)]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized)]
+    [SwaggerResponse(StatusCodes.Status404NotFound)]
+    [SwaggerResponse(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> DeleteStatus([FromRoute] int id)
+    {
+        var role = await roleRepository.GetById(id);
+        if (role == null) return NotFound("Role not found");
 
-        [HttpPost]
-        public async Task<ActionResult<Status>> PostRole([FromBody] Role role)
-        {
-            var createdRole = await roleRepository.Create(role);
+        await roleRepository.Delete(role);
 
-            return CreatedAtAction("GetRole", new { id = createdRole.RoleId }, createdRole);
-        }
-
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteStatus([FromRoute] int id)
-        {
-            var role = await roleRepository.GetById(id);
-            if (role == null)
-            {
-                return NotFound("Role not found");
-            }
-
-            await roleRepository.Delete(role);
-
-            return NoContent();
-        }
+        return NoContent();
     }
 }

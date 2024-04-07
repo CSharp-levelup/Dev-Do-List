@@ -5,6 +5,8 @@
 @using DevDoListBlazorApp.Models;
 @using System.Web;
 @using System.Text.Json;
+@using DevDoListBlazorApp.Services
+@using DevDoListBlazorApp.Utils
 @using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 @inject HttpClient HttpClient
 @inject ProtectedSessionStorage ProtectedSessionStorage
@@ -39,7 +41,7 @@
     private string VerificationUri { get; set; }
     private string UserCode { get; set; }
     private bool checkedLoggedIn = false;
-
+    private readonly string _serverUrl = FuncUtils.GetServerUrl();
     protected override async Task OnAfterRenderAsync(bool firstRender) // Takes user straight to dashboard page if they already have an access token stored
     {
         if (firstRender && !checkedLoggedIn)
@@ -153,14 +155,14 @@
 
     private async Task SetJwtToken(string bearerToken)
     {
-        var token_request = new HttpRequestMessage(HttpMethod.Post, "http://dev-do-list-backend.eu-west-1.elasticbeanstalk.com/api/v1/auth");
+        var token_request = new HttpRequestMessage(HttpMethod.Post, _serverUrl + "api/v1/auth");
         token_request.Headers.Add("Authorization", $"Bearer {bearerToken}");
         var token_response = await HttpClient.SendAsync(token_request);
         if (token_response.IsSuccessStatusCode)
         {
             var responseContent = await token_response.Content.ReadAsStringAsync();
             var jsonResponse = JsonSerializer.Deserialize<AuthToken>(responseContent)!;
-
+            
             var jwtToken = jsonResponse.access_token;
             await ProtectedSessionStorage.SetAsync("accessToken", jwtToken);
         }

@@ -1,6 +1,10 @@
 ﻿using dev_do_list_cli.Services;
 
-Console.WriteLine("WELCOME TO DEV TO DO!\n");
+Console.ForegroundColor = ConsoleColor.Blue;
+Console.WriteLine(" __  __       __  __        _____ ");
+Console.WriteLine("|  \\|_ \\  /  |  \\/  \\  |  |(_  |  ");
+Console.WriteLine("|__/|__ \\/   |__/\\__/  |__|__) |  ");
+Console.ResetColor();
 
 bool loggedIn = false;
 var taskService = new TaskService();
@@ -8,7 +12,7 @@ var taskService = new TaskService();
 help();
 while (!loggedIn)
 {
-    Console.Write("$ ");
+    Console.Write("\n$ ");
     string? choice = Console.ReadLine()?.Trim();
     if (string.IsNullOrEmpty(choice))
     {
@@ -44,7 +48,7 @@ while (!loggedIn)
 help();
 while (true)
 {
-    Console.Write("$ ");
+    Console.Write("\n$ ");
     string? choice = Console.ReadLine()?.Trim();
     if (string.IsNullOrEmpty(choice))
     {
@@ -90,7 +94,7 @@ void help()
     {
         Console.WriteLine("\nhelp - Show available commands");
         Console.WriteLine("login - Login with github");
-        Console.WriteLine("exit - Exit the application\n");
+        Console.WriteLine("exit - Exit the application");
     }
     else
     {
@@ -101,7 +105,7 @@ void help()
         Console.WriteLine("delete - Delete a task");
         Console.WriteLine("update - Update a task's status");
         Console.WriteLine("comment - Add a comment to a task");
-        Console.WriteLine("exit - Exit the application\n");
+        Console.WriteLine("exit - Exit the application");
     }
 }
 

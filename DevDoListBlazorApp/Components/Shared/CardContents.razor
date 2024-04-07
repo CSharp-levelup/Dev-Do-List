@@ -1,0 +1,20 @@
+namespace DevDoListBlazorApp.Shared;
+@using DevDoListBlazorApp.Models;
+@* 
+   CardContents Razor Component:
+   - This component represents the content of a single card in a list.
+   - It displays the title and last edited date of a user's note.
+   - When clicked, it navigates the user to the detailed view of the note.
+*@
+
+<div class="data-card">
+    <div class="data-card-container">
+        <p class="data-card-title">@note?.title</p>
+        <p class="data-card-dueDate">@note?.dueDate</p>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public Note? note { get; set; }
+}

@@ -156,6 +156,11 @@ resource "aws_elastic_beanstalk_environment" "env" {
     value     = var.client_id
   }
   setting {
+    namespace = "aws:elasticbeanstalk:application:environment"
+    name      = "DEVDOLIST_SERVER_URL"
+    value     = var.server_url
+  }
+  setting {
     namespace = "aws:elasticbeanstalk:environment"
     name      = "EnvironmentType"
     value     = "SingleInstance"

@@ -2,6 +2,7 @@ using DevDoListServer.Jwt;
 using DevDoListServer.Models.Dtos;
 using DevDoListServer.Repositories;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace DevDoListServer.Controllers
 {
@@ -17,6 +18,9 @@ namespace DevDoListServer.Controllers
         }
         
         [HttpGet("task/{taskId}")]
+        [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(IEnumerable<CommentDto>))]
+        [SwaggerResponse(StatusCodes.Status401Unauthorized)]
+        [SwaggerResponse(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<IEnumerable<CommentDto>>> GetCommentsForTask([FromHeader(Name = "Authorization")] string authToken, [FromRoute] int taskId)
         { 
             var username = JwtUtils.GetClaim(authToken, "username");
@@ -37,6 +41,9 @@ namespace DevDoListServer.Controllers
         }
         
         [HttpGet("{id}")]
+        [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(CommentDto))]
+        [SwaggerResponse(StatusCodes.Status401Unauthorized)]
+        [SwaggerResponse(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<CommentDto>> GetComment([FromHeader(Name = "Authorization")] string authToken, [FromRoute] int id)
         {
             var username = JwtUtils.GetClaim(authToken, "username");
@@ -56,6 +63,10 @@ namespace DevDoListServer.Controllers
         }
 
         [HttpPut("{id}")]
+        [SwaggerResponse(StatusCodes.Status204NoContent)]
+        [SwaggerResponse(StatusCodes.Status401Unauthorized)]
+        [SwaggerResponse(StatusCodes.Status404NotFound)]
+        [SwaggerResponse(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> PutComment([FromHeader(Name = "Authorization")] string authToken,
             [FromRoute] int id, [FromBody] CommentDto commentDto)
         {
@@ -83,6 +94,7 @@ namespace DevDoListServer.Controllers
         }
         
         [HttpPost]
+        [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(CommentDto))]
         public async Task<ActionResult<CommentDto>> PostComment([FromBody] CommentCreateDto commentCreateDto)
         {
             var createdComment = await _commentRepository.Create(commentCreateDto.ToComment());
@@ -91,6 +103,9 @@ namespace DevDoListServer.Controllers
         }
         
         [HttpDelete("{id}")]
+        [SwaggerResponse(StatusCodes.Status204NoContent)]
+        [SwaggerResponse(StatusCodes.Status401Unauthorized)]
+        [SwaggerResponse(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteComment([FromHeader(Name = "Authorization")] string authToken, [FromRoute] int id)
         {
             var comment = await _commentRepository.GetById(id);

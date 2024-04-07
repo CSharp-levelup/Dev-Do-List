@@ -2,6 +2,7 @@
 using DevDoListServer.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace DevDoListServer.Controllers
 {
@@ -17,6 +18,8 @@ namespace DevDoListServer.Controllers
         }
 
         [HttpGet]
+        [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(IEnumerable<StatusDto>))]
+        [SwaggerResponse(StatusCodes.Status401Unauthorized)]
         public async Task<ActionResult<IEnumerable<StatusDto>>> GetStatuses()
         {
             var statuses = await _statusRepository.GetAll();
@@ -25,6 +28,9 @@ namespace DevDoListServer.Controllers
         }
 
         [HttpGet("{id}")]
+        [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(StatusDto))]
+        [SwaggerResponse(StatusCodes.Status401Unauthorized)]
+        [SwaggerResponse(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<StatusDto>> GetStatus([FromRoute] int id)
         {
             var status = await _statusRepository.GetById(id);
@@ -38,6 +44,10 @@ namespace DevDoListServer.Controllers
         }
 
         [HttpPut("{id}")]
+        [SwaggerResponse(StatusCodes.Status204NoContent)]
+        [SwaggerResponse(StatusCodes.Status401Unauthorized)]
+        [SwaggerResponse(StatusCodes.Status404NotFound)]
+        [SwaggerResponse(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> PutStatus([FromRoute] int id, [FromBody] StatusDto status)
         {
             if (id != status.StatusId)
@@ -65,6 +75,7 @@ namespace DevDoListServer.Controllers
         }
 
         [HttpPost]
+        [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(StatusDto))]
         public async Task<ActionResult<StatusDto>> PostStatus([FromBody] StatusCreateDto status)
         {
             var createdStatus = await _statusRepository.Create(status.ToStatus());
@@ -73,6 +84,9 @@ namespace DevDoListServer.Controllers
         }
         
         [HttpDelete("{id}")]
+        [SwaggerResponse(StatusCodes.Status204NoContent)]
+        [SwaggerResponse(StatusCodes.Status401Unauthorized)]
+        [SwaggerResponse(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteStatus([FromRoute] int id)
         {
             var status = await _statusRepository.GetById(id);

@@ -3,6 +3,7 @@ using DevDoListServer.Models.Dtos;
 using DevDoListServer.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace DevDoListServer.Controllers
 {
@@ -18,6 +19,8 @@ namespace DevDoListServer.Controllers
         }
         
         [HttpGet]
+        [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(IEnumerable<TaskResponseDto>))]
+        [SwaggerResponse(StatusCodes.Status401Unauthorized)]
         public async Task<ActionResult<TaskResponseDto>> GetTasks([FromHeader(Name = "Authorization")] string authToken)
         {
             var username = JwtUtils.GetClaim(authToken, "username");
@@ -27,6 +30,9 @@ namespace DevDoListServer.Controllers
         }
         
         [HttpGet("{id}")]
+        [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(TaskResponseDto))]
+        [SwaggerResponse(StatusCodes.Status401Unauthorized)]
+        [SwaggerResponse(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<TaskResponseDto>> GetTask([FromRoute] int id)
         {
             var task = await _taskRepository.GetById(id);
@@ -40,6 +46,10 @@ namespace DevDoListServer.Controllers
         }
         
         [HttpPut("{id}")]
+        [SwaggerResponse(StatusCodes.Status204NoContent)]
+        [SwaggerResponse(StatusCodes.Status401Unauthorized)]
+        [SwaggerResponse(StatusCodes.Status404NotFound)]
+        [SwaggerResponse(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> PutTask([FromRoute] int id, [FromBody] TaskUpdateDTO taskUpdateDto)
         {
             if (id != taskUpdateDto.TaskId)
@@ -68,6 +78,7 @@ namespace DevDoListServer.Controllers
         }
 
         [HttpPost]
+        [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(TaskResponseDto))]
         public async Task<ActionResult<TaskResponseDto>> PostTask([FromBody] TaskCreateDto taskCreateDto)
         {
             var createdTask = await _taskRepository.Create(taskCreateDto.ToTask());
@@ -76,6 +87,9 @@ namespace DevDoListServer.Controllers
         }
 
         [HttpDelete("{id}")]
+        [SwaggerResponse(StatusCodes.Status204NoContent)]
+        [SwaggerResponse(StatusCodes.Status401Unauthorized)]
+        [SwaggerResponse(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteTask(int id)
         {
             var task = await _taskRepository.GetById(id);

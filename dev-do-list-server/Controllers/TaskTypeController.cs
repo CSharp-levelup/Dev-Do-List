@@ -2,6 +2,7 @@
 using DevDoListServer.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace DevDoListServer.Controllers;
 
@@ -17,6 +18,8 @@ public class TaskTypeController : ControllerBase
     }
     
     [HttpGet]
+    [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(IEnumerable<TaskTypeDto>))]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<IEnumerable<TaskTypeDto>>> GetTaskTypes()
     {
         var taskTypes = await _taskTypeRepository.GetAll();
@@ -25,6 +28,9 @@ public class TaskTypeController : ControllerBase
     }
     
     [HttpGet("{id}")]
+    [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(TaskTypeDto))]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized)]
+    [SwaggerResponse(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<TaskTypeDto>> GetTaskType([FromRoute] int id)
     {
         var taskType = await _taskTypeRepository.GetById(id);
@@ -38,6 +44,10 @@ public class TaskTypeController : ControllerBase
     }
 
     [HttpPut("{id}")]
+    [SwaggerResponse(StatusCodes.Status204NoContent)]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized)]
+    [SwaggerResponse(StatusCodes.Status404NotFound)]
+    [SwaggerResponse(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> PutTaskType([FromRoute] int id, [FromBody] TaskTypeDto taskType)
     {
         if (id != taskType.TaskTypeId)
@@ -66,6 +76,7 @@ public class TaskTypeController : ControllerBase
     }
 
     [HttpPost]
+    [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(TaskTypeDto))]
     public async Task<ActionResult<TaskTypeDto>> PostTaskType([FromBody] TaskTypeCreateDto taskType)
     {
         var createdTaskType = await _taskTypeRepository.Create(taskType.ToTaskType());
@@ -74,6 +85,9 @@ public class TaskTypeController : ControllerBase
     }
     
     [HttpDelete("{id}")]
+    [SwaggerResponse(StatusCodes.Status204NoContent)]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized)]
+    [SwaggerResponse(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteTaskType([FromRoute] int id)
     {
         var taskType = await _taskTypeRepository.GetById(id);

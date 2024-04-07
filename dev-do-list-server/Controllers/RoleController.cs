@@ -2,6 +2,7 @@
 using DevDoListServer.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace DevDoListServer.Controllers;
 
@@ -12,6 +13,8 @@ public class RoleController(RoleRepository roleRepository) : ControllerBase
     private readonly RoleRepository roleRepository = roleRepository;
 
     [HttpGet]
+    [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(IEnumerable<RoleResponseDto>))]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<IEnumerable<RoleResponseDto>>> GetRoles()
     {
         var roles = await roleRepository.GetAll();
@@ -20,6 +23,9 @@ public class RoleController(RoleRepository roleRepository) : ControllerBase
     }
 
     [HttpGet("{id}")]
+    [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(CommentDto))]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized)]
+    [SwaggerResponse(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<RoleResponseDto>> GetRole([FromRoute] int id)
     {
         var role = await roleRepository.GetById(id);
@@ -30,6 +36,10 @@ public class RoleController(RoleRepository roleRepository) : ControllerBase
     }
 
     [HttpPut("{id}")]
+    [SwaggerResponse(StatusCodes.Status204NoContent)]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized)]
+    [SwaggerResponse(StatusCodes.Status404NotFound)]
+    [SwaggerResponse(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> PutRole([FromRoute] int id, [FromBody] RoleUpdateDto roleUpdateDto)
     {
         if (id != roleUpdateDto.RoleId) return BadRequest();
@@ -44,9 +54,12 @@ public class RoleController(RoleRepository roleRepository) : ControllerBase
                 return NotFound("Role not found");
             throw;
         }
+
+        return NoContent();
     }
 
     [HttpPost]
+    [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(RoleResponseDto))]
     public async Task<ActionResult<RoleResponseDto>> PostRole([FromBody] RoleCreateDto roleCreateDto)
     {
         var createdRole = await roleRepository.Create(roleCreateDto.ToRole());
@@ -55,6 +68,10 @@ public class RoleController(RoleRepository roleRepository) : ControllerBase
     }
 
     [HttpDelete("{id}")]
+    [SwaggerResponse(StatusCodes.Status204NoContent)]
+    [SwaggerResponse(StatusCodes.Status401Unauthorized)]
+    [SwaggerResponse(StatusCodes.Status404NotFound)]
+    [SwaggerResponse(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> DeleteStatus([FromRoute] int id)
     {
         var role = await roleRepository.GetById(id);

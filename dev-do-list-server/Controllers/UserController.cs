@@ -4,6 +4,7 @@ using DevDoListServer.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace DevDoListServer.Controllers
 {
@@ -19,6 +20,7 @@ namespace DevDoListServer.Controllers
         }
 
         [HttpGet]
+        [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(IEnumerable<UserDto>))]
         public async Task<ActionResult<IEnumerable<UserDto>>> GetUsers()
         {
             var users = await _userRepository.GetAll();
@@ -26,6 +28,7 @@ namespace DevDoListServer.Controllers
         }
 
         [HttpGet("{id}")]
+        [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(UserDto))]
         public async Task<ActionResult<UserDto>> GetUser([FromRoute] int id)
         {
             var user = await _userRepository.GetById(id);
@@ -39,6 +42,10 @@ namespace DevDoListServer.Controllers
         }
 
         [HttpPut("{id}")]
+        [SwaggerResponse(StatusCodes.Status204NoContent)]
+        [SwaggerResponse(StatusCodes.Status401Unauthorized)]
+        [SwaggerResponse(StatusCodes.Status404NotFound)]
+        [SwaggerResponse(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> PutUser([FromRoute] int id, [FromBody] UserDto userDto)
         {
             if (id != userDto.UserId)
@@ -68,6 +75,7 @@ namespace DevDoListServer.Controllers
 
         [HttpPost]
         [Authorize(Roles = RoleType.Admin)]
+        [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(UserDto))]
         public async Task<ActionResult<User>> PostUser([FromBody] UserCreateDto userCreateDto)
         {
             var createdUser = await _userRepository.Create(userCreateDto.ToUser());
@@ -76,6 +84,9 @@ namespace DevDoListServer.Controllers
         }
 
         [HttpDelete("{id}")]
+        [SwaggerResponse(StatusCodes.Status204NoContent)]
+        [SwaggerResponse(StatusCodes.Status401Unauthorized)]
+        [SwaggerResponse(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteUser([FromRoute] int id)
         {
             var user = await _userRepository.GetById(id);

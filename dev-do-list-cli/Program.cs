@@ -3,7 +3,7 @@
 Console.WriteLine("WELCOME TO DEV TO DO!\n");
 
 bool loggedIn = false;
-var loginService = new LoginService();
+var taskService = new TaskService();
 
 help();
 while (!loggedIn)
@@ -24,7 +24,7 @@ while (!loggedIn)
                 help();
                 break;
             case "login":
-                await loginService.HandleLogin();
+                await LoginService.HandleLogin();
                 loggedIn = true;
                 break;
             case "exit":
@@ -64,7 +64,7 @@ while (true)
             // Logic for adding a task
             break;
         case "add":
-            // Logic for updating a task
+            await taskService.Create();
             break;
         case "delete":
             // Logic for deleting a task

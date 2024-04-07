@@ -17,7 +17,7 @@ namespace DevDoListServer.Controllers
         public async Task<ActionResult<TaskResponseDto>> GetTasks([FromHeader(Name = "Authorization")] string authToken)
         {
             var username = JwtUtils.GetClaim(authToken, "username");
-            var tasks = await taskRepository.FindAll(task => task.User.Username == username);
+            var tasks = await taskRepository.FindAll(task => task.User!.Username == username);
             var dtos = tasks.Select(t => new TaskResponseDto(t));
             return Ok(dtos);
         }

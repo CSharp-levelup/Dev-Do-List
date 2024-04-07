@@ -1,11 +1,7 @@
 ﻿namespace DevDoListServer.Data
 {
-    public class DbConnectionDetails
+    public class DbConnectionDetails(string connectionString)
     {
-        public DbConnectionDetails(string connectionString)
-        {
-            ConnectionString = connectionString;
-        }
-        public string ConnectionString { get; }
+        public string ConnectionString { get; } = connectionString;
     }
 }

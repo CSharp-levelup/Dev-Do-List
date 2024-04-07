@@ -3,35 +3,28 @@ using DevDoListServer.Repositories;
 
 namespace DevDoListServer.Services
 {
-    public class AuthService
+    public class AuthService(UserRepository userRepository, RoleRepository roleRepository)
     {
-        private readonly UserRepository _userRepository;
-        private readonly RoleRepository _roleRepository;
-        public AuthService(UserRepository userRepository, RoleRepository roleRepository)
-        {
-            _userRepository = userRepository;
-            _roleRepository = roleRepository;
-        }
-
         public async Task<string> AuthenticateUser(GithubUser githubUser)
         {
-            var user = await _userRepository.FindByUsername(githubUser.login);
+            var user = await userRepository.FindByUsername(githubUser.login);
 
             if (user == null)
             {
-                var role = await _roleRepository.FindByRoleType(RoleType.User);
+                var role = await roleRepository.FindByRoleType(RoleType.User);
                 var newUser = new User()
                 {
                     Username = githubUser.login,
                     UserPicUrl = githubUser.avatar_url,
-                    RoleId = role.RoleId
+                    RoleId = role!.RoleId
                 };
 
-                await _userRepository.Create(newUser);
-                return role.RoleType.ToString();
+                await userRepository.Create(newUser);
+                return role.RoleType;
             }
-            var userRole = await _roleRepository.GetById(user.RoleId);
-            return userRole is null ? RoleType.User : userRole.RoleType.ToString();
+
+            var userRole = await roleRepository.GetById(user.RoleId);
+            return userRole is null ? RoleType.User : userRole.RoleType;
         }
     }
 }

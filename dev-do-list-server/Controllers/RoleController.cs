@@ -10,8 +10,6 @@ namespace DevDoListServer.Controllers;
 [ApiController]
 public class RoleController(RoleRepository roleRepository) : ControllerBase
 {
-    private readonly RoleRepository roleRepository = roleRepository;
-
     [HttpGet]
     [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(IEnumerable<RoleResponseDto>))]
     [SwaggerResponse(StatusCodes.Status401Unauthorized)]

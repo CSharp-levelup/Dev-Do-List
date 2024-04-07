@@ -11,20 +11,13 @@ namespace DevDoListServer.Controllers
 {
     [Route("api/v1/user")]
     [ApiController]
-    public class UserController : ControllerBase
+    public class UserController(UserRepository userRepository) : ControllerBase
     {
-        private readonly UserRepository _userRepository;
-
-        public UserController(UserRepository userRepository)
-        {
-            _userRepository = userRepository;
-        }
-
         [HttpGet]
         [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(IEnumerable<UserDto>))]
         public async Task<ActionResult<IEnumerable<UserDto>>> GetUsers()
         {
-            var users = await _userRepository.GetAll();
+            var users = await userRepository.GetAll();
             return users.Select(user => new UserDto(user)).ToList();
         }
 
@@ -32,7 +25,7 @@ namespace DevDoListServer.Controllers
         [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(UserDto))]
         public async Task<ActionResult<UserDto>> GetUser([FromRoute] int id)
         {
-            var user = await _userRepository.GetById(id);
+            var user = await userRepository.GetById(id);
 
             if (user == null)
             {
@@ -46,7 +39,7 @@ namespace DevDoListServer.Controllers
         public async Task<ActionResult<UserDto>> GetUserByUsername([FromHeader(Name = "Authorization")] string authToken)
         {
             var username = JwtUtils.GetClaim(authToken, "username");
-            var user = await _userRepository.FindSingle(u => u.Username == username);
+            var user = await userRepository.FindByUsername(username);
 
             if (user is null)
             {
@@ -71,11 +64,11 @@ namespace DevDoListServer.Controllers
             
             try
             {
-                await _userRepository.Update(userDto.ToUser());
+                await userRepository.Update(userDto.ToUser());
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!await _userRepository.Exists(e => e.UserId == id))
+                if (!await userRepository.Exists(e => e.UserId == id))
                 {
                     return NotFound("User not found");
                 }
@@ -93,7 +86,7 @@ namespace DevDoListServer.Controllers
         [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(UserDto))]
         public async Task<ActionResult<User>> PostUser([FromBody] UserCreateDto userCreateDto)
         {
-            var createdUser = await _userRepository.Create(userCreateDto.ToUser());
+            var createdUser = await userRepository.Create(userCreateDto.ToUser());
             var userDto = new UserDto(createdUser);
             return CreatedAtAction("GetUser", new { id = userDto.UserId }, userDto);
         }
@@ -104,14 +97,14 @@ namespace DevDoListServer.Controllers
         [SwaggerResponse(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteUser([FromRoute] int id)
         {
-            var user = await _userRepository.GetById(id);
+            var user = await userRepository.GetById(id);
 
             if (user == null)
             {
                 return NotFound("User not found");
             }
 
-            await _userRepository.Delete(user);
+            await userRepository.Delete(user);
 
             return NoContent();
         }

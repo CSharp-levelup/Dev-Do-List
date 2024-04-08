@@ -24,13 +24,34 @@ while (!loggedIn)
         switch (choiceParameters[0].Trim())
         {
             case "help":
+                if (choiceParameters.Count() != 1)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("Error: Too many arguments. 'help' does not take in any arguments");
+                    Console.ResetColor();
+                    break;
+                }
                 help();
                 break;
             case "login":
+                if (choiceParameters.Count() != 1)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("Error: Too many arguments. 'login' does not take in any arguments");
+                    Console.ResetColor();
+                    break;
+                }
                 await LoginService.HandleLogin();
                 loggedIn = true;
                 break;
             case "exit":
+                if (choiceParameters.Count() != 1)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("Error: Too many arguments. 'exit' does not take in any arguments");
+                    Console.ResetColor();
+                    break;
+                }
                 exit();
                 break;
             default:
@@ -63,9 +84,23 @@ while (true)
     switch (choiceParameters[0].Trim())
     {
         case "help":
+            if (choiceParameters.Count() != 1)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("Error: Too many arguments. 'help' does not take in any arguments");
+                Console.ResetColor();
+                break;
+            }
             help();
             break;
         case "list":
+            if (choiceParameters.Count() != 1)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("Error: Too many arguments. 'list' does not take in any arguments");
+                Console.ResetColor();
+                break;
+            }
             await taskService.List();
             break;
         case "details":
@@ -79,6 +114,13 @@ while (true)
             taskService.Details(choiceParameters[1].Trim());
             break;
         case "add":
+            if (choiceParameters.Count() != 1)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("Error: Too many arguments. 'create' does not take in any arguments");
+                Console.ResetColor();
+                break;
+            }
             await taskService.Create();
             break;
         case "delete":

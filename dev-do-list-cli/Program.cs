@@ -154,11 +154,11 @@ void help()
     {
         Console.WriteLine("\nhelp - Show available commands");
         Console.WriteLine("list - List all tasks");
-        Console.WriteLine("details <ID> - Get details of a task");
+        Console.WriteLine("details <id> - Get details of a task");
         Console.WriteLine("add - Add a new task");
-        Console.WriteLine("delete <ID> - Delete a task");
-        Console.WriteLine("update <ID> - Update a task's status");
-        Console.WriteLine("comment <ID> - Add a comment to a task");
+        Console.WriteLine("delete <id> - Delete a task");
+        Console.WriteLine("update <id> - Update a task's status");
+        Console.WriteLine("comment <id> - Add a comment to a task");
         Console.WriteLine("exit - Exit the application");
     }
 }

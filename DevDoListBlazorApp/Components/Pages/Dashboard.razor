@@ -9,25 +9,16 @@
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JsRuntime
 
-<div class="dashboard-page">
-        <div class="dash-container">
-            <div class="add-new-note" @onclick="HandleNew">
-                @* <img src="@newNote" /> *@
-            </div>
-            <div class="card-container-dash">
-                <div class="card-container-grid">
-                    foreach (var data in usersNotes)
-                    {
-                        <DataCards Data="userNotes" CurCategory="All"/>
-                    }
-                </div>
-                @if (!string.IsNullOrEmpty(errorNotes))
-                {
-                    <div class="error-message-notes">@errorNotes</div>
-                }
-            </div>
-        </div>
+
+<div class="dash-container">
+    <div class="add-new-note" @onclick="HandleNew">
+        @* <img src="@newNote" /> *@
+    </div>
+    <div class="card-container-dash">
+        <DataCards userNote="usersNotes" CurCategory="All" />
+    </div>
 </div>
+
 
 @code {
     List<Note> usersNotes = new List<Note>();
@@ -38,6 +29,9 @@
     string errorCategories = "";
     bool showAscDesc = false;
     bool checkedLoggedIn = false;
+    private int UserId = -1;
+    private string _accessToken = string.Empty;
+    private NoteService? notesService;
 
     protected override async Task OnAfterRenderAsync(bool firstRender) // Redirects to login page if they do not have a token
     {
@@ -51,10 +45,17 @@
                 NavigationManager.NavigateTo("/");
             }
             checkedLoggedIn = true;
+            if (jwtToken.Success == false) NavigationManager.NavigateTo("/");
+            _accessToken = jwtToken.Value;
+            string? accessToken = this._accessToken;
+            if (accessToken != null)
+            {
+                notesService = new NoteService(accessToken);
+                usersNotes = await notesService.GetAllNotes();
+                StateHasChanged();
+            }
         }
 
-        // Fetch data on component initialization
-        // FetchNotesData();
         // Fetch Categories Data - could hardcode
    
     }

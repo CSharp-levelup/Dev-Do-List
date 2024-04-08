@@ -1,21 +1,11 @@
 ﻿.card-container {
+    width: 100%;
+    height: 100%;
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 4vh;
     overflow-x: hidden;
-    padding: 1.25vh;
-    margin-left: 4.5%;
-}
-
-.card-container-grid {
-    overflow-y: auto;
-    position: relative;
-    height: 100%;
-    width: 100%
-}
-
-.card-content {
-    z-index: 0;
+    padding: 4vh;
 }
 
 ::-webkit-scrollbar {

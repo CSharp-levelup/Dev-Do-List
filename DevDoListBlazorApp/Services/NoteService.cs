@@ -2,12 +2,14 @@
 using System.Text.Json;
 using DevDoListBlazorApp.Models;
 using DevDoListBlazorApp.Utils;
+using DevDoListBlazorApp.Data;
 
 namespace DevDoListBlazorApp.Services;
 
 public class NoteService(string accessToken)
 {
     private readonly string _serverUrl = FuncUtils.GetServerUrl();
+    private readonly MockNotesData mockNotesData = new();
 
     public async Task<List<Note>?> GetAllNotes()
     {
@@ -17,6 +19,13 @@ public class NoteService(string accessToken)
         var response = await client.SendAsync(request);
         if (!response.IsSuccessStatusCode) return null;
         var task = JsonSerializer.Deserialize <List<Note>> (await response.Content.ReadAsStringAsync())!;
+        return task;
+
+    }
+
+    public List<Note> GetAllNotesMock()
+    {
+        var task = mockNotesData.GenerateMockNotes();
         return task;
 
     }

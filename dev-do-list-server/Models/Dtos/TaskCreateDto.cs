@@ -22,6 +22,7 @@ public class TaskCreateDto
         {
             Title = Title,
             Description = Description,
+            DateCreated = DateCreated,
             DueDate = DueDate,
             UserId = UserId,
             StatusId = StatusId,

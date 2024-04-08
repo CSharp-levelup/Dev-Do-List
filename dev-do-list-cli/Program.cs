@@ -24,44 +24,38 @@ while (!loggedIn)
         switch (choiceParameters[0].Trim())
         {
             case "help":
-                if (choiceParameters.Count() != 1)
+                if (choiceParameters.Length != 1)
                 {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("Error: Too many arguments. 'help' does not take in any arguments");
-                    Console.ResetColor();
+                    ConsoleService.Error("Too many arguments. 'help' does not take in any arguments.");
                     break;
                 }
                 help();
                 break;
             case "login":
-                if (choiceParameters.Count() != 1)
+                if (choiceParameters.Length != 1)
                 {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("Error: Too many arguments. 'login' does not take in any arguments");
-                    Console.ResetColor();
+                    ConsoleService.Error("Too many arguments. 'login' does not take in any arguments.");
                     break;
                 }
                 await LoginService.HandleLogin();
                 loggedIn = true;
                 break;
             case "exit":
-                if (choiceParameters.Count() != 1)
+                if (choiceParameters.Length != 1)
                 {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("Error: Too many arguments. 'exit' does not take in any arguments");
-                    Console.ResetColor();
+                    ConsoleService.Error("Too many arguments. 'exit' does not take in any arguments.");
                     break;
                 }
                 exit();
                 break;
             default:
-                Console.WriteLine("Invalid input. Please enter a valid command. Type in 'help' to see all available commands");
+                ConsoleService.Error("Invalid input. Please enter a valid command. Type in 'help' to see all available commands.");
                 break;
         }
     }
     catch(Exception)
     { 
-        Console.WriteLine("Something went wrong during the login process, please try again.");
+        ConsoleService.Error("Something went wrong during the login process, please try again.");
     }
 }
 
@@ -84,71 +78,57 @@ while (true)
     switch (choiceParameters[0].Trim())
     {
         case "help":
-            if (choiceParameters.Count() != 1)
+            if (choiceParameters.Length != 1)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Error: Too many arguments. 'help' does not take in any arguments");
-                Console.ResetColor();
+                ConsoleService.Error("Too many arguments. 'help' does not take in any arguments;");
                 break;
             }
             help();
             break;
         case "list":
-            if (choiceParameters.Count() != 1)
+            if (choiceParameters.Length != 1)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Error: Too many arguments. 'list' does not take in any arguments");
-                Console.ResetColor();
+                ConsoleService.Error("Too many arguments. 'list' does not take in any arguments;");
                 break;
             }
             await taskService.List();
             break;
         case "details":
-            if (choiceParameters.Count() != 2)
+            if (choiceParameters.Length != 2)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Error: Incorrect number of arguments. Please only provide the id of the task you wish to see in more detail");
-                Console.ResetColor();
+                ConsoleService.Error("Incorrect number of arguments. Please only provide the id of the task you wish to see in more detail.");
                 break;
             }
             taskService.Details(choiceParameters[1].Trim());
             break;
         case "add":
-            if (choiceParameters.Count() != 1)
+            if (choiceParameters.Length != 1)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Error: Too many arguments. 'create' does not take in any arguments");
-                Console.ResetColor();
+                ConsoleService.Error("Too many arguments. 'create' does not take in any arguments");
                 break;
             }
             await taskService.Create();
             break;
         case "delete":
-            if (choiceParameters.Count() != 2)
+            if (choiceParameters.Length != 2)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Error: Incorrect number of arguments. Please only provide the id of the task you wish to delete");
-                Console.ResetColor();
+                ConsoleService.Error("Incorrect number of arguments. Please only provide the id of the task you wish to delete.");
                 break;
             }
             await taskService.Delete(choiceParameters[1].Trim());
             break;
         case "update":
-            if (choiceParameters.Count() != 2)
+            if (choiceParameters.Length != 2)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Error: Incorrect number of arguments. Please only provide the id of the task you wish to delete");
-                Console.ResetColor();
+                ConsoleService.Error("Incorrect number of arguments. Please only provide the id of the task you wish to delete.");
                 break;
             }
             await taskService.Update(choiceParameters[1].Trim());
             break;
         case "comment":
-            if (choiceParameters.Count() != 2)
+            if (choiceParameters.Length != 2)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Error: Incorrect number of arguments. Please only provide the id of the task you wish to comment on");
-                Console.ResetColor();
+                ConsoleService.Error("Incorrect number of arguments. Please only provide the id of the task you wish to comment on.");
                 break;
             }
             await taskService.Comment(choiceParameters[1].Trim());
@@ -157,7 +137,7 @@ while (true)
             exit();
             break;
         default:
-            Console.WriteLine("Invalid input. Please enter a valid command. Type in 'help' to see all available commands");
+            ConsoleService.Error("Invalid input. Please enter a valid command. Type in 'help' to see all available commands.");
             break;
     }
 }

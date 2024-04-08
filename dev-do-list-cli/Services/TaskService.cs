@@ -1,7 +1,6 @@
 ﻿using System.Globalization;
 using System.Text;
 using System.Text.Json;
-using System.Text.RegularExpressions;
 using dev_do_list_cli.Models;
 
 namespace dev_do_list_cli.Services
@@ -22,7 +21,7 @@ namespace dev_do_list_cli.Services
             if (taskResponse.IsSuccessStatusCode)
             {
                 var taskTypeResponseString = await taskResponse.Content.ReadAsStringAsync();
-                this.tasks = JsonSerializer.Deserialize<List<TaskResponse>>(taskTypeResponseString) ?? [];
+                tasks = JsonSerializer.Deserialize<List<TaskResponse>>(taskTypeResponseString) ?? [];
             }
             else
             {
@@ -30,7 +29,7 @@ namespace dev_do_list_cli.Services
             }
 
             // Fetch comments for tasks
-            foreach (var task in this.tasks)
+            foreach (var task in tasks)
             {
                 var commentRequest = new HttpRequestMessage(HttpMethod.Get, $"http://dev-do-list-backend.eu-west-1.elasticbeanstalk.com/api/v1/comment/task/{task.taskId}");
                 var commentResponse = await client.SendAsync(commentRequest);
@@ -60,7 +59,7 @@ namespace dev_do_list_cli.Services
             if (statusResponse.IsSuccessStatusCode)
             {
                 var statusResponseString = await statusResponse.Content.ReadAsStringAsync();
-                this.statuses = JsonSerializer.Deserialize<List<StatusResponse>>(statusResponseString) ?? [];
+                statuses = JsonSerializer.Deserialize<List<StatusResponse>>(statusResponseString) ?? [];
             }
             else
             {
@@ -77,7 +76,7 @@ namespace dev_do_list_cli.Services
             if (taskTypeResponse.IsSuccessStatusCode)
             {
                 var taskTypeResponseString = await taskTypeResponse.Content.ReadAsStringAsync();
-                this.types = JsonSerializer.Deserialize<List<TaskTypeResponse>>(taskTypeResponseString) ?? [];
+                types = JsonSerializer.Deserialize<List<TaskTypeResponse>>(taskTypeResponseString) ?? [];
             }
             else
             {
@@ -102,21 +101,19 @@ namespace dev_do_list_cli.Services
             );
 
             // Fetch task type options
-            await this.RefreshLocalTypes();
+            await RefreshLocalTypes();
 
-            if (this.types.Count == 0)
+            if (types.Count == 0)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Error: There are no valid task types currently available to assign to a task");
-                Console.ResetColor();
+                ConsoleService.Error("There are no valid task types currently available to assign to a task.");
                 return;
             }
 
             // Let the user choose a task type
             Console.WriteLine("Type Options:");
-            for (int i = 0; i < this.types.Count; i++)
+            for (int i = 0; i < types.Count; i++)
             {
-                Console.WriteLine($"{i + 1}. {this.types[i].taskTypeDescription}");
+                Console.WriteLine($"{i + 1}. {types[i].taskTypeDescription}");
             }
             Console.Write("Enter your choice: ");
             string? taskType = Console.ReadLine()?.Trim();
@@ -126,26 +123,22 @@ namespace dev_do_list_cli.Services
                 int taskTypeIndex = int.Parse(taskType) - 1;
                 if (taskTypeIndex < 0)
                 {
-                    throw new Exception("Index cannot be less than 0");
+                    throw new Exception("Index cannot be less than 0.");
                 }
-                task.taskTypeId = this.types[taskTypeIndex].taskTypeId;
+                task.taskTypeId = types[taskTypeIndex].taskTypeId;
             }
             catch (Exception)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"Error: '{taskType}' is not a valid selection.");
-                Console.ResetColor();
+                ConsoleService.Error($"'{taskType}' is not a valid selection.");
                 return;
             }
 
             // Title
             Console.Write("Title: ");
-            task.title = Console.ReadLine()?.Trim();
+            task.title = Console.ReadLine()?.Trim() ?? "";
             if (string.IsNullOrEmpty(task.title))
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Error: The title cannot be empty.");
-                Console.ResetColor();
+                ConsoleService.Error("The title cannot be empty.");
                 return;
             }
 
@@ -164,30 +157,24 @@ namespace dev_do_list_cli.Services
                     task.dueDate = DateTime.ParseExact(dueDateString, format, culture, DateTimeStyles.None);
                     if (task.dueDate < task.dateCreated)
                     {
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine("Error: The due date cannot be in the past.");
-                        Console.ResetColor();
+                        ConsoleService.Error("The due date cannot be in the past.");
                         return;
                     }
                 }
             }
             catch (FormatException)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Error: The due date provided is invalid");
-                Console.ResetColor();
+                ConsoleService.Error("The due date provided is invalid.");
                 return;
             }
 
             // Fetch statuses
-            await this.RefreshLocalStatuses();
+            await RefreshLocalStatuses();
 
-            task.statusId = this.statuses.FirstOrDefault(s => s.statusType.ToLower() == "not started")?.statusId ?? -1;
+            task.statusId = statuses.FirstOrDefault(s => s.statusType.ToLower() == "not started")?.statusId ?? -1;
             if (task.statusId == -1)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Error: Couldn't assign a status to the task.");
-                Console.ResetColor();
+                ConsoleService.Error("Couldn't assign a status to the task.");
                 return;
             }
 
@@ -212,13 +199,13 @@ namespace dev_do_list_cli.Services
                 Console.WriteLine("Error: Something went wrong creating the task.", ConsoleColor.Red);
             }
 
-            await this.RefreshLocalTasks();
+            await RefreshLocalTasks();
         }
     
         public async Task List()
         {
             try { 
-                if (this.tasks.Count == 0)
+                if (tasks.Count == 0)
                 {
                     Console.WriteLine("Your to do list is empty");
                     return;
@@ -231,14 +218,13 @@ namespace dev_do_list_cli.Services
                 Console.WriteLine("--------------------------------------------------");
                 for (int i = 0; i < tasks.Count; i++)
                 {
-                    Console.WriteLine($"{$"{i + 1}.", -5}{tasks[i].title, -35}{this.statuses.First(s => s.statusId == tasks[i].statusId).statusType, -10}");
+                    Console.WriteLine($"{$"{i + 1}.", -5}{tasks[i].title, -35}{statuses.First(s => s.statusId == tasks[i].statusId).statusType, -10}");
                 }
                 
             }
             catch(Exception)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Error: Unable to fetch your tasks at the moment.");
+                ConsoleService.Error("Unable to fetch your tasks at the moment.");
                 return;
             }
         }
@@ -250,26 +236,24 @@ namespace dev_do_list_cli.Services
             try
             {
                 listId = int.Parse(listIdString);
-                task = this.tasks[listId - 1];
+                task = tasks[listId - 1];
             }
             catch (Exception)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"Error: '{listIdString}' is not a valid option");
-                Console.ResetColor();
+                ConsoleService.Error($"'{listIdString}' is not a valid option.");
                 return;
             }
             Console.WriteLine($"Task ID: {listId}");
             Console.WriteLine($"Title: {task.title}");
-            Console.WriteLine($"Status: {this.statuses.First(s => s.statusId == task.statusId).statusType}");
-            Console.WriteLine($"Type: {this.types.First(t => t.taskTypeId == task.taskTypeId).taskTypeDescription}");
+            Console.WriteLine($"Status: {statuses.First(s => s.statusId == task.statusId).statusType}");
+            Console.WriteLine($"Type: {types.First(t => t.taskTypeId == task.taskTypeId).taskTypeDescription}");
             Console.WriteLine($"Description: {(string.IsNullOrEmpty(task.description) ? "None" : task.description)}");
             Console.WriteLine($"Due Date: {task.dueDate}");
             Console.WriteLine($"Date Created: {task.dateCreated}");
             Console.Write($"Comments:{(task.comments.Count == 0 ? " None" : "\n")}");
             foreach(var comment in task.comments)
             {
-                Console.WriteLine($"({comment.dateCommented.ToString(format)}) - \"{comment.comment}\"");
+                Console.WriteLine($"\t({comment.dateCommented.ToString(format)}) - \"{comment.comment}\"");
             }
             Console.WriteLine();
         }
@@ -281,13 +265,11 @@ namespace dev_do_list_cli.Services
             try
             {
                 listId = int.Parse(listIdString);
-                task = this.tasks[listId - 1];
+                task = tasks[listId - 1];
             }
             catch (Exception)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"Error: '{listIdString}' is not a valid option");
-                Console.ResetColor();
+                ConsoleService.Error($"'{listIdString}' is not a valid option.");
                 return;
             }
 
@@ -307,12 +289,10 @@ namespace dev_do_list_cli.Services
             }
             catch (Exception)
             {
-                Console.ForegroundColor= ConsoleColor.Red;
-                Console.WriteLine("Error: the task could not be deleted");
-                Console.ResetColor();
+                ConsoleService.Error("The task could not be deleted.");
             }
 
-            await this.RefreshLocalTasks();
+            await RefreshLocalTasks();
         }
 
         public async Task Update(string listIdString)
@@ -322,13 +302,11 @@ namespace dev_do_list_cli.Services
             try
             {
                 listId = int.Parse(listIdString);
-                task = this.tasks[listId - 1];
+                task = tasks[listId - 1];
             }
             catch (Exception)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"Error: '{listIdString}' is not a valid option");
-                Console.ResetColor();
+                ConsoleService.Error($"'{listIdString}' is not a valid option.");
                 return;
             }
 
@@ -354,18 +332,14 @@ namespace dev_do_list_cli.Services
                     }
                     catch(Exception)
                     {
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine($"Error: '{typeChoice}' is not a valid choice.");
-                        Console.ResetColor();
+                        ConsoleService.Error($"'{typeChoice}' is not a valid choice.");
                         return;
                     }
                     break;
                 case "n":
                     break;
                 default:
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine($"Error: '{typeInput}' is not a valid choice.");
-                    Console.ResetColor();
+                    ConsoleService.Error($"'{typeInput}' is not a valid choice.");
                     return;
             }
 
@@ -391,18 +365,14 @@ namespace dev_do_list_cli.Services
                     }
                     catch (Exception)
                     {
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine($"Error: '{statusChoice}' is not a valid choice.");
-                        Console.ResetColor();
+                        ConsoleService.Error($"'{statusChoice}' is not a valid choice.");
                         return;
                     }
                     break;
                 case "n":
                     break;
                 default:
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine($"Error: '{statusInput}' is not a valid choice.");
-                    Console.ResetColor();
+                    ConsoleService.Error($"'{statusInput}' is not a valid choice.");
                     return;
             }
 
@@ -423,27 +393,21 @@ namespace dev_do_list_cli.Services
                             dueDate = DateTime.ParseExact(dueDateString, format, culture, DateTimeStyles.None);
                             if (dueDate < task.dateCreated)
                             {
-                                Console.ForegroundColor = ConsoleColor.Red;
-                                Console.WriteLine("Error: The due date cannot be before the task was created.");
-                                Console.ResetColor();
+                                ConsoleService.Error($"Please select a due date that is past the date the task was created ({task.dateCreated.ToString(format)}).");
                                 return;
                             }
                         }
                     }
                     catch (FormatException)
                     {
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine("Error: The due date provided is invalid");
-                        Console.ResetColor();
+                        ConsoleService.Error("The due date provided is invalid.");
                         return;
                     }
                     break;
                 case "n":
                     break;
                 default:
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine($"Error: '{dueDateInput}' is not a valid choice.");
-                    Console.ResetColor();
+                    ConsoleService.Error($"'{dueDateInput}' is not a valid choice.");
                     return;
             }
 
@@ -463,34 +427,30 @@ namespace dev_do_list_cli.Services
                 }
                 else
                 {
-                    throw new Exception("Failed to update the task");
+                    throw new Exception("Failed to update the task.");
                 }
             }
             catch
             {
-                Console.ForegroundColor= ConsoleColor.Red;
-                Console.WriteLine("Error: Failed to update the task");
-                Console.ResetColor();
+                ConsoleService.Error("Failed to update the task.");
                 return;
             }
 
-            await this.RefreshLocalTasks();
+            await RefreshLocalTasks();
         }
 
         public async Task Comment(string listIdString)
         {
             int listId;
-            var task = new TaskResponse();
+            TaskResponse? task;
             try
             {
                 listId = int.Parse(listIdString);
-                task = this.tasks[listId - 1];
+                task = tasks[listId - 1];
             }
             catch (Exception)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"Error: '{listIdString}' is not a valid option");
-                Console.ResetColor();
+                ConsoleService.Error($"'{listIdString}' is not a valid option.");
                 return;
             }
 
@@ -526,37 +486,33 @@ namespace dev_do_list_cli.Services
                     }
                     else
                     {
-                        throw new Exception("Unable to upload comment");
+                        throw new Exception("Unable to upload comment.");
                     }
                 }
                 catch(Exception)
                 {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("Error: Unable to upload comment");
-                    Console.ResetColor();
+                    ConsoleService.Error("Unable to upload comment.");
                     return;
                 }
-                await this.RefreshLocalTasks();
+                await RefreshLocalTasks();
             }
             else
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Error: The comment cannot be empty");
-                Console.ResetColor();
+                ConsoleService.Error("The comment cannot be empty.");
                 return;
             }
         }
 
-        private HttpClient client = new HttpClient();
+        private readonly HttpClient client = new();
 
-        private string format = "dd/MM/yyyy HH:mm";
+        private readonly string format = "dd/MM/yyyy HH:mm";
             
-        private CultureInfo culture = new CultureInfo("en-GB");
+        private readonly CultureInfo culture = new("en-GB");
 
-        private List<TaskResponse> tasks = new List<TaskResponse>();
+        private List<TaskResponse> tasks = [];
 
-        private List<StatusResponse> statuses = new List<StatusResponse>();
+        private List<StatusResponse> statuses = [];
 
-        private List<TaskTypeResponse> types = new List<TaskTypeResponse>();
+        private List<TaskTypeResponse> types = [];
     }
 }

@@ -207,7 +207,7 @@ namespace dev_do_list_cli.Services
             try { 
                 if (tasks.Count == 0)
                 {
-                    Console.WriteLine("Your to do list is empty");
+                    Console.WriteLine("Your to do list is empty.");
                     return;
                 }
 
@@ -261,7 +261,7 @@ namespace dev_do_list_cli.Services
         public async Task Delete(string listIdString)
         {
             int listId;
-            var task = new TaskResponse();
+            TaskResponse? task;
             try
             {
                 listId = int.Parse(listIdString);
@@ -275,6 +275,18 @@ namespace dev_do_list_cli.Services
 
             try
             {
+                foreach(var comment in task.comments)
+                {
+                    var commentRequest = new HttpRequestMessage(HttpMethod.Delete, $"http://dev-do-list-backend.eu-west-1.elasticbeanstalk.com/api/v1/comment/{comment.commentId}");
+                    var commentResponse = await client.SendAsync(commentRequest);
+
+                    if (!commentResponse.IsSuccessStatusCode)
+                    {
+                        ConsoleService.Error("Failed to delete comments attached to the task.");
+                        return;
+                    }
+                }
+
                 var request = new HttpRequestMessage(HttpMethod.Delete, $"http://dev-do-list-backend.eu-west-1.elasticbeanstalk.com/api/v1/task/{task.taskId}");
                 var response = await client.SendAsync(request);
 

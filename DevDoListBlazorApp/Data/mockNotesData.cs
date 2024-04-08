@@ -10,7 +10,7 @@ namespace DevDoListBlazorApp.Data
             {
                 new Note
                 {
-                    noteId = 1,
+                    taskId = 1,
                     title = "Meeting Agenda",
                     description = "Prepare agenda for the weekly team meeting.",
                     dueDate = DateTime.Now.AddDays(3), // Example due date 3 days from now
@@ -25,7 +25,7 @@ namespace DevDoListBlazorApp.Data
                 },
                 new Note
                 {
-                    noteId = 2,
+                    taskId = 2,
                     title = "Bug Fix",
                     description = "Fix issue #123 reported by user.",
                     dueDate = DateTime.Now.AddDays(5), // Example due date 5 days from now

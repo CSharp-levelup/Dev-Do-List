@@ -18,8 +18,8 @@
 <div class="card-container">
     @foreach (var note in userNote)
     {
-        <div key="@note.noteId">
-            <CardContents currNote="note" />
+        <div key="@note.taskId">
+            <CardContents currNote="@note" />
         </div>
     }
 </div>

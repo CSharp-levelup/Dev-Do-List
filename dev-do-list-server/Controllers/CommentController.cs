@@ -8,15 +8,8 @@ namespace DevDoListServer.Controllers
 {
     [Route("api/v1/comment")]
     [ApiController]
-    public class CommentController : ControllerBase
+    public class CommentController(CommentRepository commentRepository) : ControllerBase
     {
-        private readonly CommentRepository _commentRepository;
-
-        public CommentController(CommentRepository commentRepository)
-        {
-            _commentRepository = commentRepository;
-        }
-        
         [HttpGet("task/{taskId}")]
         [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(IEnumerable<CommentDto>))]
         [SwaggerResponse(StatusCodes.Status401Unauthorized)]
@@ -24,15 +17,15 @@ namespace DevDoListServer.Controllers
         public async Task<ActionResult<IEnumerable<CommentDto>>> GetCommentsForTask([FromHeader(Name = "Authorization")] string authToken, [FromRoute] int taskId)
         { 
             var username = JwtUtils.GetClaim(authToken, "username");
-            
-            var comments = await _commentRepository.FindAll(c => c.TaskId == taskId);
-            var comment = comments.FirstOrDefault();
-            if (comment != null && comment.Task!.User!.Username != username)
+
+            var comments = await commentRepository.FindAll(c => c.TaskId == taskId);
+            var firstComment = comments.FirstOrDefault();
+            if (firstComment != null && firstComment.Task!.User!.Username != username)
             {
                 return Unauthorized();
             }
 
-            if (comment == null)
+            if (firstComment == null)
             {
                 return NotFound();
             }
@@ -47,14 +40,14 @@ namespace DevDoListServer.Controllers
         public async Task<ActionResult<CommentDto>> GetComment([FromHeader(Name = "Authorization")] string authToken, [FromRoute] int id)
         {
             var username = JwtUtils.GetClaim(authToken, "username");
-            var comment = await _commentRepository.GetById(id);
+            var comment = await commentRepository.GetById(id);
 
             if (comment == null)
             {
                 return NotFound("Comment not found");
             }
 
-            if (comment.Task.User.Username != username)
+            if (comment.Task!.User!.Username != username)
             {
                 return Unauthorized();
             }
@@ -76,7 +69,7 @@ namespace DevDoListServer.Controllers
             }
             
             var username = JwtUtils.GetClaim(authToken, "username");
-            var originalComment = await _commentRepository.GetById(id);
+            var originalComment = await commentRepository.GetById(id);
 
             if (originalComment == null)
             {
@@ -88,7 +81,7 @@ namespace DevDoListServer.Controllers
                 return Unauthorized();
             }
 
-            await _commentRepository.Update(commentDto.ToComment());
+            await commentRepository.Update(commentDto.ToComment());
             
             return NoContent();
         }
@@ -97,7 +90,7 @@ namespace DevDoListServer.Controllers
         [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(CommentDto))]
         public async Task<ActionResult<CommentDto>> PostComment([FromBody] CommentCreateDto commentCreateDto)
         {
-            var createdComment = await _commentRepository.Create(commentCreateDto.ToComment());
+            var createdComment = await commentRepository.Create(commentCreateDto.ToComment());
             var commentDto = new CommentDto(createdComment);
             return CreatedAtAction("GetComment", new { id = commentDto.CommentId }, commentDto);
         }
@@ -108,7 +101,7 @@ namespace DevDoListServer.Controllers
         [SwaggerResponse(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteComment([FromHeader(Name = "Authorization")] string authToken, [FromRoute] int id)
         {
-            var comment = await _commentRepository.GetById(id);
+            var comment = await commentRepository.GetById(id);
             var username = JwtUtils.GetClaim(authToken, "username");
             
             if (comment == null)
@@ -120,8 +113,8 @@ namespace DevDoListServer.Controllers
             {
                 return Unauthorized();
             }
-            
-            await _commentRepository.Delete(comment);
+
+            await commentRepository.Delete(comment);
 
             return NoContent();
         }

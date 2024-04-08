@@ -9,7 +9,7 @@ namespace DevDoListServer.Controllers
 {
     [Route("api/v1/task")]
     [ApiController]
-    public class TaskController(TaskRepository taskRepository) : ControllerBase
+    public class TaskController(TaskRepository taskRepository, UserRepository userRepository) : ControllerBase
     {
         [HttpGet]
         [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(IEnumerable<TaskResponseDto>))]
@@ -72,8 +72,11 @@ namespace DevDoListServer.Controllers
 
         [HttpPost]
         [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(TaskResponseDto))]
-        public async Task<ActionResult<TaskResponseDto>> PostTask([FromBody] TaskCreateDto taskCreateDto)
+        public async Task<ActionResult<TaskResponseDto>> PostTask([FromHeader(Name = "Authorization")] string authToken, [FromBody] TaskCreateDto taskCreateDto)
         {
+            var username = JwtUtils.GetClaim(authToken, "username");
+            var user = userRepository.FindSingle(u => u.Username == username);
+            taskCreateDto.UserId = user.Id;
             var createdTask = await taskRepository.Create(taskCreateDto.ToTask());
             var taskDto = new TaskResponseDto(createdTask);
             return CreatedAtAction("GetTask", new { id = taskDto.UserId }, taskDto);

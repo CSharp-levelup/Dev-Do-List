@@ -144,7 +144,14 @@ while (true)
             await taskService.Update(choiceParameters[1].Trim());
             break;
         case "comment":
-            // Logic for adding a comment to a task
+            if (choiceParameters.Count() != 2)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("Error: Incorrect number of arguments. Please only provide the id of the task you wish to comment on");
+                Console.ResetColor();
+                break;
+            }
+            await taskService.Comment(choiceParameters[1].Trim());
             break;
         case "exit":
             exit();

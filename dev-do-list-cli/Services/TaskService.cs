@@ -28,6 +28,27 @@ namespace dev_do_list_cli.Services
             {
                 throw new Exception("Failed to get the user's tasks from the API");
             }
+
+            // Fetch comments for tasks
+            foreach (var task in this.tasks)
+            {
+                var commentRequest = new HttpRequestMessage(HttpMethod.Get, $"http://dev-do-list-backend.eu-west-1.elasticbeanstalk.com/api/v1/comment/task/{task.taskId}");
+                var commentResponse = await client.SendAsync(commentRequest);
+
+                if (commentResponse.IsSuccessStatusCode) 
+                {
+                    var commentReponseString = await commentResponse.Content.ReadAsStringAsync();
+                    task.comments = JsonSerializer.Deserialize<List<CommentResponse>>(commentReponseString) ?? [];
+                }
+                else if (commentResponse.StatusCode == System.Net.HttpStatusCode.NotFound)
+                {
+                    task.comments = [];
+                }
+                else
+                {
+                    throw new Exception("Failed to get the user's comments from the API");
+                }
+            }
         }
 
         public async Task RefreshLocalStatuses()
@@ -245,10 +266,10 @@ namespace dev_do_list_cli.Services
             Console.WriteLine($"Description: {(string.IsNullOrEmpty(task.description) ? "None" : task.description)}");
             Console.WriteLine($"Due Date: {task.dueDate}");
             Console.WriteLine($"Date Created: {task.dateCreated}");
-            Console.Write($"Comments:{(task.comments.Count == 0 ? " None" : "")}");
+            Console.Write($"Comments:{(task.comments.Count == 0 ? " None" : "\n")}");
             foreach(var comment in task.comments)
             {
-                Console.Write($"> \"{comment.comment}\"");
+                Console.WriteLine($"({comment.dateCommented.ToString(format)}) - \"{comment.comment}\"");
             }
             Console.WriteLine();
         }
@@ -454,6 +475,76 @@ namespace dev_do_list_cli.Services
             }
 
             await this.RefreshLocalTasks();
+        }
+
+        public async Task Comment(string listIdString)
+        {
+            int listId;
+            var task = new TaskResponse();
+            try
+            {
+                listId = int.Parse(listIdString);
+                task = this.tasks[listId - 1];
+            }
+            catch (Exception)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"Error: '{listIdString}' is not a valid option");
+                Console.ResetColor();
+                return;
+            }
+
+            Console.Write("Enter your comment: ");
+            string? commentString = Console.ReadLine()?.Trim();
+
+            if (!string.IsNullOrWhiteSpace(commentString))
+            {
+                var currentDate = DateTime.Now;
+                var comment = new CommentCreate
+                {
+                    taskId = task.taskId,
+                    comment = commentString,
+                    dateCommented = new DateTime(
+                        currentDate.Year,
+                        currentDate.Month,
+                        currentDate.Day,
+                        currentDate.Hour,
+                        currentDate.Minute,
+                        0
+                    ),
+                };
+
+                try
+                {
+                    var request = new HttpRequestMessage(HttpMethod.Post, "http://dev-do-list-backend.eu-west-1.elasticbeanstalk.com/api/v1/comment");
+                    request.Content = new StringContent(JsonSerializer.Serialize(comment), Encoding.UTF8, "application/json");
+                    var response = await client.SendAsync(request);
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        Console.WriteLine("Comment added succesfully!");
+                    }
+                    else
+                    {
+                        throw new Exception("Unable to upload comment");
+                    }
+                }
+                catch(Exception)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("Error: Unable to upload comment");
+                    Console.ResetColor();
+                    return;
+                }
+                await this.RefreshLocalTasks();
+            }
+            else
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("Error: The comment cannot be empty");
+                Console.ResetColor();
+                return;
+            }
         }
 
         private HttpClient client = new HttpClient();

@@ -134,7 +134,14 @@ while (true)
             await taskService.Delete(choiceParameters[1].Trim());
             break;
         case "update":
-            // Logic for updating a task's status
+            if (choiceParameters.Count() != 2)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("Error: Incorrect number of arguments. Please only provide the id of the task you wish to delete");
+                Console.ResetColor();
+                break;
+            }
+            await taskService.Update(choiceParameters[1].Trim());
             break;
         case "comment":
             // Logic for adding a comment to a task

@@ -1,6 +1,7 @@
 ﻿using System.Globalization;
 using System.Text;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using dev_do_list_cli.Models;
 
 namespace dev_do_list_cli.Services
@@ -69,7 +70,6 @@ namespace dev_do_list_cli.Services
 
             task.userId = UserService.UserId;
 
-            CultureInfo culture = new CultureInfo("en-GB");
             var currentDate = DateTime.Now;
             task.dateCreated = new DateTime(
                 currentDate.Year,
@@ -133,7 +133,6 @@ namespace dev_do_list_cli.Services
             task.description = Console.ReadLine()?.Trim();
 
             // Due date
-            string format = "dd/MM/yyyy HH:mm";
             Console.Write($"Due date ({format}): ");
             string? dueDateString = Console.ReadLine()?.Trim();
             task.dueDate = task.dateCreated; 
@@ -295,7 +294,173 @@ namespace dev_do_list_cli.Services
             await this.RefreshLocalTasks();
         }
 
+        public async Task Update(string listIdString)
+        {
+            int listId;
+            var task = new TaskResponse();
+            try
+            {
+                listId = int.Parse(listIdString);
+                task = this.tasks[listId - 1];
+            }
+            catch (Exception)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"Error: '{listIdString}' is not a valid option");
+                Console.ResetColor();
+                return;
+            }
+
+            Console.Write("Would you like to update the task's type (y/n): ");
+            string? typeInput = Console.ReadLine()?.Trim();
+
+            var type = types.First(t => t.taskTypeId == task.taskTypeId);
+
+            switch (typeInput)
+            {
+                case "y":
+                    Console.WriteLine("Choose a task type to update to:");
+                    for (int i = 0; i < types.Count; i++) 
+                    {
+                        Console.WriteLine($"{i + 1}. {types[i].taskTypeDescription}");
+                    }
+                    Console.Write("Enter your choice: ");
+                    string? typeChoice = Console.ReadLine()?.Trim();
+                    try
+                    {
+                        int typeChoiceIndex = int.Parse(typeChoice);
+                        type = types[typeChoiceIndex - 1];
+                    }
+                    catch(Exception)
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine($"Error: '{typeChoice}' is not a valid choice.");
+                        Console.ResetColor();
+                        return;
+                    }
+                    break;
+                case "n":
+                    break;
+                default:
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine($"Error: '{typeInput}' is not a valid choice.");
+                    Console.ResetColor();
+                    return;
+            }
+
+            Console.Write("Would you like to update the task's status (y/n): ");
+            string? statusInput = Console.ReadLine()?.Trim();
+
+            var status = statuses.First(s => s.statusId == task.statusId);
+
+            switch (statusInput)
+            {
+                case "y":
+                    Console.WriteLine("Choose a status to update to:");
+                    for (int i = 0; i < statuses.Count; i++)
+                    {
+                        Console.WriteLine($"{i + 1}. {statuses[i].statusType}");
+                    }
+                    Console.Write("Enter your choice: ");
+                    string? statusChoice = Console.ReadLine()?.Trim();
+                    try
+                    {
+                        int statusChoiceIndex = int.Parse(statusChoice);
+                        status = statuses[statusChoiceIndex - 1];
+                    }
+                    catch (Exception)
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine($"Error: '{statusChoice}' is not a valid choice.");
+                        Console.ResetColor();
+                        return;
+                    }
+                    break;
+                case "n":
+                    break;
+                default:
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine($"Error: '{statusInput}' is not a valid choice.");
+                    Console.ResetColor();
+                    return;
+            }
+
+            Console.Write("Would you like to update the task's due date (y/n): ");
+            string? dueDateInput = Console.ReadLine()?.Trim();
+
+            var dueDate = task.dueDate;
+
+            switch (dueDateInput)
+            {
+                case "y":
+                    Console.Write($"Due date ({format}): ");
+                    string? dueDateString = Console.ReadLine()?.Trim();
+                    try
+                    {
+                        if (!string.IsNullOrEmpty(dueDateString))
+                        {
+                            dueDate = DateTime.ParseExact(dueDateString, format, culture, DateTimeStyles.None);
+                            if (dueDate < task.dateCreated)
+                            {
+                                Console.ForegroundColor = ConsoleColor.Red;
+                                Console.WriteLine("Error: The due date cannot be before the task was created.");
+                                Console.ResetColor();
+                                return;
+                            }
+                        }
+                    }
+                    catch (FormatException)
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine("Error: The due date provided is invalid");
+                        Console.ResetColor();
+                        return;
+                    }
+                    break;
+                case "n":
+                    break;
+                default:
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine($"Error: '{dueDateInput}' is not a valid choice.");
+                    Console.ResetColor();
+                    return;
+            }
+
+            task.taskTypeId = type.taskTypeId;
+            task.statusId = status.statusId;
+            task.dueDate = dueDate;
+
+            try
+            {
+                var request = new HttpRequestMessage(HttpMethod.Put, $"http://dev-do-list-backend.eu-west-1.elasticbeanstalk.com/api/v1/task/{task.taskId}");
+                request.Content = new StringContent(JsonSerializer.Serialize(task), Encoding.UTF8, "application/json");
+                var response = await client.SendAsync(request);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    Console.WriteLine("Succesfully updated the task!");
+                }
+                else
+                {
+                    throw new Exception("Failed to update the task");
+                }
+            }
+            catch
+            {
+                Console.ForegroundColor= ConsoleColor.Red;
+                Console.WriteLine("Error: Failed to update the task");
+                Console.ResetColor();
+                return;
+            }
+
+            await this.RefreshLocalTasks();
+        }
+
         private HttpClient client = new HttpClient();
+
+        private string format = "dd/MM/yyyy HH:mm";
+            
+        private CultureInfo culture = new CultureInfo("en-GB");
 
         private List<TaskResponse> tasks = new List<TaskResponse>();
 

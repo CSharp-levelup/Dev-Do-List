@@ -7,14 +7,16 @@ namespace dev_do_list_cli.Services
 {
     public class TaskService
     {
+        public TaskService() 
+        {
+            client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", LoginService.JwtToken);
+        }
+
         public async Task RefreshLocalTasks()
         {
-            using HttpClient client = new();
-            client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", LoginService.JwtToken);
-
             // Fetch all tasks
             var taskRequest = new HttpRequestMessage(HttpMethod.Get, $"http://dev-do-list-backend.eu-west-1.elasticbeanstalk.com/api/v1/task");
-            var taskResponse = client.Send(taskRequest);
+            var taskResponse = await client.SendAsync(taskRequest);
 
             if (taskResponse.IsSuccessStatusCode)
             {
@@ -29,9 +31,6 @@ namespace dev_do_list_cli.Services
 
         public async Task RefreshLocalStatuses()
         {
-            using HttpClient client = new();
-            client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", LoginService.JwtToken);
-
             // Fetch all statuses
             var statusRequest = new HttpRequestMessage(HttpMethod.Get, "http://dev-do-list-backend.eu-west-1.elasticbeanstalk.com/api/v1/status");
             var statusResponse = await client.SendAsync(statusRequest);
@@ -49,9 +48,6 @@ namespace dev_do_list_cli.Services
 
         public async Task RefreshLocalTypes()
         {
-            using HttpClient client = new();
-            client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", LoginService.JwtToken);
-
             // Fetch all types
             var taskTypeRequest = new HttpRequestMessage(HttpMethod.Get, "http://dev-do-list-backend.eu-west-1.elasticbeanstalk.com/api/v1/tasktype");
             var taskTypeResponse = await client.SendAsync(taskTypeRequest);
@@ -70,9 +66,6 @@ namespace dev_do_list_cli.Services
         public async Task Create()
         {
             TaskCreate task = new();
-
-            using HttpClient client = new();
-            client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", LoginService.JwtToken);
 
             task.userId = UserService.UserId;
 
@@ -187,7 +180,7 @@ namespace dev_do_list_cli.Services
 
                 if (response.IsSuccessStatusCode)
                 {
-                    Console.WriteLine("\nSuccesfully created the task!");
+                    Console.WriteLine("Succesfully created the task!");
                 }
                 else
                 {
@@ -263,9 +256,6 @@ namespace dev_do_list_cli.Services
 
         public async Task Delete(string listIdString)
         {
-            using HttpClient client = new();
-            client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", LoginService.JwtToken);
-
             int listId;
             var task = new TaskResponse();
             try
@@ -288,7 +278,7 @@ namespace dev_do_list_cli.Services
 
                 if (response.IsSuccessStatusCode)
                 {
-                    Console.WriteLine($"\nTask {listId} was deleted succesfully!");
+                    Console.WriteLine($"Task {listId} was deleted succesfully!");
                 }
                 else
                 {
@@ -305,8 +295,12 @@ namespace dev_do_list_cli.Services
             await this.RefreshLocalTasks();
         }
 
+        private HttpClient client = new HttpClient();
+
         private List<TaskResponse> tasks = new List<TaskResponse>();
+
         private List<StatusResponse> statuses = new List<StatusResponse>();
+
         private List<TaskTypeResponse> types = new List<TaskTypeResponse>();
     }
 }

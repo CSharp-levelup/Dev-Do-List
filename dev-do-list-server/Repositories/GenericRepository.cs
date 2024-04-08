@@ -1,29 +1,25 @@
-﻿using DevDoListServer.Data;
+﻿using System.Linq.Expressions;
+using DevDoListServer.Data;
 using Microsoft.EntityFrameworkCore;
-using System.Linq.Expressions;
 
 namespace DevDoListServer.Repositories
 {
-    public abstract class GenericRepository<T> : IRepository<T> where T : class
+    public abstract class GenericRepository<T>(AppDbContext context) : IRepository<T>
+        where T : class
     {
-        protected AppDbContext context;
-
-        public GenericRepository(AppDbContext context)
-        {
-            this.context = context;
-        }
+        protected AppDbContext context = context;
 
         public virtual async Task<T> Create(T entity)
         {
             var addedEntity = context.Add(entity).Entity;
-            await saveChanges();
+            await SaveChanges();
             return addedEntity;
         }
 
         public virtual async Task<int> Delete(T entity)
         {
             context.Remove(entity);
-            return await saveChanges();
+            return await SaveChanges();
         }
 
         public virtual async Task<List<T>> GetAll()
@@ -39,7 +35,7 @@ namespace DevDoListServer.Repositories
         public virtual async Task<T> Update(T entity)
         {
             context.Entry(entity).State = EntityState.Modified;
-            await saveChanges();
+            await SaveChanges();
             return entity;
         }
 
@@ -58,7 +54,7 @@ namespace DevDoListServer.Repositories
             return await context.Set<T>().Where(predicate).ToListAsync();
         }
 
-        protected async Task<int> saveChanges()
+        protected async Task<int> SaveChanges()
         {
             return await context.SaveChangesAsync();
         }

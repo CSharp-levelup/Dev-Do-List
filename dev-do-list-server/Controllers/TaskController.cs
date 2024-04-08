@@ -9,22 +9,15 @@ namespace DevDoListServer.Controllers
 {
     [Route("api/v1/task")]
     [ApiController]
-    public class TaskController : ControllerBase
+    public class TaskController(TaskRepository taskRepository) : ControllerBase
     {
-        private readonly TaskRepository _taskRepository;
-        
-        public TaskController(TaskRepository taskRepository)
-        {
-            _taskRepository = taskRepository;
-        }
-        
         [HttpGet]
         [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(IEnumerable<TaskResponseDto>))]
         [SwaggerResponse(StatusCodes.Status401Unauthorized)]
         public async Task<ActionResult<TaskResponseDto>> GetTasks([FromHeader(Name = "Authorization")] string authToken)
         {
             var username = JwtUtils.GetClaim(authToken, "username");
-            var tasks = await _taskRepository.FindAll(task => task.User.Username == username);
+            var tasks = await taskRepository.FindAll(task => task.User!.Username == username);
             var dtos = tasks.Select(t => new TaskResponseDto(t));
             return Ok(dtos);
         }
@@ -35,7 +28,7 @@ namespace DevDoListServer.Controllers
         [SwaggerResponse(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<TaskResponseDto>> GetTask([FromRoute] int id)
         {
-            var task = await _taskRepository.GetById(id);
+            var task = await taskRepository.GetById(id);
 
             if (task == null)
             {
@@ -60,11 +53,11 @@ namespace DevDoListServer.Controllers
             
             try
             {
-                await _taskRepository.Update(taskUpdateDto.ToTask());
+                await taskRepository.Update(taskUpdateDto.ToTask());
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!await _taskRepository.Exists(e => e.TaskId == id))
+                if (!await taskRepository.Exists(e => e.TaskId == id))
                 {
                     return NotFound("Task not found");
                 }
@@ -81,7 +74,7 @@ namespace DevDoListServer.Controllers
         [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(TaskResponseDto))]
         public async Task<ActionResult<TaskResponseDto>> PostTask([FromBody] TaskCreateDto taskCreateDto)
         {
-            var createdTask = await _taskRepository.Create(taskCreateDto.ToTask());
+            var createdTask = await taskRepository.Create(taskCreateDto.ToTask());
             var taskDto = new TaskResponseDto(createdTask);
             return CreatedAtAction("GetTask", new { id = taskDto.UserId }, taskDto);
         }
@@ -92,14 +85,14 @@ namespace DevDoListServer.Controllers
         [SwaggerResponse(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteTask(int id)
         {
-            var task = await _taskRepository.GetById(id);
+            var task = await taskRepository.GetById(id);
 
             if (task == null)
             {
                 return NotFound("Task not found");
             }
 
-            await _taskRepository.Delete(task);
+            await taskRepository.Delete(task);
 
             return NoContent();
         }

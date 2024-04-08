@@ -8,21 +8,14 @@ namespace DevDoListServer.Controllers
 {
     [Route("api/v1/status")]
     [ApiController]
-    public class StatusController : ControllerBase
+    public class StatusController(StatusRepository statusRepository) : ControllerBase
     {
-        private readonly StatusRepository _statusRepository;
-
-        public StatusController(StatusRepository statusRepository)
-        {
-            _statusRepository = statusRepository;
-        }
-
         [HttpGet]
         [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(IEnumerable<StatusDto>))]
         [SwaggerResponse(StatusCodes.Status401Unauthorized)]
         public async Task<ActionResult<IEnumerable<StatusDto>>> GetStatuses()
         {
-            var statuses = await _statusRepository.GetAll();
+            var statuses = await statusRepository.GetAll();
             var statusDtos = statuses.Select(status => new StatusDto(status)).ToList();
             return Ok(statusDtos);
         }
@@ -33,7 +26,7 @@ namespace DevDoListServer.Controllers
         [SwaggerResponse(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<StatusDto>> GetStatus([FromRoute] int id)
         {
-            var status = await _statusRepository.GetById(id);
+            var status = await statusRepository.GetById(id);
 
             if (status == null)
             {
@@ -57,11 +50,11 @@ namespace DevDoListServer.Controllers
 
             try
             {
-                await _statusRepository.Update(status.ToStatus());
+                await statusRepository.Update(status.ToStatus());
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!await _statusRepository.Exists(e => e.StatusId == id))
+                if (!await statusRepository.Exists(e => e.StatusId == id))
                 {
                     return NotFound("Status not found");
                 }
@@ -78,7 +71,7 @@ namespace DevDoListServer.Controllers
         [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(StatusDto))]
         public async Task<ActionResult<StatusDto>> PostStatus([FromBody] StatusCreateDto status)
         {
-            var createdStatus = await _statusRepository.Create(status.ToStatus());
+            var createdStatus = await statusRepository.Create(status.ToStatus());
             var statusDto = new StatusDto(createdStatus);
             return CreatedAtAction("GetStatus", new { id = statusDto.StatusId }, statusDto);
         }
@@ -89,13 +82,13 @@ namespace DevDoListServer.Controllers
         [SwaggerResponse(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteStatus([FromRoute] int id)
         {
-            var status = await _statusRepository.GetById(id);
+            var status = await statusRepository.GetById(id);
             if (status == null)
             {
                 return NotFound("Status not found");
             }
 
-            await _statusRepository.Delete(status);
+            await statusRepository.Delete(status);
 
             return NoContent();
         }

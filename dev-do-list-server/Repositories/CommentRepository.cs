@@ -5,10 +5,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DevDoListServer.Repositories;
 
-public class CommentRepository: GenericRepository<Comment>
+public class CommentRepository(AppDbContext context) : GenericRepository<Comment>(context)
 {
-    public CommentRepository(AppDbContext context) : base(context) { }
-
     public async override Task<Comment?> GetById(int id)
     {
         var comment = await base.GetById(id);

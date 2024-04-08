@@ -19,9 +19,6 @@ namespace DevDoListServer.Controllers
     [AllowAnonymous]
     public class AuthController(JwtOptions jwtOptions, AuthService authService) : ControllerBase
     {
-        private readonly JwtOptions _jwtOptions = jwtOptions;
-        private readonly AuthService _authService = authService;
-
         [HttpPost]
         [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(JwtDto))]
         [SwaggerResponse(StatusCodes.Status400BadRequest)]
@@ -45,7 +42,8 @@ namespace DevDoListServer.Controllers
             {
                 return BadRequest("No Bearer Token Provided");
             }
-            var gitHubToken = authToken.ToString()[7..];
+
+            var gitHubToken = authToken[7..];
             if (gitHubToken == null)
             {
                 return BadRequest("No Bearer Token Provided");
@@ -61,10 +59,10 @@ namespace DevDoListServer.Controllers
             }
             var responseString = await response.Content.ReadAsStringAsync();
             var githubUser = JsonSerializer.Deserialize<GithubUser>(responseString)!;
-            var role = await _authService.AuthenticateUser(githubUser);
-            var tokenExpiration = TimeSpan.FromSeconds(_jwtOptions.ExpirationSeconds);
+            var role = await authService.AuthenticateUser(githubUser);
+            var tokenExpiration = TimeSpan.FromSeconds(jwtOptions.ExpirationSeconds);
             var accessToken = CreateAccessToken(
-                _jwtOptions,
+                jwtOptions,
                 githubUser.login,
                 TimeSpan.FromMinutes(1440),
                 new[] { role });

@@ -3,10 +3,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DevDoListServer.Repositories;
 
-public class TaskRepository: GenericRepository<Models.Task>
+public class TaskRepository(AppDbContext context) : GenericRepository<Models.Task>(context)
 {
-    public TaskRepository(AppDbContext context) : base(context) { }
-
     public override async Task<Models.Task?> GetById(int id)
     {
         var task = await base.GetById(id);

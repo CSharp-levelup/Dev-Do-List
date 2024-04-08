@@ -34,7 +34,7 @@ while (!loggedIn)
                 exit();
                 break;
             default:
-                Console.WriteLine("Invalid input. Please enter the number of the option you would like to choose.");
+                Console.WriteLine("Invalid input. Please enter a valid command. Type in 'help' to see all available commands");
                 break;
         }
     }
@@ -72,7 +72,7 @@ while (true)
             if (choiceParameters.Count() != 2)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Error: Please provide the id of the task you wish to see the details of");
+                Console.WriteLine("Error: Incorrect number of arguments. Please only provide the id of the task you wish to see in more detail");
                 Console.ResetColor();
                 break;
             }
@@ -82,7 +82,14 @@ while (true)
             await taskService.Create();
             break;
         case "delete":
-            // Logic for deleting a task
+            if (choiceParameters.Count() != 2)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("Error: Incorrect number of arguments. Please only provide the id of the task you wish to delete");
+                Console.ResetColor();
+                break;
+            }
+            await taskService.Delete(choiceParameters[1].Trim());
             break;
         case "update":
             // Logic for updating a task's status
@@ -94,7 +101,7 @@ while (true)
             exit();
             break;
         default:
-            Console.WriteLine("Invalid input. Please enter the number of the option you would like to choose.");
+            Console.WriteLine("Invalid input. Please enter a valid command. Type in 'help' to see all available commands");
             break;
     }
 }

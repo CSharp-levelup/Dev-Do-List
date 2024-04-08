@@ -187,7 +187,7 @@ namespace dev_do_list_cli.Services
 
                 if (response.IsSuccessStatusCode)
                 {
-                    Console.WriteLine("Succesfully created task!");
+                    Console.WriteLine("\nSuccesfully created the task!");
                 }
                 else
                 {
@@ -204,8 +204,6 @@ namespace dev_do_list_cli.Services
     
         public async Task List()
         {
-            using HttpClient client = new();
-            client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", LoginService.JwtToken);
             try { 
                 if (this.tasks.Count == 0)
                 {
@@ -261,6 +259,50 @@ namespace dev_do_list_cli.Services
                 Console.Write($"> \"{comment.comment}\"");
             }
             Console.WriteLine();
+        }
+
+        public async Task Delete(string listIdString)
+        {
+            using HttpClient client = new();
+            client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", LoginService.JwtToken);
+
+            int listId;
+            var task = new TaskResponse();
+            try
+            {
+                listId = int.Parse(listIdString);
+                task = this.tasks[listId - 1];
+            }
+            catch (Exception)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"Error: '{listIdString}' is not a valid option");
+                Console.ResetColor();
+                return;
+            }
+
+            try
+            {
+                var request = new HttpRequestMessage(HttpMethod.Delete, $"http://dev-do-list-backend.eu-west-1.elasticbeanstalk.com/api/v1/task/{task.taskId}");
+                var response = await client.SendAsync(request);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    Console.WriteLine($"\nTask {listId} was deleted succesfully!");
+                }
+                else
+                {
+                    throw new Exception("Unable to delete task");
+                }
+            }
+            catch (Exception)
+            {
+                Console.ForegroundColor= ConsoleColor.Red;
+                Console.WriteLine("Error: the task could not be deleted");
+                Console.ResetColor();
+            }
+
+            await this.RefreshLocalTasks();
         }
 
         private List<TaskResponse> tasks = new List<TaskResponse>();

@@ -22,6 +22,16 @@ public class NoteService(string accessToken)
         return task;
     }
 
+    public async Task<bool> DeleteNote(int id)
+    {
+        var client = new HttpClient();
+        var request = new HttpRequestMessage(HttpMethod.Delete, _serverUrl + "api/v1/task/" + id);
+        request.Headers.Add("Authorization", "Bearer " + accessToken);
+        
+        var response = await client.SendAsync(request);
+        return response.IsSuccessStatusCode;
+    }
+
     public async Task<Note?> CreateNote(Note newTask)
     {
         var client = new HttpClient();

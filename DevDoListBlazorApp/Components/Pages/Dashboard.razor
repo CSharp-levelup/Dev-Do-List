@@ -1,38 +1,26 @@
 @page "/dashboard"
 @rendermode InteractiveServer
+@using DevDoListBlazorApp.Models
+@using DevDoListBlazorApp.Services
+@using DevDoListBlazorApp.Components.Shared
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
 @using System.Collections.Generic
-@using System.Linq
-@using System
-@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 @inject ProtectedSessionStorage ProtectedSessionStorage
 @inject NavigationManager NavigationManager
+@inject IJSRuntime JsRuntime
 
-<div class="dashboard-page">
-        <div class="dash-container">
-            <div class="add-new-note" @onclick="HandleNew">
-                @* <img src="@newNote" /> *@
-            </div>
-            <div class="card-container-dash">
-                <div class="card-container-grid">
-                    @* @foreach (var data in usersNotes)
-                    {
-                        <DataCards Data="@data" CurCategory="@currentCategory" />
-                    } *@
-                </div>
-                @if (!string.IsNullOrEmpty(errorNotes))
-                {
-                    <div class="error-message-notes">@errorNotes</div>
-                }
-            </div>
-        </div>
+
+<div class="dash-container">
+    <div class="add-new-note" @onclick="HandleNew">
+        @* <img src="@newNote" /> *@
+    </div>
+    <div class="card-container-dash">
+        <DataCards userNote="usersNotes" CurCategory="All" />
+    </div>
 </div>
 
-@code {
-    // Server information
-    // const string hostname = "localhost";
-    // const int port = 8080;
 
-    // General data
+@code {
     List<Note> usersNotes = new List<Note>();
     List<string> categories = new List<string>();
     string currentCategory = "All";
@@ -41,6 +29,9 @@
     string errorCategories = "";
     bool showAscDesc = false;
     bool checkedLoggedIn = false;
+    private int UserId = -1;
+    private string _accessToken = string.Empty;
+    private NoteService? notesService;
 
     protected override async Task OnAfterRenderAsync(bool firstRender) // Redirects to login page if they do not have a token
     {
@@ -54,21 +45,24 @@
                 NavigationManager.NavigateTo("/");
             }
             checkedLoggedIn = true;
+            if (jwtToken.Success == false) NavigationManager.NavigateTo("/");
+            _accessToken = jwtToken.Value;
+            string? accessToken = this._accessToken;
+            if (accessToken != null)
+            {
+                notesService = new NoteService(accessToken);
+                usersNotes = await notesService.GetAllNotes();
+                StateHasChanged();
+            }
         }
-    }
 
-    // Navigation
-
-    protected override void OnInitialized()
-    {
-        // Fetch data on component initialization
-        @* FetchNotesData();
-        FetchCategoriesData(); *@
+        // Fetch Categories Data - could hardcode
+   
     }
 
     void HandleNew()
     {
-        @* navigate.NavigateTo("/NewNote"); *@
+        NavigationManager.NavigateTo("/NewNote");
     }
 
     void ToggleAscDesc()
@@ -81,14 +75,12 @@
     {
         errorNotes = "";
         // Fetch notes data
-        // Example: usersNotes = await httpClient.GetFromJsonAsync<List<Note>>("api/notes");
     }
 
     void FetchCategoriesData()
     {
         errorCategories = "";
         // Fetch categories data
-        // Example: categories = await httpClient.GetFromJsonAsync<List<string>>("api/categories");
     }
 
     void HandleSort()
@@ -97,20 +89,4 @@
         // Sort usersNotes based on sortOrder
         // Example: usersNotes = sortOrder == "asc" ? usersNotes.OrderBy(n => n.LastEdited).ToList() : usersNotes.OrderByDescending(n => n.LastEdited).ToList();
     }
-}
-
-@code {
-    // Define Note class
-    public class Note
-    {
-        public string Title { get; set; }
-        public DateTime LastEdited { get; set; }
-        // Add other properties as needed
-    }
-
-    // Paths to image files
-    @* string asc = "../assets/asc.svg";
-    string desc = "../assets/desc.svg";
-    string newNote = "../assets/new_note.svg"; *@
-    // string logo = "../assets/logo_export.svg";
 }

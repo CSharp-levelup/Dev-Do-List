@@ -73,6 +73,7 @@
 
             var deviceCode = jsonResponse["device_code"].ToString();
             UserCode = jsonResponse["user_code"].ToString();
+            await ProtectedSessionStorage.SetAsync("userCode", UserCode);
             VerificationUri = jsonResponse["verification_uri"].ToString();
             await InvokeAsync(StateHasChanged); // Allows the page to rerender and show the user code and url
 

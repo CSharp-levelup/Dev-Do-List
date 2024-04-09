@@ -1,5 +1,7 @@
-﻿using DevDoListServer.Models.Dtos;
+﻿using DevDoListServer.Models;
+using DevDoListServer.Models.Dtos;
 using DevDoListServer.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Swashbuckle.AspNetCore.Annotations;
@@ -28,7 +30,7 @@ public class TaskTypeController(TaskTypeRepository taskTypeRepository) : Control
     {
         var taskType = await taskTypeRepository.GetById(id);
 
-        if (taskType == null)
+        if (taskType is null)
         {
             return NotFound("Task type not found");
         }
@@ -37,6 +39,7 @@ public class TaskTypeController(TaskTypeRepository taskTypeRepository) : Control
     }
 
     [HttpPut("{id}")]
+    [Authorize(Roles = RoleType.Admin)]
     [SwaggerResponse(StatusCodes.Status204NoContent)]
     [SwaggerResponse(StatusCodes.Status401Unauthorized)]
     [SwaggerResponse(StatusCodes.Status404NotFound)]
@@ -69,6 +72,7 @@ public class TaskTypeController(TaskTypeRepository taskTypeRepository) : Control
     }
 
     [HttpPost]
+    [Authorize(Roles = RoleType.Admin)]
     [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(TaskTypeDto))]
     public async Task<ActionResult<TaskTypeDto>> PostTaskType([FromBody] TaskTypeCreateDto taskType)
     {
@@ -78,6 +82,7 @@ public class TaskTypeController(TaskTypeRepository taskTypeRepository) : Control
     }
     
     [HttpDelete("{id}")]
+    [Authorize(Roles = RoleType.Admin)]
     [SwaggerResponse(StatusCodes.Status204NoContent)]
     [SwaggerResponse(StatusCodes.Status401Unauthorized)]
     [SwaggerResponse(StatusCodes.Status404NotFound)]
@@ -85,7 +90,7 @@ public class TaskTypeController(TaskTypeRepository taskTypeRepository) : Control
     {
         var taskType = await taskTypeRepository.GetById(id);
 
-        if (taskType == null)
+        if (taskType is null)
         {
             return NotFound("Task Type not found");
         }

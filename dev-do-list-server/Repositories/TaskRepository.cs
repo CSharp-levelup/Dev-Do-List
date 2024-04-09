@@ -11,6 +11,7 @@ public class TaskRepository(AppDbContext context) : GenericRepository<Models.Tas
         if (task != null)
         {
             await context.Entry(task).Collection(t => t.Comments).LoadAsync();
+            await context.Entry(task).Reference(t => t.User).LoadAsync();
         }
 
         return task;

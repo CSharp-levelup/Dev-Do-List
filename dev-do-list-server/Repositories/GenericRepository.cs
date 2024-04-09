@@ -34,6 +34,7 @@ namespace DevDoListServer.Repositories
 
         public virtual async Task<T> Update(T entity)
         {
+            context.ChangeTracker.Clear();
             context.Entry(entity).State = EntityState.Modified;
             await SaveChanges();
             return entity;

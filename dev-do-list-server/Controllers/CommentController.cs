@@ -20,12 +20,12 @@ namespace DevDoListServer.Controllers
 
             var comments = await commentRepository.FindAll(c => c.TaskId == taskId);
             var firstComment = comments.FirstOrDefault();
-            if (firstComment != null && firstComment.Task!.User!.Username != username)
+            if (firstComment is not null && firstComment.Task!.User!.Username != username)
             {
                 return Unauthorized();
             }
 
-            if (firstComment == null)
+            if (firstComment is null)
             {
                 return NotFound();
             }
@@ -42,7 +42,7 @@ namespace DevDoListServer.Controllers
             var username = JwtUtils.GetClaim(authToken, "username");
             var comment = await commentRepository.GetById(id);
 
-            if (comment == null)
+            if (comment is null)
             {
                 return NotFound("Comment not found");
             }
@@ -71,7 +71,7 @@ namespace DevDoListServer.Controllers
             var username = JwtUtils.GetClaim(authToken, "username");
             var originalComment = await commentRepository.GetById(id);
 
-            if (originalComment == null)
+            if (originalComment is null)
             {
                 return NotFound("Comment not found");
             }
@@ -79,6 +79,11 @@ namespace DevDoListServer.Controllers
             if (originalComment.Task!.User!.Username != username)
             {
                 return Unauthorized();
+            }
+
+            if (originalComment.TaskId != commentDto.TaskId)
+            {
+                return BadRequest("Task ID cannot be changed");
             }
 
             await commentRepository.Update(commentDto.ToComment());
@@ -104,7 +109,7 @@ namespace DevDoListServer.Controllers
             var comment = await commentRepository.GetById(id);
             var username = JwtUtils.GetClaim(authToken, "username");
             
-            if (comment == null)
+            if (comment is null)
             {
                 return NotFound("Comment not found");
             }

@@ -14,6 +14,7 @@ namespace DevDoListServer.Controllers
     public class UserController(UserRepository userRepository) : ControllerBase
     {
         [HttpGet]
+        [Authorize(Roles = RoleType.Admin)]
         [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(IEnumerable<UserDto>))]
         public async Task<ActionResult<IEnumerable<UserDto>>> GetUsers()
         {
@@ -22,12 +23,13 @@ namespace DevDoListServer.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize(Roles = RoleType.Admin)]
         [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(UserDto))]
         public async Task<ActionResult<UserDto>> GetUser([FromRoute] int id)
         {
             var user = await userRepository.GetById(id);
 
-            if (user == null)
+            if (user is null)
             {
                 return NotFound("User not found");
             }
@@ -50,6 +52,7 @@ namespace DevDoListServer.Controllers
         }
         
         [HttpPut("{id}")]
+        [Authorize(Roles = RoleType.Admin)]
         [SwaggerResponse(StatusCodes.Status204NoContent)]
         [SwaggerResponse(StatusCodes.Status401Unauthorized)]
         [SwaggerResponse(StatusCodes.Status404NotFound)]
@@ -92,6 +95,7 @@ namespace DevDoListServer.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = RoleType.Admin)]
         [SwaggerResponse(StatusCodes.Status204NoContent)]
         [SwaggerResponse(StatusCodes.Status401Unauthorized)]
         [SwaggerResponse(StatusCodes.Status404NotFound)]
@@ -99,7 +103,7 @@ namespace DevDoListServer.Controllers
         {
             var user = await userRepository.GetById(id);
 
-            if (user == null)
+            if (user is null)
             {
                 return NotFound("User not found");
             }

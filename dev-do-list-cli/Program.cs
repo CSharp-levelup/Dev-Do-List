@@ -1,14 +1,17 @@
 ﻿using dev_do_list_cli.Services;
 
-Console.WriteLine("WELCOME TO DEV TO DO!\n");
+Console.ForegroundColor = ConsoleColor.Blue;
+Console.WriteLine(" __  __       __  __        _____ ");
+Console.WriteLine("|  \\|_ \\  /  |  \\/  \\  |  |(_  |  ");
+Console.WriteLine("|__/|__ \\/   |__/\\__/  |__|__) |  ");
+Console.ResetColor();
 
 bool loggedIn = false;
-var loginService = new LoginService();
 
 help();
 while (!loggedIn)
 {
-    Console.Write("$ ");
+    Console.Write("\n$ ");
     string? choice = Console.ReadLine()?.Trim();
     if (string.IsNullOrEmpty(choice))
     {
@@ -21,30 +24,50 @@ while (!loggedIn)
         switch (choiceParameters[0].Trim())
         {
             case "help":
+                if (choiceParameters.Length != 1)
+                {
+                    ConsoleService.Error("Too many arguments. 'help' does not take in any arguments.");
+                    break;
+                }
                 help();
                 break;
             case "login":
-                await loginService.HandleLogin();
+                if (choiceParameters.Length != 1)
+                {
+                    ConsoleService.Error("Too many arguments. 'login' does not take in any arguments.");
+                    break;
+                }
+                await LoginService.HandleLogin();
                 loggedIn = true;
                 break;
             case "exit":
+                if (choiceParameters.Length != 1)
+                {
+                    ConsoleService.Error("Too many arguments. 'exit' does not take in any arguments.");
+                    break;
+                }
                 exit();
                 break;
             default:
-                Console.WriteLine("Invalid input. Please enter the number of the option you would like to choose.");
+                ConsoleService.Error("Invalid input. Please enter a valid command. Type in 'help' to see all available commands.");
                 break;
         }
     }
     catch(Exception)
     { 
-        Console.WriteLine("Something went wrong during the login process, please try again.");
+        ConsoleService.Error("Something went wrong during the login process, please try again.");
     }
 }
+
+var taskService = new TaskService();
+await taskService.RefreshLocalStatuses();
+await taskService.RefreshLocalTypes();
+await taskService.RefreshLocalTasks();
 
 help();
 while (true)
 {
-    Console.Write("$ ");
+    Console.Write("\n$ ");
     string? choice = Console.ReadLine()?.Trim();
     if (string.IsNullOrEmpty(choice))
     {
@@ -55,31 +78,66 @@ while (true)
     switch (choiceParameters[0].Trim())
     {
         case "help":
+            if (choiceParameters.Length != 1)
+            {
+                ConsoleService.Error("Too many arguments. 'help' does not take in any arguments;");
+                break;
+            }
             help();
             break;
         case "list":
-            // Logic for getting all tasks for a user
+            if (choiceParameters.Length != 1)
+            {
+                ConsoleService.Error("Too many arguments. 'list' does not take in any arguments;");
+                break;
+            }
+            await taskService.List();
             break;
         case "details":
-            // Logic for adding a task
+            if (choiceParameters.Length != 2)
+            {
+                ConsoleService.Error("Incorrect number of arguments. Please only provide the id of the task you wish to see in more detail.");
+                break;
+            }
+            taskService.Details(choiceParameters[1].Trim());
             break;
         case "add":
-            // Logic for updating a task
+            if (choiceParameters.Length != 1)
+            {
+                ConsoleService.Error("Too many arguments. 'create' does not take in any arguments");
+                break;
+            }
+            await taskService.Create();
             break;
         case "delete":
-            // Logic for deleting a task
+            if (choiceParameters.Length != 2)
+            {
+                ConsoleService.Error("Incorrect number of arguments. Please only provide the id of the task you wish to delete.");
+                break;
+            }
+            await taskService.Delete(choiceParameters[1].Trim());
             break;
         case "update":
-            // Logic for updating a task's status
+            if (choiceParameters.Length != 2)
+            {
+                ConsoleService.Error("Incorrect number of arguments. Please only provide the id of the task you wish to delete.");
+                break;
+            }
+            await taskService.Update(choiceParameters[1].Trim());
             break;
         case "comment":
-            // Logic for adding a comment to a task
+            if (choiceParameters.Length != 2)
+            {
+                ConsoleService.Error("Incorrect number of arguments. Please only provide the id of the task you wish to comment on.");
+                break;
+            }
+            await taskService.Comment(choiceParameters[1].Trim());
             break;
         case "exit":
             exit();
             break;
         default:
-            Console.WriteLine("Invalid input. Please enter the number of the option you would like to choose.");
+            ConsoleService.Error("Invalid input. Please enter a valid command. Type in 'help' to see all available commands.");
             break;
     }
 }
@@ -90,18 +148,18 @@ void help()
     {
         Console.WriteLine("\nhelp - Show available commands");
         Console.WriteLine("login - Login with github");
-        Console.WriteLine("exit - Exit the application\n");
+        Console.WriteLine("exit - Exit the application");
     }
     else
     {
         Console.WriteLine("\nhelp - Show available commands");
         Console.WriteLine("list - List all tasks");
-        Console.WriteLine("details - Get details of a task");
+        Console.WriteLine("details <id> - Get details of a task");
         Console.WriteLine("add - Add a new task");
-        Console.WriteLine("delete - Delete a task");
-        Console.WriteLine("update - Update a task's status");
-        Console.WriteLine("comment - Add a comment to a task");
-        Console.WriteLine("exit - Exit the application\n");
+        Console.WriteLine("delete <id> - Delete a task");
+        Console.WriteLine("update <id> - Update a task's status");
+        Console.WriteLine("comment <id> - Add a comment to a task");
+        Console.WriteLine("exit - Exit the application");
     }
 }
 

@@ -4,17 +4,20 @@ using dev_do_list_cli.Models;
 
 namespace dev_do_list_cli.Services
 {
-    public class LoginService
+    public static class LoginService
     {
         public static string? JwtToken {  get; set; }
-        public async Task HandleLogin()
+
+        public static async Task HandleLogin()
         {
-            var request = new HttpRequestMessage(HttpMethod.Post, "https://github.com/login/device/code");
-            request.Content = new FormUrlEncodedContent(new Dictionary<string, string>
+            var request = new HttpRequestMessage(HttpMethod.Post, "https://github.com/login/device/code")
             {
-                { "client_id", "c4c4ce23926c344a5260" },
-                { "scope", "user" }
-            });
+                Content = new FormUrlEncodedContent(new Dictionary<string, string>
+                {
+                    { "client_id", "c4c4ce23926c344a5260" },
+                    { "scope", "user" }
+                })
+            };
             using HttpClient client = new HttpClient();
             var response = await client.SendAsync(request);
 
@@ -23,21 +26,37 @@ namespace dev_do_list_cli.Services
                 var responseContent = await response.Content.ReadAsStringAsync();
                 var jsonResponse = HttpUtility.ParseQueryString(responseContent);
 
-                var deviceCode = jsonResponse["device_code"].ToString();
-                var userCode = jsonResponse["user_code"].ToString();
-                var verificationUri = jsonResponse["verification_uri"].ToString();
+                var deviceCode = jsonResponse["device_code"]?.ToString();
+                var userCode = jsonResponse["user_code"]?.ToString();
+                var verificationUri = jsonResponse["verification_uri"]?.ToString();
 
                 Console.WriteLine($"Code: {userCode}");
                 Console.WriteLine($"Copy the code above and enter it in the following link: \n> {verificationUri}");
 
-                var bearerToken = await GetBearerToken(deviceCode);
-                await SetJwtToken(bearerToken);
+                try
+                {
+                    if (!string.IsNullOrEmpty(deviceCode))
+                    {
+                        var bearerToken = await GetBearerToken(deviceCode);
+                        await SetJwtToken(bearerToken);
 
-                Console.WriteLine("\nSuccessfully logged in!");
+                        await UserService.GetUserDetails();
+
+                        Console.WriteLine($"\nSuccessfully logged in as {UserService.Username}!");
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException("Something went wrong during the authentication process.");
+                    }
+                }
+                catch (InvalidOperationException ex)
+                {
+                    ConsoleService.Error(ex.Message);
+                }
             }
         }
 
-        private async Task<string> GetBearerToken(string deviceCode)
+        private static async Task<string> GetBearerToken(string deviceCode)
         {
             int pollingInterval = 5000; // 5 seconds
             int maxRetries = 5;
@@ -48,13 +67,15 @@ namespace dev_do_list_cli.Services
                 try
                 {
                     // Make a request to GitHub's token endpoint to check authentication status
-                    var request = new HttpRequestMessage(HttpMethod.Post, "https://github.com/login/oauth/access_token");
-                    request.Content = new FormUrlEncodedContent(new Dictionary<string, string>
+                    var request = new HttpRequestMessage(HttpMethod.Post, "https://github.com/login/oauth/access_token")
                     {
-                        { "client_id", "c4c4ce23926c344a5260" },
-                        { "device_code", deviceCode },
-                        { "grant_type", "urn:ietf:params:oauth:grant-type:device_code" }
-                    });
+                        Content = new FormUrlEncodedContent(new Dictionary<string, string>
+                        {
+                            { "client_id", "c4c4ce23926c344a5260" },
+                            { "device_code", deviceCode },
+                            { "grant_type", "urn:ietf:params:oauth:grant-type:device_code" }
+                        })
+                    };
 
                     using HttpClient client = new HttpClient();
                     var response = await client.SendAsync(request);
@@ -67,7 +88,12 @@ namespace dev_do_list_cli.Services
                         // Check if authentication is successful
                         if (jsonResponse.AllKeys.Contains("access_token"))
                         {
-                            string bearerToken = jsonResponse["access_token"].ToString();
+                            string bearerToken = jsonResponse["access_token"]?.ToString() ?? "";
+
+                            if (string.IsNullOrEmpty(bearerToken))
+                            {
+                                throw new InvalidOperationException("Something went wrong during the authentication process.");
+                            }
 
                             return bearerToken;
                         }
@@ -89,11 +115,11 @@ namespace dev_do_list_cli.Services
             throw new InvalidOperationException("Something went wrong during the authentication process.");
         }
 
-        private async Task SetJwtToken(string bearerToken)
+        private static async Task SetJwtToken(string bearerToken)
         {
             var token_request = new HttpRequestMessage(HttpMethod.Post, "http://dev-do-list-backend.eu-west-1.elasticbeanstalk.com/api/v1/auth");
             token_request.Headers.Add("Authorization", $"Bearer {bearerToken}");
-            using HttpClient client = new HttpClient();
+            using HttpClient client = new();
             var token_response = await client.SendAsync(token_request);
             if (token_response.IsSuccessStatusCode)
             {

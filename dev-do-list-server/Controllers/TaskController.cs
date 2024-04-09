@@ -26,8 +26,7 @@ namespace DevDoListServer.Controllers
         [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(TaskResponseDto))]
         [SwaggerResponse(StatusCodes.Status401Unauthorized)]
         [SwaggerResponse(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<TaskResponseDto>> GetTask([FromHeader(Name = "Authorization")] string authToken,
-            [FromRoute] int id)
+        public async Task<ActionResult<TaskResponseDto>> GetTask([FromHeader(Name = "Authorization")] string authToken, [FromRoute] int id)
         {
             var username = JwtUtils.GetClaim(authToken, "username");
             var task = await taskRepository.GetById(id);
@@ -62,9 +61,10 @@ namespace DevDoListServer.Controllers
 
             var task = await taskRepository.GetById(taskUpdateDto.TaskId);
             
+            
             if (task is null)
             {
-                return BadRequest();
+                return NotFound("Task not found");
             }
 
             if (task!.User!.Username != username)
@@ -72,21 +72,13 @@ namespace DevDoListServer.Controllers
                 return Unauthorized();
             }
 
-            try
+            if (taskUpdateDto.UserId != task.UserId)
             {
-                await taskRepository.Update(taskUpdateDto.ToTask());
+                return BadRequest("User ID cannot be changed");
             }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!await taskRepository.Exists(e => e.TaskId == id))
-                {
-                    return NotFound("Task not found");
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            
+            await taskRepository.Update(taskUpdateDto.ToTask());
+            
 
             return NoContent();
         }

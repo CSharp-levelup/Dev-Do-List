@@ -20,7 +20,7 @@ namespace DevDoListServer.Controllers
 
             var comments = await commentRepository.FindAll(c => c.TaskId == taskId);
             var firstComment = comments.FirstOrDefault();
-            if (firstComment != null && firstComment.Task!.User!.Username != username)
+            if (firstComment is not null && firstComment.Task!.User!.Username != username)
             {
                 return Unauthorized();
             }
@@ -79,6 +79,11 @@ namespace DevDoListServer.Controllers
             if (originalComment.Task!.User!.Username != username)
             {
                 return Unauthorized();
+            }
+
+            if (originalComment.TaskId != commentDto.TaskId)
+            {
+                return BadRequest("Task ID cannot be changed");
             }
 
             await commentRepository.Update(commentDto.ToComment());

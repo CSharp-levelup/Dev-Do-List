@@ -11,7 +11,7 @@ namespace DevDoListServer.Controllers
         public IActionResult HandleError()
         {
             var exceptionHandlerFeature = HttpContext.Features.Get<IExceptionHandlerFeature>()!;
-            return Problem(title: exceptionHandlerFeature.Error.Message);
+            return Problem(title: "An error occured. Please try again.");
         }
     }
 }

@@ -12,7 +12,7 @@
 
 <div class="dash-container">
     <div class="add-new-note" @onclick="HandleNew">
-        @* <img src="@newNote" /> *@
+        <img class="add-new-note" src="/assets/AddNewNote.svg" alt="AddNewNote" />
     </div>
     <div class="card-container-dash">
         <DataCards userNote="usersNotes" CurCategory="All" />
@@ -62,6 +62,7 @@
 
     void HandleNew()
     {
+
         NavigationManager.NavigateTo("/NewNote");
     }
 

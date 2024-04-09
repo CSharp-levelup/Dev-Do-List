@@ -1,5 +1,7 @@
-﻿using DevDoListServer.Models.Dtos;
+﻿using DevDoListServer.Models;
+using DevDoListServer.Models.Dtos;
 using DevDoListServer.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Swashbuckle.AspNetCore.Annotations;
@@ -28,7 +30,7 @@ namespace DevDoListServer.Controllers
         {
             var status = await statusRepository.GetById(id);
 
-            if (status == null)
+            if (status is null)
             {
                 return NotFound("Status not found");
             }
@@ -37,6 +39,7 @@ namespace DevDoListServer.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = RoleType.Admin)]
         [SwaggerResponse(StatusCodes.Status204NoContent)]
         [SwaggerResponse(StatusCodes.Status401Unauthorized)]
         [SwaggerResponse(StatusCodes.Status404NotFound)]
@@ -68,6 +71,7 @@ namespace DevDoListServer.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = RoleType.Admin)]
         [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(StatusDto))]
         public async Task<ActionResult<StatusDto>> PostStatus([FromBody] StatusCreateDto status)
         {
@@ -77,13 +81,14 @@ namespace DevDoListServer.Controllers
         }
         
         [HttpDelete("{id}")]
+        [Authorize(Roles = RoleType.Admin)]
         [SwaggerResponse(StatusCodes.Status204NoContent)]
         [SwaggerResponse(StatusCodes.Status401Unauthorized)]
         [SwaggerResponse(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteStatus([FromRoute] int id)
         {
             var status = await statusRepository.GetById(id);
-            if (status == null)
+            if (status is null)
             {
                 return NotFound("Status not found");
             }

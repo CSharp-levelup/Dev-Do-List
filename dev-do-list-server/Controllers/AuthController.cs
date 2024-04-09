@@ -34,7 +34,7 @@ namespace DevDoListServer.Controllers
                 return BadRequest("Incorrect Authorization Provided");
             }
             var authToken = auth[0];
-            if (authToken == null)
+            if (authToken is null)
             {
                 return BadRequest();
             }
@@ -44,7 +44,7 @@ namespace DevDoListServer.Controllers
             }
 
             var gitHubToken = authToken[7..];
-            if (gitHubToken == null)
+            if (gitHubToken is null)
             {
                 return BadRequest("No Bearer Token Provided");
             }

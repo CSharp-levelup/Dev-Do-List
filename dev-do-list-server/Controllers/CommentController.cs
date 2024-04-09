@@ -25,7 +25,7 @@ namespace DevDoListServer.Controllers
                 return Unauthorized();
             }
 
-            if (firstComment == null)
+            if (firstComment is null)
             {
                 return NotFound();
             }
@@ -42,7 +42,7 @@ namespace DevDoListServer.Controllers
             var username = JwtUtils.GetClaim(authToken, "username");
             var comment = await commentRepository.GetById(id);
 
-            if (comment == null)
+            if (comment is null)
             {
                 return NotFound("Comment not found");
             }
@@ -71,7 +71,7 @@ namespace DevDoListServer.Controllers
             var username = JwtUtils.GetClaim(authToken, "username");
             var originalComment = await commentRepository.GetById(id);
 
-            if (originalComment == null)
+            if (originalComment is null)
             {
                 return NotFound("Comment not found");
             }
@@ -104,7 +104,7 @@ namespace DevDoListServer.Controllers
             var comment = await commentRepository.GetById(id);
             var username = JwtUtils.GetClaim(authToken, "username");
             
-            if (comment == null)
+            if (comment is null)
             {
                 return NotFound("Comment not found");
             }

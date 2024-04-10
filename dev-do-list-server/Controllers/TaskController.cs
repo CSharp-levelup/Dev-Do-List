@@ -88,8 +88,8 @@ namespace DevDoListServer.Controllers
         public async Task<ActionResult<TaskResponseDto>> PostTask([FromHeader(Name = "Authorization")] string authToken, [FromBody] TaskCreateDto taskCreateDto)
         {
             var username = JwtUtils.GetClaim(authToken, "username");
-            var user = await userRepository.FindSingle(u => u.Username == username);
-            taskCreateDto.UserId = user.UserId;
+            var user = await userRepository.FindByUsername(username);
+            taskCreateDto.UserId = user!.UserId;
             var createdTask = await taskRepository.Create(taskCreateDto.ToTask());
             var taskDto = new TaskResponseDto(createdTask);
             return CreatedAtAction("GetTask", new { id = taskDto.UserId }, taskDto);

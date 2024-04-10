@@ -1,21 +1,21 @@
-using System.Net.Http.Headers;
+﻿using System.Net.Http.Headers;
 using System.Text.Json;
 using DevDoListBlazorApp.Models;
 using DevDoListBlazorApp.Utils;
 
 namespace DevDoListBlazorApp.Services;
 
-public class UserService(HttpClient client)
+public class TaskTypeService(HttpClient client)
 {
     private readonly string _serverUrl = FuncUtils.GetServerUrl();
 
-    public async Task<User?> GetUserByUsername()
+
+    public async Task<List<TaskType>> GetAllTaskTypes()
     {
-        var request = new HttpRequestMessage(HttpMethod.Get, _serverUrl + "api/v1/user/loggedIn");
+        var request = new HttpRequestMessage(HttpMethod.Get, _serverUrl + "api/v1/tasktype");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", AuthService.accessToken);
         var response = await client.SendAsync(request);
         if (!response.IsSuccessStatusCode) return null;
-        var user = JsonSerializer.Deserialize<User>(await response.Content.ReadAsStringAsync())!;
-        return user;
+        return JsonSerializer.Deserialize<List<TaskType>>(await response.Content.ReadAsStringAsync())!;
     }
 }

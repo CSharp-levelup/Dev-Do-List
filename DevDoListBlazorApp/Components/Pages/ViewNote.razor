@@ -1,14 +1,13 @@
 @page "/viewNote/{task_id}"
-
-@rendermode InteractiveServer
 @using DevDoListBlazorApp.Models
 @using DevDoListBlazorApp.Services
-@using DevDoListBlazorApp.Components.Shared
-@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
-@using System.Collections.Generic
-@inject ProtectedSessionStorage ProtectedSessionStorage
+
+@rendermode InteractiveServer
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JsRuntime
+@inject NoteService NoteService
+@inject TaskTypeService TaskTypeService
+@inject StatusService StatusService
 
 <div class="new-page">
     <div class="input-container-note">
@@ -22,16 +21,20 @@
                 <label>Status:</label>
                 <select class="input" @bind="statusId">
                     <option value="-1">Select Status</option>
-                    <option value="1">Not Started</option>
-                    <option value="2">In Progress</option>
+                    @foreach (var status in statuses)
+                    {
+                        <option value="@status.statusId">@status.statusType</option>
+                    }
                 </select>
             </div>
             <div class="task-type-container">
                 <label>Task Type:</label>
                 <select class="input" @bind="taskTypeId">
                     <option value="-1">Select Task Type</option>
-                    <option value="1">Jira Ticket</option>
-                    <option value="2">Pull Request</option>
+                    @foreach (var taskType in taskTypes)
+                    {
+                        <option value="@taskType.taskTypeId">@taskType.taskTypeDescription</option>
+                    }
                 </select>
             </div>
         </div>
@@ -75,36 +78,34 @@
     int userId = -1;
     int statusId = -1;
     int taskTypeId = -1;
-    private string _accessToken = string.Empty;
-    private NoteService? notesService;
-    private bool flag = true;  
+    private bool flag = true;
+    List<TaskType> taskTypes = new();
+    List<Status> statuses = new();
 
     protected override async Task OnAfterRenderAsync(bool firstRender) // Redirects to login page if they do not have a token
     {
         if (firstRender)
         {
-            var jwtToken = await ProtectedSessionStorage.GetAsync<string>("accessToken");
-            if (string.IsNullOrEmpty(jwtToken.Value))
+            if (!AuthService.IsLoggedIn())
             {
                 NavigationManager.NavigateTo("/");
             }
+
+            taskId = int.Parse(task_id);
+            GetNote();
+            statuses = await StatusService.GetAllStatuses();
+            taskTypes = await TaskTypeService.GetAllTaskTypes();
+            StateHasChanged();
         }
 
-        taskId = int.Parse(task_id);
-        GetNote();
-        StateHasChanged();
         // Fetch Status Data + Populate model
         // Fetch Task Type Data + Populate mode
     }
 
     private async Task UpdateNote()
     {
-        var jwtToken = await ProtectedSessionStorage.GetAsync<string>("accessToken");
-        _accessToken = jwtToken.Value;
-        string? accessToken = this._accessToken;
-        if (accessToken != null)
+        if (AuthService.IsLoggedIn())
         {
-            notesService = new NoteService(accessToken);
             currNote = new Note
                 {
                     title = title,
@@ -114,7 +115,7 @@
                     taskTypeId = taskTypeId,
                     userId = userId
                 };
-            Note newNote = await notesService.UpdateNote(currNote, taskId);
+            var newNote = await NoteService.UpdateNote(currNote, taskId);
             if (newNote == null)
             {
                 throw new Exception("Could not update note");
@@ -128,16 +129,9 @@
 
     private async void GetNote()
     {
-        var jwtToken = await ProtectedSessionStorage.GetAsync<string>("accessToken");
-        _accessToken = jwtToken.Value;
-        string? accessToken = this._accessToken;
-        if (accessToken != null)
-        {
-            notesService = new NoteService(accessToken);
-            currNote = await notesService.GetNoteById(taskId);
-        }
+        currNote = await NoteService.GetNoteById(taskId);
 
-        if (currNote != null)
+        if (currNote is not null)
         {
             title = currNote.title;
             description = currNote.description;
@@ -151,7 +145,7 @@
     private async void DeleteNote()
     {
         if (currNote is null) return;
-        bool ans = await notesService.DeleteNote(currNote.taskId);
+        var ans = await NoteService.DeleteNote(currNote.taskId);
         NavigationManager.NavigateTo("/dashboard", true);
     }
 }

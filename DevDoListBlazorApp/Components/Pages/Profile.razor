@@ -1,10 +1,9 @@
 @page "/profile"
-@rendermode InteractiveServer
 @using DevDoListBlazorApp.Models
 @using DevDoListBlazorApp.Services
-@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
-@inject ProtectedSessionStorage ProtectedSessionStorage
+@rendermode InteractiveServer
 @inject NavigationManager NavigationManager
+@inject UserService UserService
 <div class="profile-page">
     @if (_user is not null)
     {
@@ -21,21 +20,21 @@
 
 @code
 {
-    private User? _user = null;
-    private string _accessToken = string.Empty;
-    private UserService? _userService;
+    private User? _user;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            var token = await ProtectedSessionStorage.GetAsync<string>("accessToken");
-            if (token.Success == false) NavigationManager.NavigateTo("/");
-            _accessToken = token.Value;
-            string? accessToken = this._accessToken;
-            if (accessToken != null) _userService = new UserService(accessToken);
-            _user = await _userService.GetUserByUsername();
-            StateHasChanged();
+            if (!AuthService.IsLoggedIn())
+            {
+                NavigationManager.NavigateTo("/");
+            }
+            else
+            {
+                _user = await UserService.GetUserByUsername();
+                StateHasChanged();
+            }
         }
     }
 }

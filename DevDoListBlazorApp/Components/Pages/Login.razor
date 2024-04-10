@@ -1,13 +1,13 @@
 ﻿@page "/"
+@using DevDoListBlazorApp.Utils
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
+@using DevDoListBlazorApp.Services
+@using System.Web
+@using DevDoListBlazorApp.Models
+@using System.Text.Json
+@using DevDoListBlazorApp.Components.Layout
 @layout LoginLayout
 @rendermode InteractiveServer
-@using DevDoListBlazorApp.Components.Layout;
-@using DevDoListBlazorApp.Models;
-@using System.Web;
-@using System.Text.Json;
-@using DevDoListBlazorApp.Services
-@using DevDoListBlazorApp.Utils
-@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 @inject HttpClient HttpClient
 @inject ProtectedSessionStorage ProtectedSessionStorage
 @inject NavigationManager NavigationManager
@@ -47,8 +47,7 @@
         if (firstRender && !checkedLoggedIn)
         {
             // Check if the user is already logged in
-            var jwtToken = await ProtectedSessionStorage.GetAsync<string>("accessToken");
-            if (!string.IsNullOrEmpty(jwtToken.Value))
+            if (AuthService.IsLoggedIn())
             {
                 NavigationManager.NavigateTo("/dashboard");
             }
@@ -165,7 +164,7 @@
             var jsonResponse = JsonSerializer.Deserialize<AuthToken>(responseContent)!;
             
             var jwtToken = jsonResponse.access_token;
-            await ProtectedSessionStorage.SetAsync("accessToken", jwtToken);
+            AuthService.accessToken = jwtToken;
         }
     }
 }

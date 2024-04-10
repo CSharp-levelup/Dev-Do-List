@@ -11,7 +11,7 @@
 
 
 <div class="dash-container">
-    <div class="add-new-note" @onclick="HandleNew">
+    <div class="add-new-note-container" @onclick="HandleNew">
         <img class="add-new-note" src="/assets/AddNewNote.svg" alt="AddNewNote" />
     </div>
     <div class="card-container-dash">
@@ -55,6 +55,7 @@
                 StateHasChanged();
             }
         }
+        Console.WriteLine("testig");
 
         // Fetch Categories Data - could hardcode
    

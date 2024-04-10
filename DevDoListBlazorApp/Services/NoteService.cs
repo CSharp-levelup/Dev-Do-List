@@ -22,6 +22,46 @@ public class NoteService(string accessToken)
         return task;
     }
 
+    public async Task<Note?> GetNoteById(int id)
+    {
+        var client = new HttpClient();
+        var request = new HttpRequestMessage(HttpMethod.Get, _serverUrl + "api/v1/task/" + id);
+        request.Headers.Add("Authorization", "Bearer " + accessToken);
+        var response = await client.SendAsync(request);
+        if (!response.IsSuccessStatusCode) return null;
+        var task = JsonSerializer.Deserialize<Note>(await response.Content.ReadAsStringAsync())!;
+        return task;
+    }
+
+    public async Task<Note?> UpdateNote(Note newTask, int id)
+    {
+        var client = new HttpClient();
+        var request = new HttpRequestMessage(HttpMethod.Put, _serverUrl + "api/v1/task/" + id);
+        request.Headers.Add("Authorization", "Bearer " + accessToken);
+        var data = new
+        {
+            taskId = id,
+            userId = newTask.userId,
+            title = newTask.title,
+            description = newTask.description,
+            dueDate = newTask.dueDate,
+            statusId = newTask.statusId,
+            taskTypeId = newTask.taskTypeId
+        };
+        var content = new StringContent(
+               JsonSerializer.Serialize(data),
+               null,
+               "application/json"
+           );
+        Console.WriteLine(content);
+        request.Content = content;
+        Console.WriteLine(request.Content);
+        var response = await client.SendAsync(request);
+        if (!response.IsSuccessStatusCode) return null;
+        var newNote = JsonSerializer.Deserialize<Note>(await response.Content.ReadAsStringAsync());
+        return newNote;
+    }
+
     public async Task<bool> DeleteNote(int id)
     {
         var client = new HttpClient();
@@ -43,13 +83,17 @@ public class NoteService(string accessToken)
             description = newTask.description,
             dateCreated = DateTime.Now,
             dueDate = newTask.dueDate,
-            userId = 1,
             statusId = newTask.statusId,
             taskTypeId = newTask.taskTypeId
         };
-        var jsonData = JsonSerializer.Serialize(data);
-        var content = new StringContent(jsonData);
+        var content = new StringContent(
+               JsonSerializer.Serialize(data),
+               null,
+               "application/json"
+           );
+        Console.WriteLine(content);
         request.Content = content;
+        Console.WriteLine(request.Content);
         var response = await client.SendAsync(request);
         if (!response.IsSuccessStatusCode) return null;
         var newNote = JsonSerializer.Deserialize<Note>(await response.Content.ReadAsStringAsync());

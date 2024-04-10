@@ -141,10 +141,20 @@ namespace dev_do_list_cli.Services
                 ConsoleService.Error("The title cannot be empty.");
                 return;
             }
+            if (task.title.Length > 50)
+            {
+                ConsoleService.Error("The title cannot be more than 50 characters");
+                return;
+            }
 
             // Description
             Console.Write("Description: ");
-            task.description = Console.ReadLine()?.Trim();
+            task.description = Console.ReadLine()?.Trim() ?? "";
+            if (task.description.Length > 100)
+            {
+                ConsoleService.Error("The description cannot be more than 100 characters");
+                return;
+            }
 
             // Due date
             Console.Write($"Due date ({format}): ");
@@ -191,12 +201,12 @@ namespace dev_do_list_cli.Services
                 }
                 else
                 {
-                    Console.WriteLine("Error: Something went wrong creating the task.", ConsoleColor.Red);
+                    throw new Exception("Something went wrong creating the task.");
                 }
             }
             catch(Exception)
             {
-                Console.WriteLine("Error: Something went wrong creating the task.", ConsoleColor.Red);
+                ConsoleService.Error("Something went wrong creating the task.");
             }
 
             await RefreshLocalTasks();
@@ -467,52 +477,54 @@ namespace dev_do_list_cli.Services
             }
 
             Console.Write("Enter your comment: ");
-            string? commentString = Console.ReadLine()?.Trim();
-
-            if (!string.IsNullOrWhiteSpace(commentString))
-            {
-                var currentDate = DateTime.Now;
-                var comment = new CommentCreate
-                {
-                    taskId = task.taskId,
-                    comment = commentString,
-                    dateCommented = new DateTime(
-                        currentDate.Year,
-                        currentDate.Month,
-                        currentDate.Day,
-                        currentDate.Hour,
-                        currentDate.Minute,
-                        0
-                    ),
-                };
-
-                try
-                {
-                    var request = new HttpRequestMessage(HttpMethod.Post, "http://dev-do-list-backend.eu-west-1.elasticbeanstalk.com/api/v1/comment");
-                    request.Content = new StringContent(JsonSerializer.Serialize(comment), Encoding.UTF8, "application/json");
-                    var response = await client.SendAsync(request);
-
-                    if (response.IsSuccessStatusCode)
-                    {
-                        Console.WriteLine("Comment added succesfully!");
-                    }
-                    else
-                    {
-                        throw new Exception("Unable to upload comment.");
-                    }
-                }
-                catch(Exception)
-                {
-                    ConsoleService.Error("Unable to upload comment.");
-                    return;
-                }
-                await RefreshLocalTasks();
-            }
-            else
+            string commentString = Console.ReadLine()?.Trim() ?? "";
+            if (string.IsNullOrEmpty(commentString))
             {
                 ConsoleService.Error("The comment cannot be empty.");
                 return;
             }
+            if (commentString.Length > 100)
+            {
+                ConsoleService.Error("The comment cannot be more than 100 characters");
+                return;
+            }
+
+            var currentDate = DateTime.Now;
+            var comment = new CommentCreate
+            {
+                taskId = task.taskId,
+                comment = commentString,
+                dateCommented = new DateTime(
+                    currentDate.Year,
+                    currentDate.Month,
+                    currentDate.Day,
+                    currentDate.Hour,
+                    currentDate.Minute,
+                    0
+                ),
+            };
+
+            try
+            {
+                var request = new HttpRequestMessage(HttpMethod.Post, "http://dev-do-list-backend.eu-west-1.elasticbeanstalk.com/api/v1/comment");
+                request.Content = new StringContent(JsonSerializer.Serialize(comment), Encoding.UTF8, "application/json");
+                var response = await client.SendAsync(request);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    Console.WriteLine("Comment added succesfully!");
+                }
+                else
+                {
+                    throw new Exception("Unable to upload comment.");
+                }
+            }
+            catch(Exception)
+            {
+                ConsoleService.Error("Unable to upload comment.");
+                return;
+            }
+            await RefreshLocalTasks();
         }
 
         private readonly HttpClient client = new();

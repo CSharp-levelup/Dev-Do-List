@@ -133,6 +133,13 @@ while (true)
             }
             await taskService.Comment(choiceParameters[1].Trim());
             break;
+        case "profile":
+            if (choiceParameters.Length != 1)
+            {
+                ConsoleService.Error("Too many arguments. 'profile' does not take in any arguments.");
+            }
+            Console.WriteLine($"You are currently signed in as {UserService.Username}!");
+            break;
         case "exit":
             exit();
             break;
@@ -159,6 +166,7 @@ void help()
         Console.WriteLine("delete <id> - Delete a task");
         Console.WriteLine("update <id> - Update a task's status");
         Console.WriteLine("comment <id> - Add a comment to a task");
+        Console.WriteLine("profile - See which profile you are signed in to");
         Console.WriteLine("exit - Exit the application");
     }
 }

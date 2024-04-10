@@ -1,5 +1,7 @@
-﻿using DevDoListServer.Models.Dtos;
+﻿using DevDoListServer.Models;
+using DevDoListServer.Models.Dtos;
 using DevDoListServer.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Swashbuckle.AspNetCore.Annotations;
@@ -28,12 +30,13 @@ public class RoleController(RoleRepository roleRepository) : ControllerBase
     {
         var role = await roleRepository.GetById(id);
 
-        if (role == null) return NotFound("Role not found");
+        if (role is null) return NotFound("Role not found");
 
         return new RoleResponseDto(role);
     }
 
     [HttpPut("{id}")]
+    [Authorize(Roles = RoleType.Admin)]
     [SwaggerResponse(StatusCodes.Status204NoContent)]
     [SwaggerResponse(StatusCodes.Status401Unauthorized)]
     [SwaggerResponse(StatusCodes.Status404NotFound)]
@@ -57,6 +60,7 @@ public class RoleController(RoleRepository roleRepository) : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles = RoleType.Admin)]
     [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(RoleResponseDto))]
     public async Task<ActionResult<RoleResponseDto>> PostRole([FromBody] RoleCreateDto roleCreateDto)
     {
@@ -66,6 +70,7 @@ public class RoleController(RoleRepository roleRepository) : ControllerBase
     }
 
     [HttpDelete("{id}")]
+    [Authorize(Roles = RoleType.Admin)]
     [SwaggerResponse(StatusCodes.Status204NoContent)]
     [SwaggerResponse(StatusCodes.Status401Unauthorized)]
     [SwaggerResponse(StatusCodes.Status404NotFound)]
@@ -73,7 +78,7 @@ public class RoleController(RoleRepository roleRepository) : ControllerBase
     public async Task<IActionResult> DeleteStatus([FromRoute] int id)
     {
         var role = await roleRepository.GetById(id);
-        if (role == null) return NotFound("Role not found");
+        if (role is null) return NotFound("Role not found");
 
         await roleRepository.Delete(role);
 

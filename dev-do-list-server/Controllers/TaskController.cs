@@ -26,13 +26,19 @@ namespace DevDoListServer.Controllers
         [SwaggerResponse(StatusCodes.Status200OK, Type = typeof(TaskResponseDto))]
         [SwaggerResponse(StatusCodes.Status401Unauthorized)]
         [SwaggerResponse(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<TaskResponseDto>> GetTask([FromRoute] int id)
+        public async Task<ActionResult<TaskResponseDto>> GetTask([FromHeader(Name = "Authorization")] string authToken, [FromRoute] int id)
         {
+            var username = JwtUtils.GetClaim(authToken, "username");
             var task = await taskRepository.GetById(id);
-
-            if (task == null)
+            
+            if (task is null)
             {
                 return NotFound("Task not found");
+            }
+
+            if (task.User!.Username != username)
+            {
+                return Unauthorized();
             }
 
             return Ok(new TaskResponseDto(task));
@@ -43,29 +49,36 @@ namespace DevDoListServer.Controllers
         [SwaggerResponse(StatusCodes.Status401Unauthorized)]
         [SwaggerResponse(StatusCodes.Status404NotFound)]
         [SwaggerResponse(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> PutTask([FromRoute] int id, [FromBody] TaskUpdateDTO taskUpdateDto)
+        public async Task<IActionResult> PutTask([FromHeader(Name = "Authorization")] string authToken,
+            [FromRoute] int id, [FromBody] TaskUpdateDTO taskUpdateDto)
         {
+            var username = JwtUtils.GetClaim(authToken, "username");
+
             if (id != taskUpdateDto.TaskId)
             {
                 return BadRequest();
             }
 
+            var task = await taskRepository.GetById(taskUpdateDto.TaskId);
             
-            try
+            
+            if (task is null)
             {
-                await taskRepository.Update(taskUpdateDto.ToTask());
+                return NotFound("Task not found");
             }
-            catch (DbUpdateConcurrencyException)
+
+            if (task!.User!.Username != username)
             {
-                if (!await taskRepository.Exists(e => e.TaskId == id))
-                {
-                    return NotFound("Task not found");
-                }
-                else
-                {
-                    throw;
-                }
+                return Unauthorized();
             }
+
+            if (taskUpdateDto.UserId != task.UserId)
+            {
+                return BadRequest("User ID cannot be changed");
+            }
+            
+            await taskRepository.Update(taskUpdateDto.ToTask());
+            
 
             return NoContent();
         }
@@ -86,13 +99,20 @@ namespace DevDoListServer.Controllers
         [SwaggerResponse(StatusCodes.Status204NoContent)]
         [SwaggerResponse(StatusCodes.Status401Unauthorized)]
         [SwaggerResponse(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> DeleteTask(int id)
+        public async Task<IActionResult> DeleteTask([FromHeader(Name = "Authorization")] string authToken, int id)
         {
+            var username = JwtUtils.GetClaim(authToken, "username");
+
             var task = await taskRepository.GetById(id);
 
-            if (task == null)
+            if (task is null)
             {
                 return NotFound("Task not found");
+            }
+
+            if (task!.User!.Username != username)
+            {
+                return Unauthorized();
             }
 
             await taskRepository.Delete(task);

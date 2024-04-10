@@ -40,7 +40,7 @@ public partial class AppDbContext : DbContext
 
             entity.HasOne(d => d.Task).WithMany(p => p.Comments)
                 .HasForeignKey(d => d.TaskId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
+                .OnDelete(DeleteBehavior.ClientCascade)
                 .HasConstraintName("FK_TaskComment");
         });
 

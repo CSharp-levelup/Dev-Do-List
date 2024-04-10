@@ -9,7 +9,7 @@ namespace DevDoListServer.Services
         {
             var user = await userRepository.FindByUsername(githubUser.login);
 
-            if (user == null)
+            if (user is null)
             {
                 var role = await roleRepository.FindByRoleType(RoleType.User);
                 var newUser = new User()

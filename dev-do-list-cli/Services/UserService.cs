@@ -10,7 +10,7 @@ namespace dev_do_list_cli.Services
 
         public static async Task GetUserDetails()
         {
-            using HttpClient client = new HttpClient();
+            using HttpClient client = new();
             client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", LoginService.JwtToken);
 
             var request = new HttpRequestMessage(HttpMethod.Get, "http://dev-do-list-backend.eu-west-1.elasticbeanstalk.com/api/v1/user/loggedIn");

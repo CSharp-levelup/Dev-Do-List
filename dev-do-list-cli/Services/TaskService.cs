@@ -263,7 +263,7 @@ namespace dev_do_list_cli.Services
             Console.Write($"Comments:{(task.comments.Count == 0 ? " None" : "\n")}");
             foreach(var comment in task.comments)
             {
-                Console.WriteLine($"\t({comment.dateCommented.ToString(format)}) - \"{comment.comment}\"");
+                Console.WriteLine($" > ({comment.dateCommented.ToString(format)}) - \"{comment.comment}\"");
             }
             Console.WriteLine();
         }

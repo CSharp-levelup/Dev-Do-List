@@ -19,17 +19,17 @@
     @foreach (var note in userNote)
     {
         <div key="@note.taskId">
-            <CardContents currNote="@note" />
+            <CardContents currNote="@note" notesService="@notesService"/>
         </div>
     }
 </div>
 
 @code {
-    [Parameter]
-    public List<Note> userNote { get; set; }
+    [Parameter] public List<Note> userNote { get; set; }
 
-    [Parameter]
-    public string CurCategory { get; set; } = "All";
+    [Parameter] public string CurCategory { get; set; } = "All";
+
+    [Parameter] public NoteService? notesService { get; set; }
 
     private int UserId = -1;
 
@@ -44,7 +44,5 @@
             if (token.Success == false) NavigationManager.NavigateTo("/");
         }
     }
+
 }
-
-
-

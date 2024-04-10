@@ -1,6 +1,7 @@
 @using DevDoListBlazorApp.Models;
 @using DevDoListBlazorApp.Services
 @inject NavigationManager NavigationManager
+@inject NoteService noteService
 @* 
    CardContents Razor Component:
    - This component represents the content of a single card in a list.
@@ -23,12 +24,10 @@
 @code {
     [Parameter] public Note? currNote { get; set; }
 
-    [Parameter] public NoteService? notesService { get; set; }
-
     private async void DeleteTask()
     {
         if (currNote is null) return;
-        bool ans = await notesService.DeleteNote(currNote.taskId);
+        bool ans = await noteService.DeleteNote(currNote.taskId);
         NavigationManager.NavigateTo("/dashboard", true);
     }
 

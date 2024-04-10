@@ -16,7 +16,7 @@
     @foreach (var note in userNote)
     {
         <div key="@note.taskId">
-            <CardContents currNote="@note" notesService="@notesService"/>
+            <CardContents currNote="@note"/>
         </div>
     }
 </div>
@@ -25,8 +25,6 @@
     [Parameter] public List<Note> userNote { get; set; }
 
     [Parameter] public string CurCategory { get; set; } = "All";
-
-    [Parameter] public NoteService? notesService { get; set; }
 
     private int UserId = -1;
 

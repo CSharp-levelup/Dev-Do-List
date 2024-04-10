@@ -13,7 +13,7 @@
         <img class="add-new-note" src="/assets/AddNewNote.svg" alt="AddNewNote" />
     </div>
     <div class="card-container-dash">
-        <DataCards userNote="usersNotes" notesService="notesService" CurCategory="All" />
+        <DataCards userNote="usersNotes" CurCategory="All" />
     </div>
 </div>
 
@@ -28,7 +28,6 @@
     bool showAscDesc = false;
     bool checkedLoggedIn = false;
     private int UserId = -1;
-    private NoteService? notesService;
 
     protected override async Task OnAfterRenderAsync(bool firstRender) // Redirects to login page if they do not have a token
     {
@@ -51,7 +50,6 @@
 
     void HandleNew()
     {
-
         NavigationManager.NavigateTo("/NewNote");
     }
 

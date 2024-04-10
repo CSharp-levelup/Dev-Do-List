@@ -26,8 +26,7 @@
     {
         if (firstRender)
         {
-            var accessToken = AuthService.accessToken;
-            if (accessToken is null)
+            if (!AuthService.IsLoggedIn())
             {
                 NavigationManager.NavigateTo("/");
             }

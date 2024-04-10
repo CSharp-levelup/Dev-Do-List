@@ -72,7 +72,7 @@
         {
             // Check if the user is not logged in
 
-            if (string.IsNullOrEmpty(AuthService.accessToken))
+            if (!AuthService.IsLoggedIn())
             {
                 // User is not logged in, redirect to login page
                 NavigationManager.NavigateTo("/");

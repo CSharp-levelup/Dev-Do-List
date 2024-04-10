@@ -78,7 +78,7 @@
     {
         if (firstRender)
         {
-            if (string.IsNullOrEmpty(AuthService.accessToken))
+            if (!AuthService.IsLoggedIn())
             {
                 NavigationManager.NavigateTo("/");
             }
@@ -93,7 +93,7 @@
 
     private async Task UpdateNote()
     {
-        if (AuthService.accessToken != null)
+        if (AuthService.IsLoggedIn())
         {
             currNote = new Note
                 {

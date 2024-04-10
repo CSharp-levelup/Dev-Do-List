@@ -37,7 +37,7 @@
     {
         if (firstRender)
         {
-            if (AuthService.accessToken is null) NavigationManager.NavigateTo("/");
+            if (!AuthService.IsLoggedIn()) NavigationManager.NavigateTo("/");
         }
     }
 

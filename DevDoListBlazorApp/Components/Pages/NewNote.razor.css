@@ -45,6 +45,7 @@
     flex-direction: column;
     height: 10vh;
     width: 100%;
+    gap: 1vh;
 }
 
 .task-type-container {
@@ -52,6 +53,7 @@
     flex-direction: column;
     height: 10vh;
     width: 100%;
+    gap: 1vh;
 }
 
 .input-container {
@@ -59,6 +61,14 @@
     flex-direction: column;
     height: 10vh;
     width: 100%;
+    gap: 1vh;
+}
+
+.input-container-short {
+    display: flex;
+    flex-direction: column;
+    height: 10vh;
+    width: 50%;
     gap: 1vh;
 }
 
@@ -75,10 +85,11 @@
     font-size: 30px;
     font-weight: 500;
     height: 7vh;
-    width: 15vw;
-    box-shadow: 4px 0px 4px 0px rgba(0, 0, 0, 0.25);
-    border: 0.5px solid rgba(158, 158, 158, 0.50);
+    width: 50%;
     background-color: #FFF;
+    padding: 1vh;
+    border: 0.5px solid rgba(158, 158, 158, 0.50);
+    box-shadow: 4px 0px 4px 0px rgba(0, 0, 0, 0.25);
 }
 
 .input {
@@ -90,6 +101,7 @@
     background-color: #FFF;
     display: flex;
     justify-content: center;
+    padding: 1vh;
 }
 
 label {
@@ -102,6 +114,12 @@ textarea {
     box-shadow: 4px 0px 4px 0px rgba(0, 0, 0, 0.25);
     border: 0.5px solid rgba(158, 158, 158, 0.50);
     background-color: #FFF;
+    padding: 1vh;
+}
+
+.input-text-area {
+    height: 40vh;
+    width: 100%;
 }
 
 .button-container {

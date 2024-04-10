@@ -42,13 +42,9 @@
         </div>
 
         <div class="date-container">
-            <div class="input-container">
+            <div class="input-container-short">
                 <label>Due Date:</label>
                 <input class="input" type="date" @bind="dueDate" />
-            </div>
-            <div class="input-container">
-                <label>Created Date:</label>
-                <input class="input" type="date" @bind="createdDate" />
             </div>
         </div>
 
@@ -110,10 +106,19 @@
                     statusId = statusId,
                     taskTypeId = taskTypeId,
                 };
-            currNote = await notesService.CreateNote(currNote);
-            StateHasChanged();
-            // Reset fields after successful save
-            //nav back to home if successfull
+            Console.WriteLine("Note: " + currNote);
+            Note newNote = await notesService.CreateNote(currNote);
+            if (newNote == null)
+            {
+                throw new Exception("Could not create new note");
+            } else
+            {
+                StateHasChanged();
+                //Reset fields after successful save
+                //nav back to home if successfull
+                NavigationManager.NavigateTo("/dashboard");
+            }
+            
         }
     }
 }

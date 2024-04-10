@@ -5,15 +5,16 @@
 @using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
 @inject ProtectedSessionStorage ProtectedSessionStorage
 @inject NavigationManager NavigationManager
-<div class="flex">
+<div class="profile-page">
     @if (_user is not null)
     {
-        <div>
-            <img class="avatar-img" src="@_user.userPicUrl" alt="Profile Image"/>
-        </div>
-        <div class="username">
-            <h1> @_user.username</h1>
-            
+        <div class="profile-container">
+            <div class="avatar-img-container">
+                <img class="avatar-img" src="@_user.userPicUrl" alt="Profile Image" />
+            </div>
+            <div class="username">
+                <h1> @_user.username</h1>
+            </div>
         </div>
     }
 </div>

@@ -1,4 +1,4 @@
-@page "/newNote"
+@page "/viewNote/{task_id}"
 
 @rendermode InteractiveServer
 @using DevDoListBlazorApp.Models
@@ -14,7 +14,7 @@
     <div class="input-container-note">
 
         <div class="title-container">
-            <input class="input-title" @bind="_title" />
+            <input class="input-title" @bind="title" />
         </div>
 
         <div class="date-container">
@@ -48,49 +48,57 @@
             </div>
         </div>
 
-        <div class="button-container">
-            <button class="save-button" @onclick="SaveNote">Save</button>
-            <div class="error-message">@saveErrorMsg</div>
+        <div class="buttons-container">
+
+            <div class="button">
+                <button class="save-button" @onclick="UpdateNote">Update</button>
+            </div>
+            <div class="button">
+                <button class="delete-button" @onclick="DeleteNote">Delete</button>
+            </div>
+            
         </div>
        
     </div>
 </div>
 
 @code {
-    private string mode = "";
+    [Parameter] public string task_id { get; set; }
     private Note currNote = new Note();
+    private int taskId = 0;
+    string saveErrorMsg = "Could not save note";
+    string deleteErrorMsg = "Could not delete note";
     string category = "None";
-    string _title = "Title";
-    string saveErrorMsg = "";
+    string title = "";
     string description = "";
-    DateTime dueDate = DateTime.Now; // Set default due date
-    int userId = 1; // Non-admin user
+    DateTime dueDate = new();
+    int userId = -1;
     int statusId = -1;
     int taskTypeId = -1;
     private string _accessToken = string.Empty;
     private NoteService? notesService;
+    private bool flag = true;  
 
     protected override async Task OnAfterRenderAsync(bool firstRender) // Redirects to login page if they do not have a token
     {
         if (firstRender)
         {
-            // Check if the user is not logged in
             var jwtToken = await ProtectedSessionStorage.GetAsync<string>("accessToken");
             if (string.IsNullOrEmpty(jwtToken.Value))
             {
-                // User is not logged in, redirect to login page
                 NavigationManager.NavigateTo("/");
             }
-
         }
+
+        taskId = int.Parse(task_id);
+        GetNote();
+        StateHasChanged();
         // Fetch Status Data + Populate model
         // Fetch Task Type Data + Populate mode
     }
 
-    private async Task SaveNote()
+    private async Task UpdateNote()
     {
-        Console.WriteLine("title: " + _title);
-        // Call service method to save note
         var jwtToken = await ProtectedSessionStorage.GetAsync<string>("accessToken");
         _accessToken = jwtToken.Value;
         string? accessToken = this._accessToken;
@@ -99,25 +107,51 @@
             notesService = new NoteService(accessToken);
             currNote = new Note
                 {
-                    title = _title,
+                    title = title,
                     description = description,
                     dueDate = dueDate,
                     statusId = statusId,
                     taskTypeId = taskTypeId,
+                    userId = userId
                 };
-            Console.WriteLine("Note: " + currNote);
-            Note newNote = await notesService.CreateNote(currNote);
+            Note newNote = await notesService.UpdateNote(currNote, taskId);
             if (newNote == null)
             {
-                throw new Exception("Could not create new note");
+                throw new Exception("Could not update note");
             } else
             {
-                StateHasChanged();
-                //Reset fields after successful save
-                //nav back to home if successfull
                 NavigationManager.NavigateTo("/dashboard");
             }
-            
+
         }
+    }
+
+    private async void GetNote()
+    {
+        var jwtToken = await ProtectedSessionStorage.GetAsync<string>("accessToken");
+        _accessToken = jwtToken.Value;
+        string? accessToken = this._accessToken;
+        if (accessToken != null)
+        {
+            notesService = new NoteService(accessToken);
+            currNote = await notesService.GetNoteById(taskId);
+        }
+
+        if (currNote != null)
+        {
+            title = currNote.title;
+            description = currNote.description;
+            dueDate = currNote.dueDate;
+            userId = currNote.userId;
+            statusId = currNote.statusId;
+            taskTypeId = currNote.taskTypeId;
+        }
+    }
+
+    private async void DeleteNote()
+    {
+        if (currNote is null) return;
+        bool ans = await notesService.DeleteNote(currNote.taskId);
+        NavigationManager.NavigateTo("/dashboard", true);
     }
 }

@@ -11,8 +11,8 @@
 
 
 <div class="dash-container">
-    <div class="add-new-note" @onclick="HandleNew">
-        @* <img src="@newNote" /> *@
+    <div class="add-new-note-container" @onclick="HandleNew">
+        <img class="add-new-note" src="/assets/AddNewNote.svg" alt="AddNewNote" />
     </div>
     <div class="card-container-dash">
         <DataCards userNote="usersNotes" notesService="notesService" CurCategory="All" />
@@ -55,6 +55,7 @@
                 StateHasChanged();
             }
         }
+        Console.WriteLine("testig");
 
         // Fetch Categories Data - could hardcode
    
@@ -62,6 +63,7 @@
 
     void HandleNew()
     {
+
         NavigationManager.NavigateTo("/NewNote");
     }
 
@@ -74,7 +76,7 @@
     void FetchNotesData()
     {
         errorNotes = "";
-        // Fetch notes data
+        // Fetch notes data if in view mode
     }
 
     void FetchCategoriesData()

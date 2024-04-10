@@ -5,7 +5,6 @@
     grid-template-columns: repeat(4, 1fr);
     gap: 4vh;
     overflow-x: hidden;
-    padding: 4vh;
 }
 
 ::-webkit-scrollbar {

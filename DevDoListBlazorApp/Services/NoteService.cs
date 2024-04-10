@@ -35,7 +35,7 @@ public class NoteService(string accessToken)
     public async Task<Note?> CreateNote(Note newTask)
     {
         var client = new HttpClient();
-        var request = new HttpRequestMessage(HttpMethod.Get, _serverUrl + "api/v1//task");
+        var request = new HttpRequestMessage(HttpMethod.Post, _serverUrl + "api/v1/task");
         request.Headers.Add("Authorization", "Bearer " + accessToken);
         var data = new
         {

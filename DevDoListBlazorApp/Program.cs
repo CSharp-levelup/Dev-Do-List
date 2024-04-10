@@ -1,4 +1,5 @@
 using DevDoListBlazorApp.Components;
+using DevDoListBlazorApp.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -6,6 +7,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 builder.Services.AddHttpClient();
+builder.Services.AddScoped<NoteService>();
+builder.Services.AddScoped<UserService>();
 
 var app = builder.Build();
 

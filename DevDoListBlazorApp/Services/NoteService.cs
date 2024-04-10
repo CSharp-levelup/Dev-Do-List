@@ -1,21 +1,21 @@
-﻿using System.Collections.Generic;
-using System.Text.Json;
+﻿using System.Text.Json;
+using DevDoListBlazorApp.Data;
 using DevDoListBlazorApp.Models;
 using DevDoListBlazorApp.Utils;
-using DevDoListBlazorApp.Data;
 
 namespace DevDoListBlazorApp.Services;
 
-public class NoteService(string accessToken)
+public class NoteService
 {
     private readonly string _serverUrl = FuncUtils.GetServerUrl();
     private readonly MockNotesData mockNotesData = new();
 
     public async Task<List<Note>?> GetAllNotes()
     {
+        Console.WriteLine(AuthService.accessToken); 
         var client = new HttpClient();
         var request = new HttpRequestMessage(HttpMethod.Get, _serverUrl + "api/v1/task");
-        request.Headers.Add("Authorization", "Bearer " + accessToken);
+        request.Headers.Add("Authorization", "Bearer " + AuthService.accessToken);
         var response = await client.SendAsync(request);
         if (!response.IsSuccessStatusCode) return null;
         var task = JsonSerializer.Deserialize<List<Note>>(await response.Content.ReadAsStringAsync())!;
@@ -26,7 +26,7 @@ public class NoteService(string accessToken)
     {
         var client = new HttpClient();
         var request = new HttpRequestMessage(HttpMethod.Get, _serverUrl + "api/v1/task/" + id);
-        request.Headers.Add("Authorization", "Bearer " + accessToken);
+        request.Headers.Add("Authorization", "Bearer " + AuthService.accessToken);
         var response = await client.SendAsync(request);
         if (!response.IsSuccessStatusCode) return null;
         var task = JsonSerializer.Deserialize<Note>(await response.Content.ReadAsStringAsync())!;
@@ -37,7 +37,7 @@ public class NoteService(string accessToken)
     {
         var client = new HttpClient();
         var request = new HttpRequestMessage(HttpMethod.Put, _serverUrl + "api/v1/task/" + id);
-        request.Headers.Add("Authorization", "Bearer " + accessToken);
+        request.Headers.Add("Authorization", "Bearer " + AuthService.accessToken);
         var data = new
         {
             taskId = id,
@@ -66,7 +66,7 @@ public class NoteService(string accessToken)
     {
         var client = new HttpClient();
         var request = new HttpRequestMessage(HttpMethod.Delete, _serverUrl + "api/v1/task/" + id);
-        request.Headers.Add("Authorization", "Bearer " + accessToken);
+        request.Headers.Add("Authorization", "Bearer " + AuthService.accessToken);
         
         var response = await client.SendAsync(request);
         return response.IsSuccessStatusCode;
@@ -76,7 +76,7 @@ public class NoteService(string accessToken)
     {
         var client = new HttpClient();
         var request = new HttpRequestMessage(HttpMethod.Post, _serverUrl + "api/v1/task");
-        request.Headers.Add("Authorization", "Bearer " + accessToken);
+        request.Headers.Add("Authorization", "Bearer " + AuthService.accessToken);
         var data = new
         {
             title = newTask.title,

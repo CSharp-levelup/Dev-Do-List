@@ -1,13 +1,11 @@
 @page "/dashboard"
-@rendermode InteractiveServer
 @using DevDoListBlazorApp.Models
 @using DevDoListBlazorApp.Services
 @using DevDoListBlazorApp.Components.Shared
-@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
-@using System.Collections.Generic
-@inject ProtectedSessionStorage ProtectedSessionStorage
+@rendermode InteractiveServer
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JsRuntime
+@inject NoteService noteService
 
 
 <div class="dash-container">
@@ -30,7 +28,6 @@
     bool showAscDesc = false;
     bool checkedLoggedIn = false;
     private int UserId = -1;
-    private string _accessToken = string.Empty;
     private NoteService? notesService;
 
     protected override async Task OnAfterRenderAsync(bool firstRender) // Redirects to login page if they do not have a token
@@ -38,24 +35,15 @@
         if (firstRender && !checkedLoggedIn)
         {
             // Check if the user is not logged in
-            var jwtToken = await ProtectedSessionStorage.GetAsync<string>("accessToken");
-            if (string.IsNullOrEmpty(jwtToken.Value))
+            if (string.IsNullOrEmpty(AuthService.accessToken))
             {
                 // User is not logged in, redirect to login page
                 NavigationManager.NavigateTo("/");
             }
             checkedLoggedIn = true;
-            if (jwtToken.Success == false) NavigationManager.NavigateTo("/");
-            _accessToken = jwtToken.Value;
-            string? accessToken = this._accessToken;
-            if (accessToken != null)
-            {
-                notesService = new NoteService(accessToken);
-                usersNotes = await notesService.GetAllNotes();
-                StateHasChanged();
-            }
+            usersNotes = await noteService.GetAllNotes();
+            StateHasChanged();
         }
-        Console.WriteLine("testig");
 
         // Fetch Categories Data - could hardcode
    

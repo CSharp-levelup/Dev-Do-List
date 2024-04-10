@@ -1,14 +1,11 @@
 @page "/viewNote/{task_id}"
-
-@rendermode InteractiveServer
 @using DevDoListBlazorApp.Models
 @using DevDoListBlazorApp.Services
-@using DevDoListBlazorApp.Components.Shared
-@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
-@using System.Collections.Generic
-@inject ProtectedSessionStorage ProtectedSessionStorage
+
+@rendermode InteractiveServer
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JsRuntime
+@inject NoteService NoteService
 
 <div class="new-page">
     <div class="input-container-note">
@@ -75,16 +72,13 @@
     int userId = -1;
     int statusId = -1;
     int taskTypeId = -1;
-    private string _accessToken = string.Empty;
-    private NoteService? notesService;
     private bool flag = true;  
 
     protected override async Task OnAfterRenderAsync(bool firstRender) // Redirects to login page if they do not have a token
     {
         if (firstRender)
         {
-            var jwtToken = await ProtectedSessionStorage.GetAsync<string>("accessToken");
-            if (string.IsNullOrEmpty(jwtToken.Value))
+            if (string.IsNullOrEmpty(AuthService.accessToken))
             {
                 NavigationManager.NavigateTo("/");
             }
@@ -99,12 +93,8 @@
 
     private async Task UpdateNote()
     {
-        var jwtToken = await ProtectedSessionStorage.GetAsync<string>("accessToken");
-        _accessToken = jwtToken.Value;
-        string? accessToken = this._accessToken;
-        if (accessToken != null)
+        if (AuthService.accessToken != null)
         {
-            notesService = new NoteService(accessToken);
             currNote = new Note
                 {
                     title = title,
@@ -114,7 +104,7 @@
                     taskTypeId = taskTypeId,
                     userId = userId
                 };
-            Note newNote = await notesService.UpdateNote(currNote, taskId);
+            var newNote = await NoteService.UpdateNote(currNote, taskId);
             if (newNote == null)
             {
                 throw new Exception("Could not update note");
@@ -128,16 +118,9 @@
 
     private async void GetNote()
     {
-        var jwtToken = await ProtectedSessionStorage.GetAsync<string>("accessToken");
-        _accessToken = jwtToken.Value;
-        string? accessToken = this._accessToken;
-        if (accessToken != null)
-        {
-            notesService = new NoteService(accessToken);
-            currNote = await notesService.GetNoteById(taskId);
-        }
+        currNote = await NoteService.GetNoteById(taskId);
 
-        if (currNote != null)
+        if (currNote is not null)
         {
             title = currNote.title;
             description = currNote.description;
@@ -151,7 +134,7 @@
     private async void DeleteNote()
     {
         if (currNote is null) return;
-        bool ans = await notesService.DeleteNote(currNote.taskId);
+        var ans = await NoteService.DeleteNote(currNote.taskId);
         NavigationManager.NavigateTo("/dashboard", true);
     }
 }

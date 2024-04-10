@@ -9,6 +9,8 @@ builder.Services.AddRazorComponents()
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<NoteService>();
 builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<StatusService>();
+builder.Services.AddScoped<TaskTypeService>();
 
 var app = builder.Build();
 

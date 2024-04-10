@@ -6,6 +6,8 @@
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JsRuntime
 @inject NoteService NoteService
+@inject StatusService StatusService
+@inject TaskTypeService TaskTypeService 
 
 <div class="new-page">
     <div class="input-container-note">
@@ -19,16 +21,20 @@
                 <label>Status:</label>
                 <select class="input" @bind="statusId">
                     <option value="-1">Select Status</option>
-                    <option value="1">Not Started</option>
-                    <option value="2">In Progress</option>
+                    @foreach (var status in statuses)
+                    {
+                        <option value="@status.statusId">@status.statusType</option>
+                    }
                 </select>
             </div>
             <div class="task-type-container">
                 <label>Task Type:</label>
                 <select class="input" @bind="taskTypeId">
                     <option value="-1">Select Task Type</option>
-                    <option value="1">Jira Ticket</option>
-                    <option value="2">Pull Request</option>
+                    @foreach (var taskType in taskTypes)
+                    {
+                        <option value="@taskType.taskTypeId">@taskType.taskTypeDescription</option>
+                    }
                 </select>
             </div>
         </div>
@@ -65,6 +71,8 @@
     int statusId = -1;
     int taskTypeId = -1;
     private string _accessToken = string.Empty;
+    List<Status> statuses = new();
+    List<TaskType> taskTypes = new();
 
     protected override async Task OnAfterRenderAsync(bool firstRender) // Redirects to login page if they do not have a token
     {
@@ -78,9 +86,10 @@
                 NavigationManager.NavigateTo("/");
             }
 
+            statuses = await StatusService.GetAllStatuses();
+            taskTypes = await TaskTypeService.GetAllTaskTypes();
+            StateHasChanged();
         }
-        // Fetch Status Data + Populate model
-        // Fetch Task Type Data + Populate mode
     }
 
     private async Task SaveNote()

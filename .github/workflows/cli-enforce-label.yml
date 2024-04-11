@@ -1,12 +1,11 @@
 name: Enforce Label
 
 on:
-  push:
+  pull_request:
     branches:
     - main
     paths:
     - 'dev-do-list-cli/**'
-  workflow_dispatch:
 
 jobs:
   enforce-label:

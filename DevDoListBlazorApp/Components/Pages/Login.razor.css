@@ -1,10 +1,31 @@
 .login-page {
   background: #f9f9fa;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 80vw;
-  height: 90vh;
+  width: 100vw;
+  height: 100vh;
+}
+
+.side-panel {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 35vw;
+    height: 100vh;
+    background-color: #8981D8;
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.page-container {
+    width: 65vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .input-container-login {
@@ -59,6 +80,11 @@
   font-weight: 650;
   background-color: #6a61c0;
 }
+
+    .login-button:hover {
+        transform: scale(1.05);
+        background-color: #8981D8;
+    }
 
 .login-container-user-code {
   display: flex;

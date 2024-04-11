@@ -14,27 +14,35 @@
 @inject IJSRuntime JsRuntime
 
 <div class="login-page">
-    <div class="input-container-login">
-        @if (string.IsNullOrEmpty(VerificationUri) && string.IsNullOrEmpty(UserCode))
-        {
-            <div class="input-container-title-login">
-                Login to your GitHub account
-            </div>
-            <div class="login-button-container">
-                <button class="login-button" @onclick="HandleLogin">Login</button>
-            </div>
-        }
-        else
-        {
-            <div class="login-container-user-code">
-                @UserCode
-            </div>
-            <div class="login-container-link">
-                <p>Enter the code at:</p>
-                <a href="@VerificationUri" target="_blank">@VerificationUri</a>
-            </div>
-        }
+    <div class="side-panel">
+        <div class="logo-container">
+            <img class="logo" src="/assets/LargeLogo.svg" alt="AddNewNote" />
+        </div>
     </div>
+    <div class="page-container">
+        <div class="input-container-login">
+            @if (string.IsNullOrEmpty(VerificationUri) && string.IsNullOrEmpty(UserCode))
+            {
+                <div class="input-container-title-login">
+                    Login to your GitHub account
+                </div>
+                <div class="login-button-container">
+                    <button class="login-button" @onclick="HandleLogin">Login</button>
+                </div>
+            }
+            else
+            {
+                <div class="login-container-user-code">
+                    @UserCode
+                </div>
+                <div class="login-container-link">
+                    <p>Enter the code at:</p>
+                    <a href="@VerificationUri" target="_blank">@VerificationUri</a>
+                </div>
+            }
+        </div>
+    </div>
+   
 </div>
 
 @code {

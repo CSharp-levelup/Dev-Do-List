@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  publish:
+  release-cli:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -24,7 +24,7 @@ jobs:
         run: |
           dotnet restore;  
           dotnet publish -c Release;
-          working-directory: dev-do-list-cli
+        working-directory: dev-do-list-cli
 
       # Get PR from merged commit to master
       - name: Get merged pull request

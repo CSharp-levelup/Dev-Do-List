@@ -14,12 +14,12 @@ main {
 }
 
 .top-row {
-  background-color: #6a61c0;
-  border-bottom: 1px solid #8981d8;
-  justify-content: flex-end;
-  height: 3.5rem;
-  display: flex;
-  align-items: center;
+    background-color: #6a61c0;
+    border-bottom: 1px solid #6a61c0;
+    justify-content: flex-end;
+    height: 3.5rem;
+    display: flex;
+    align-items: center;
 }
 
 .top-row ::deep a,

@@ -69,16 +69,15 @@
 </div>
 
 @code {
-    private string mode = "";
     private Note currNote = new Note();
-    string title = "Untitle";
+    string title = "Untitled";
     string saveErrorMsg = "";
-    string description = "";
+    string description = "Enter Note Description Here ...";
     DateTime dueDate = DateTime.Now;
     DateTime createdDate = DateTime.Now;
     int userId = 1;
-    int statusId = -1;
-    int taskTypeId = -1;
+    int statusId = 1;
+    int taskTypeId = 1;
     private string _accessToken = string.Empty;
     List<Status> statuses = new();
     List<TaskType> taskTypes = new();

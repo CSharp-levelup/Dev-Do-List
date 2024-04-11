@@ -1,0 +1,17 @@
+name: Enforce Label
+
+on:
+  pull_request:
+    branches:
+    - main
+    paths:
+    - 'dev-do-list-cli/**'
+
+jobs:
+  enforce-label:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: yogevbd/enforce-label-action@2.1.0
+      with:
+        REQUIRED_LABELS_ANY: "patch,major,minor,chore"
+        REQUIRED_LABELS_ANY_DESCRIPTION: "Select at least one label ['patch','major','minor','chore']"

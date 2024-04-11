@@ -1,0 +1,15 @@
+@page "/logout"
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
+@using Microsoft.AspNetCore.Components;
+@rendermode InteractiveServer
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JsRuntime
+@inject ProtectedLocalStorage ProtectedLocalStore;
+
+@code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await ProtectedLocalStore.DeleteAsync("JWT_TOKEN");
+        NavigationManager.NavigateTo("/login");
+    }
+}

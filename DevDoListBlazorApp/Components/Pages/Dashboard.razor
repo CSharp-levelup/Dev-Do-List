@@ -2,12 +2,14 @@
 @using DevDoListBlazorApp.Models
 @using DevDoListBlazorApp.Services
 @using DevDoListBlazorApp.Components.Shared
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
 @rendermode InteractiveServer
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JsRuntime
 @inject NoteService noteService
 @inject TaskTypeService taskTypeService
 @inject AuthService AuthService
+@inject ProtectedLocalStorage ProtectedLocalStore;
 
 
 <div class="dash-container">

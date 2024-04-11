@@ -22,12 +22,22 @@ main {
     align-items: center;
 }
 
-.top-row ::deep a,
-.top-row ::deep .btn-link {
-  white-space: nowrap;
-  margin-left: 1.5rem;
-  text-decoration: none;
+.logout {
+    display: flex;
+    border: none;
+    background-color: #8981D8;
 }
+
+    .logout:hover {
+        transform: scale(1.05);
+    }
+
+    .top-row ::deep a,
+    .top-row ::deep .btn-link {
+        white-space: nowrap;
+        margin-left: 1.5rem;
+        text-decoration: none;
+    }
 
 .top-row ::deep a:hover,
 .top-row ::deep .btn-link:hover {

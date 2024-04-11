@@ -3,7 +3,7 @@
 Console.ForegroundColor = ConsoleColor.Blue;
 Console.WriteLine(" __  __       __  __        _____ ");
 Console.WriteLine("|  \\|_ \\  /  |  \\/  \\  |  |(_  |  ");
-Console.WriteLine("|__/|__ \\/   |__/\\__/  |__|__) |  ");
+Console.WriteLine("|__/|__ \\/   |__/\\__/  |__|__) | ");
 Console.ResetColor();
 
 bool loggedIn = false;

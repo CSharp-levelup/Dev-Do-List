@@ -17,7 +17,7 @@ env:
 jobs:
   Continuous-Integration-Build:
     name: Continuous Integration Build
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     permissions:
       id-token: write
       contents: read
@@ -28,22 +28,21 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4.0.1
         with:
-          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: eu-west-1
           
       - name: Port forward Database
         run: |
-          curl "https://s3.amazonaws.com/session-manager-downloads/plugin/latest/ubuntu_64bit/session-manager-plugin.deb" -o "session-manager-plugin.deb"
-          sudo dpkg -i session-manager-plugin.deb
-          aws ssm start-session --target ${{ secrets.BASTION_HOST_ID }} --document-name AWS-StartPortForwardingSessionToRemoteHost --parameters '{\"localPortNumber\":[\"1433\"],\"portNumber\":[\"1433\"],\"host\":[${{ secrets.RDS_ENDPOINT }}]}' --region eu-west-1 &
+          aws ssm start-session --target ${{ secrets.BASTION_HOST_ID }} --document-name AWS-StartPortForwardingSessionToRemoteHost --parameters '{"localPortNumber":["1433"],"portNumber":["1433"],"host":["${{ secrets.RDS_ENDPOINT }}"]}' --region eu-west-1 &
 
       - name: Build JDBC url
         run: |
-          echo "DB_URL=jdbc:sqlserver://127.0.0.1:1433;authentication=sqlPassword;databaseName=DevDoListDB;encrypt=true;trustServerCertificate=true" >> $GITHUB_ENV
+          echo "DB_URL=jdbc:sqlserver://localhost:1433;authentication=sqlPassword;databaseName=DevDoListDB;encrypt=true;trustServerCertificate=true" >> $GITHUB_ENV
 
       - name: Continuous Integration Flyway Clean Migrate
         run: >-
           docker run --rm
+          --net=host
           --volume ${{ github.workspace }}/Flyway/migrations:/flyway/sql:ro
           "${{ env.DOCKER_IMAGE }}"
           -url="${{ env.DB_URL }}"

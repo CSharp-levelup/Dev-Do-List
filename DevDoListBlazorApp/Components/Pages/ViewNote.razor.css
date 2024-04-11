@@ -10,34 +10,130 @@
 
 .note-container {
     display: flex;
-    height: 92vh;
-    width: 100vw;
+    align-items: center;
+    justify-content: center;
     background-color: #FFF;
-    align-items: center;
-    justify-content: center;
-}
-
-.input-container-note {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
     width: 70vw;
     height: 75vh;
     border-radius: 5px;
     border: 0.5px solid rgba(158, 158, 158, 0.50);
     background-color: #FFF;
     box-shadow: 4px 0px 4px 0px rgba(0, 0, 0, 0.25);
+}
+
+.side-panel {
+    width: 25%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #6A61C0; 
+    padding-top: 4vh;
+}
+
+.heading-container {
+    background-color: #FFF;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 10vh;
+    width: 100%;
+    padding: 0 4vh 0 4vh;
+}
+
+.comments-heading {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0;
+    color: #8981D8;
+}
+
+.comments-container {
+    display: flex;
+    flex-direction: column;
+    gap: 2vh;
+    padding: 2vh;
+    width: 100%;
+    height: 80%;
+    overflow: auto;
+}
+
+.comments-input-contaier {
+    padding: 2vh;
+    width: 100%;
+    height: 20%;
+}
+
+.comments-input {
+    display: flex;
+    align-items: center;
+    gap: 1vh;
+    padding: 1vh;
+    height: 100%;
+    flex-direction: column;
+    background-color: #FFF;
+}
+
+.comments {
+    border: none;
+    width: 95%;
+    height: 4vh;
+    font-size: 10px;
+}
+
+.comment-date {
+    display: flex;
+    width: 100%;
+    font-size: 8px;
+    color: #737373;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.comments-save-button {
+    height: 2.5vh;
+    width: 4vw;
+    border: none;
+    font-size: 12px;
+    align-self: end;
+    background-color: #6A61C0;
+    color: #FFF;
+}
+
+.comments-save-button:hover {
+    transform: scale(1.1);
+    background-color: #8981D8;
+}
+
+.comment {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    min-height: 8vh;
+    background-color: #FFF;
+    font-size: 10px;
+    padding: 1vh;
+}
+
+
+.input-container-note {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 75%;
+    height: 100%;
+    background-color: #FFF;
     gap: 2vh;
     padding: 4vh;
 }
 
 .title-container {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     height: 10vh;
     width: 100%;
-    justify-content: left;
+    justify-content: space-between;
 }
 
 .status-container {
@@ -51,15 +147,17 @@
 .task-type-container {
     display: flex;
     flex-direction: column;
+    justify-content: center;
+    align-items: center;
     height: 10vh;
-    width: 100%;
+    width: 18%;
     gap: 1vh;
 }
 
 .input-container {
     display: flex;
     flex-direction: column;
-    height: 10vh;
+    height: 20vh;
     width: 100%;
     gap: 1vh;
 }
@@ -68,7 +166,7 @@
     display: flex;
     flex-direction: column;
     height: 10vh;
-    width: 50%;
+    width: 45%;
     gap: 1vh;
 }
 
@@ -82,14 +180,11 @@
 }
 
 .input-title {
-    font-size: 30px;
-    font-weight: 500;
-    height: 7vh;
-    width: 50%;
+    font-size: 2.5rem;
+    font-weight: 600;
     background-color: #FFF;
     padding: 1vh;
-    border: 0.5px solid rgba(158, 158, 158, 0.50);
-    box-shadow: 4px 0px 4px 0px rgba(0, 0, 0, 0.25);
+    border: none;
 }
 
 .input {
@@ -104,6 +199,29 @@
     padding: 1vh;
 }
 
+.input-status {
+    height: 5vh;
+    width: 100%;
+    box-shadow: 4px 0px 4px 0px rgba(0, 0, 0, 0.25);
+    border: none;
+    background-color: #8CF192;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1vh;
+    border-radius: 20px;
+    cursor: pointer;
+}
+
+select {
+    font-size: 12px;
+    font-weight: 500;
+}
+
+option {
+    background-color: #f2f2f2;
+}
+
 label {
     font-size: 15px;
 }
@@ -111,6 +229,7 @@ label {
 textarea {
     height: 40vh;
     width: 100%;
+    font-size: 11px;
     box-shadow: 4px 0px 4px 0px rgba(0, 0, 0, 0.25);
     border: 0.5px solid rgba(158, 158, 158, 0.50);
     background-color: #FFF;
@@ -119,7 +238,7 @@ textarea {
 
 .input-text-area {
     height: 40vh;
-    width: 100%;
+    width: 100%
 }
 
 .buttons-container {
@@ -134,16 +253,21 @@ textarea {
 .button {
     display: flex;
     height: 10vh;
-    width: 25%;
     justify-content: center;
     align-items: center;
 }
 
 .save-button {
-    background-color: #6A61C0;
+    background-color: #8981D8;
     color: #FFF;
     height: 5vh;
     width: 7vw;
+    border: none;
+    font-weight: 500;
+}
+
+.save-button:hover {
+    transform: scale(1.1);
 }
 
 .delete-button {
@@ -151,6 +275,12 @@ textarea {
     color: #FFF;
     height: 5vh;
     width: 7vw;
+    border: none;
+    font-weight: 500;
+}
+
+.delete-button:hover {
+    transform: scale(1.1);
 }
 
 .error-message {

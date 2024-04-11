@@ -1,7 +1,6 @@
 @page "/newNote"
 @using DevDoListBlazorApp.Models
 @using DevDoListBlazorApp.Services
-
 @rendermode InteractiveServer
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JsRuntime
@@ -13,7 +12,7 @@
     <div class="input-container-note">
 
         <div class="title-container">
-            <input class="input-title" @bind="_title" />
+            <input class="input-title" @bind="title" />
         </div>
 
         <div class="date-container">
@@ -62,61 +61,56 @@
 @code {
     private string mode = "";
     private Note currNote = new Note();
-    string category = "None";
-    string _title = "Title";
+    string title = "Title";
     string saveErrorMsg = "";
     string description = "";
-    DateTime dueDate = DateTime.Now; // Set default due date
-    int userId = 1; // Non-admin user
+    DateTime dueDate = DateTime.Now;
+    int userId = 1;
     int statusId = -1;
     int taskTypeId = -1;
     private string _accessToken = string.Empty;
     List<Status> statuses = new();
     List<TaskType> taskTypes = new();
 
-    protected override async Task OnAfterRenderAsync(bool firstRender) // Redirects to login page if they do not have a token
+    protected override async Task OnInitializedAsync()
+    {
+        await GetDropDownData();
+        StateHasChanged();
+    }
+
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            // Check if the user is not logged in
-
             if (!AuthService.IsLoggedIn())
             {
-                // User is not logged in, redirect to login page
                 NavigationManager.NavigateTo("/");
             }
-
-            statuses = await StatusService.GetAllStatuses();
-            taskTypes = await TaskTypeService.GetAllTaskTypes();
-            StateHasChanged();
         }
+    }
+
+    private async Task GetDropDownData()
+    {
+        taskTypes = await TaskTypeService.GetAllTaskTypes();
+        statuses = await StatusService.GetAllStatuses();
     }
 
     private async Task SaveNote()
     {
-        Console.WriteLine("title: " + _title);
-        // Call service method to save note
             currNote = new Note
                 {
-                    title = _title,
+                    title = title,
                     description = description,
                     dueDate = dueDate,
                     statusId = statusId,
                     taskTypeId = taskTypeId,
                 };
-            Console.WriteLine("Note: " + currNote);
             var newNote = await NoteService.CreateNote(currNote);
-            if (newNote == null)
-            {
-                throw new Exception("Could not create new note");
-            } else
+            if (newNote != null)
             {
                 StateHasChanged();
-                //Reset fields after successful save
-                //nav back to home if successfull
                 NavigationManager.NavigateTo("/dashboard");
             }
-            
-        
     }
 }

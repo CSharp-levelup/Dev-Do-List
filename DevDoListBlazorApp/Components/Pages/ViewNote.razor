@@ -1,86 +1,126 @@
 @page "/viewNote/{task_id}"
 @using DevDoListBlazorApp.Models
 @using DevDoListBlazorApp.Services
-
 @rendermode InteractiveServer
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JsRuntime
 @inject NoteService NoteService
 @inject TaskTypeService TaskTypeService
 @inject StatusService StatusService
+@inject CommentService CommentService
 
 <div class="new-page">
-    <div class="input-container-note">
 
-        <div class="title-container">
-            <input class="input-title" @bind="title" />
-        </div>
-
-        <div class="date-container">
-            <div class="status-container">
-                <label>Status:</label>
-                <select class="input" @bind="statusId">
-                    <option value="-1">Select Status</option>
-                    @foreach (var status in statuses)
-                    {
-                        <option value="@status.statusId">@status.statusType</option>
-                    }
-                </select>
+    <div class="note-container">
+        <div class="side-panel">
+            <div class="heading-container">
+                <h2 class="comments-heading">Comments</h2>
             </div>
-            <div class="task-type-container">
-                <label>Task Type:</label>
-                <select class="input" @bind="taskTypeId">
-                    <option value="-1">Select Task Type</option>
-                    @foreach (var taskType in taskTypes)
-                    {
-                        <option value="@taskType.taskTypeId">@taskType.taskTypeDescription</option>
-                    }
-                </select>
+            <div class="comments-container">
+                @foreach (var userComment in comments)
+                {
+                    <div class="comment">
+                        <div class="comment-date">
+                            @userComment.dateCommented
+                        </div>
+                        @userComment.comment
+                    </div>
+                }
+            </div>
+            <div class="comments-input-contaier">
+                <div class="comments-input">
+                    <input class="comments" placeholder="Type Here ..." @bind="newComment"/>
+                    <button class="comments-save-button" @onclick="HandleSaveComment">
+                        Save
+                    </button>
+                </div>
             </div>
         </div>
-        
-        <div class="input-container">
-            <label>Description:</label>
-            <textarea class="input-text-area" @bind="description"></textarea>
-        </div>
+        <div class="input-container-note">
 
-        <div class="date-container">
-            <div class="input-container-short">
-                <label>Due Date:</label>
-                <input class="input" type="date" @bind="dueDate" />
+            <div class="title-container">
+                <input class="input-title" @bind="title" />
+                <div class="task-type-container">
+                    <select class="input-status" @bind="statusId">
+                        <option value="-1">Select Status</option>
+                        @foreach (var status in statuses)
+                        {
+                            <option value="@status.statusId">@status.statusType</option>
+                        }
+                    </select>
+                </div>
             </div>
-        </div>
 
-        <div class="buttons-container">
+            <div class="date-container">
+                <div class="input-container-short">
+                    <label>Task Type:</label>
+                    <select class="input" @bind="taskTypeId">
+                        <option value="-1">Select Task Type</option>
+                        @foreach (var taskType in taskTypes)
+                        {
+                            <option value="@taskType.taskTypeId">@taskType.taskTypeDescription</option>
+                        }
+                    </select>
+                </div>
+            </div>
 
-            <div class="button">
-                <button class="save-button" @onclick="UpdateNote">Update</button>
+            <div class="input-container">
+                <label>Description:</label>
+                <textarea class="input-text-area" @bind="description"></textarea>
             </div>
-            <div class="button">
-                <button class="delete-button" @onclick="DeleteNote">Delete</button>
+
+            <div class="date-container">
+                <div class="input-container-short">
+                    <label>Created Date:</label>
+                    <input class="input" readonly type="date" @bind="createdDate" />
+                </div>
+                <div class="input-container-short">
+                    <label>Due Date:</label>
+                    <input class="input" type="date" @bind="dueDate" />
+                </div>
             </div>
-            
+
+            <div class="buttons-container">
+
+                <div class="button">
+                    <button class="save-button" @onclick="UpdateNote">Update</button>
+                </div>
+                <div class="button">
+                    <button class="delete-button" @onclick="DeleteNote">Delete</button>
+                </div>
+
+            </div>
+
         </div>
-       
     </div>
+    
 </div>
 
 @code {
     [Parameter] public string task_id { get; set; }
     private Note currNote = new Note();
     private int taskId = 0;
-    string saveErrorMsg = "Could not save note";
-    string deleteErrorMsg = "Could not delete note";
-    string category = "None";
     string title = "";
     string description = "";
+    string newComment = "";
     DateTime dueDate = new();
+    DateTime createdDate = new();
     int userId = -1;
     int statusId = -1;
     int taskTypeId = -1;
-    private bool flag = true;
     List<TaskType> taskTypes = new();
     List<Status> statuses = new();
+    List<Comment> comments = new();
+    Comment currComment = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        taskId = int.Parse(task_id);
+        await GetNoteData();
+        await GetDropDownData();
+        await GetCommentData();
+        StateHasChanged();
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender) // Redirects to login page if they do not have a token
     {
@@ -90,16 +130,7 @@
             {
                 NavigationManager.NavigateTo("/");
             }
-
-            taskId = int.Parse(task_id);
-            GetNote();
-            statuses = await StatusService.GetAllStatuses();
-            taskTypes = await TaskTypeService.GetAllTaskTypes();
-            StateHasChanged();
         }
-
-        // Fetch Status Data + Populate model
-        // Fetch Task Type Data + Populate mode
     }
 
     private async Task UpdateNote()
@@ -115,37 +146,75 @@
                     taskTypeId = taskTypeId,
                     userId = userId
                 };
-            var newNote = await NoteService.UpdateNote(currNote, taskId);
-            if (newNote == null)
-            {
-                throw new Exception("Could not update note");
-            } else
-            {
-                NavigationManager.NavigateTo("/dashboard");
-            }
-
+            NoteService.UpdateNote(currNote, taskId);
+            NavigationManager.NavigateTo("/dashboard");
         }
     }
 
-    private async void GetNote()
+    private async Task GetNoteData()
     {
-        currNote = await NoteService.GetNoteById(taskId);
-
-        if (currNote is not null)
+        if (AuthService.IsLoggedIn())
         {
-            title = currNote.title;
-            description = currNote.description;
-            dueDate = currNote.dueDate;
-            userId = currNote.userId;
-            statusId = currNote.statusId;
-            taskTypeId = currNote.taskTypeId;
+            currNote = await NoteService.GetNoteById(taskId);
+
+            if (currNote is not null)
+            {
+                title = currNote.title;
+                description = currNote.description;
+                dueDate = currNote.dueDate;
+                createdDate = currNote.dateCreated;
+                userId = currNote.userId;
+                statusId = currNote.statusId;
+                taskTypeId = currNote.taskTypeId;
+            }
+        }
+    }
+
+    private async Task GetDropDownData()
+    {
+        if (AuthService.IsLoggedIn())
+        {
+            statuses = await StatusService.GetAllStatuses();
+            taskTypes = await TaskTypeService.GetAllTaskTypes();
+        }
+    }
+
+    private async Task GetCommentData()
+    {
+        if (AuthService.IsLoggedIn())
+        {
+            comments = await CommentService.GetUserComments(taskId);
+            if (comments == null)
+            {
+                comments = new();
+            }
         }
     }
 
     private async void DeleteNote()
     {
-        if (currNote is null) return;
-        var ans = await NoteService.DeleteNote(currNote.taskId);
-        NavigationManager.NavigateTo("/dashboard", true);
+        if (AuthService.IsLoggedIn())
+        {
+            if (currNote is null) return;
+            var ans = await NoteService.DeleteNote(currNote.taskId);
+            NavigationManager.NavigateTo("/dashboard", true);
+        }
+    }
+
+    private async void HandleSaveComment()
+    {
+        if (AuthService.IsLoggedIn())
+        {
+            currComment = new Comment
+                {
+                    taskId = taskId,
+                    comment = newComment,
+                    dateCommented = DateTime.Now
+                };
+            await CommentService.CreateCommentById(currComment);
+            comments.Add(currComment);
+            newComment = "";
+            StateHasChanged();
+        }
     }
 }

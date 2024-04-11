@@ -29,10 +29,6 @@
     <div class="card-container-dash">
         <DataCards userNote="filteredNotes" CurCategory="All" />
     </div>
-    
-     <button class="logout" @onclick="() => Test()">
-         Logout
-         </button>
 </div>
 
 
@@ -57,12 +53,6 @@
     bool checkedLoggedIn = false;
     private int UserId = -1;
 
-    public async Task Test()
-    {
-        Console.WriteLine("Hello");
-        await ProtectedLocalStore.DeleteAsync("JWT_TOKEN");
-        NavigationManager.NavigateTo("/login");
-    }
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender && !checkedLoggedIn)

@@ -263,7 +263,7 @@ namespace dev_do_list_cli.Services
             Console.Write($"Comments:{(task.comments.Count == 0 ? " None" : "\n")}");
             foreach(var comment in task.comments)
             {
-                Console.WriteLine($"\t({comment.dateCommented.ToString(format)}) - \"{comment.comment}\"");
+                Console.WriteLine($" > ({comment.dateCommented.ToString(format)}) - \"{comment.comment}\"");
             }
             Console.WriteLine();
         }
@@ -285,18 +285,6 @@ namespace dev_do_list_cli.Services
 
             try
             {
-                foreach(var comment in task.comments)
-                {
-                    var commentRequest = new HttpRequestMessage(HttpMethod.Delete, $"http://dev-do-list-backend.eu-west-1.elasticbeanstalk.com/api/v1/comment/{comment.commentId}");
-                    var commentResponse = await client.SendAsync(commentRequest);
-
-                    if (!commentResponse.IsSuccessStatusCode)
-                    {
-                        ConsoleService.Error("Failed to delete comments attached to the task.");
-                        return;
-                    }
-                }
-
                 var request = new HttpRequestMessage(HttpMethod.Delete, $"http://dev-do-list-backend.eu-west-1.elasticbeanstalk.com/api/v1/task/{task.taskId}");
                 var response = await client.SendAsync(request);
 

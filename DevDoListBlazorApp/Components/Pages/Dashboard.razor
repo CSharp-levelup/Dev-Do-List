@@ -21,9 +21,9 @@
                 </div>
             }
         </div>
-        <img class="add-new-note" src="/assets/AddNewNote.svg" alt="AddNewNote" />
+        <img class="add-new-note" src="/assets/AddNewNote.svg" alt="AddNewNote" @onclick="HandleNew"/>
     </div>
-    <div class="card-container-dash" @onclick="HandleNew">
+    <div class="card-container-dash">
         <DataCards userNote="filteredNotes" CurCategory="All" />
     </div>
 </div>
@@ -61,10 +61,8 @@
     {
         if (firstRender && !checkedLoggedIn)
         {
-            // Check if the user is not logged in
             if (!AuthService.IsLoggedIn())
             {
-                // User is not logged in, redirect to login page
                 NavigationManager.NavigateTo("/");
             }
             checkedLoggedIn = true;
@@ -76,37 +74,51 @@
         NavigationManager.NavigateTo("/NewNote");
     }
 
-    void ToggleAscDesc()
-    {
-        showAscDesc = !showAscDesc;
-        HandleSort();
-    }
+    /* DATE FETCHING METHODS*/
 
     async Task FetchNotesData()
     {
-        errorNotes = "";
-        usersNotes = await noteService.GetAllNotes();
-        filteredNotes = usersNotes;
+        if (AuthService.IsLoggedIn())
+        {
+            errorNotes = "";
+            usersNotes = await noteService.GetAllNotes();
+            filteredNotes = usersNotes;
+        }
     }
 
     async Task FetchCategoriesData()
     {
-        errorCategories = "";
-        categories = await taskTypeService.GetAllTaskTypes();
+        if (AuthService.IsLoggedIn())
+        {
+            errorCategories = "";
+            categories = await taskTypeService.GetAllTaskTypes();
+        }
     }
 
-    void HandleSort()
-    {
-        sortOrder = sortOrder == "asc" ? "desc" : "asc";
-        // Sort usersNotes based on sortOrder
-    }
+    /* FILTERING AND SORTING METHODS */
 
     void HandleFilter(TaskType category)
     {
-        filteredNotes = usersNotes;
-        currentCategory = category; // Update the current category or filter
-        filteredNotes = category.taskTypeDescription == "All" ? usersNotes : filteredNotes.Where(note => note.taskTypeId == category.taskTypeId).ToList();
-        StateHasChanged();
+        if (AuthService.IsLoggedIn())
+        {
+            filteredNotes = usersNotes;
+            currentCategory = category;
+            filteredNotes = category.taskTypeDescription == "All" ? usersNotes : filteredNotes.Where(note => note.taskTypeId == category.taskTypeId).ToList();
+            StateHasChanged();
+        }
+    }
+
+
+    void HandleSort()
+    {
+        //TODO: Implement Sort
+        sortOrder = sortOrder == "asc" ? "desc" : "asc";
+    }
+
+    void ToggleAscDesc()
+    {
+        showAscDesc = !showAscDesc;
+        HandleSort();
     }
 
     string GetButtonClass(TaskType category)

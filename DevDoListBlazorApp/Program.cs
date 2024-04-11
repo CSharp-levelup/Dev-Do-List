@@ -11,6 +11,7 @@ builder.Services.AddScoped<NoteService>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<StatusService>();
 builder.Services.AddScoped<TaskTypeService>();
+builder.Services.AddScoped<CommentService>();
 
 var app = builder.Build();
 

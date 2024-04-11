@@ -29,7 +29,7 @@ public class NoteService(HttpClient client)
         return task;
     }
 
-    public async Task<Note?> UpdateNote(Note newTask, int id)
+    public async void UpdateNote(Note newTask, int id)
     {
         var request = new HttpRequestMessage(HttpMethod.Put, _serverUrl + "api/v1/task/" + id);
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", AuthService.accessToken);
@@ -50,9 +50,6 @@ public class NoteService(HttpClient client)
            );
         request.Content = content;
         var response = await client.SendAsync(request);
-        if (!response.IsSuccessStatusCode) return null;
-        var newNote = JsonSerializer.Deserialize<Note>(await response.Content.ReadAsStringAsync());
-        return newNote;
     }
 
     public async Task<bool> DeleteNote(int id)

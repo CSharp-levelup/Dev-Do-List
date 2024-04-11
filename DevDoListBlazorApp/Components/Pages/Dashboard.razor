@@ -6,30 +6,58 @@
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JsRuntime
 @inject NoteService noteService
+@inject TaskTypeService taskTypeService
 
 
 <div class="dash-container">
-    <div class="add-new-note-container" @onclick="HandleNew">
+    <div class="add-new-note-container">
+        <div class="categories-container">
+            <div class="@GetButtonClass(allCategory)" @onclick="()=>HandleFilter(allCategory)">
+                All
+            </div>
+            @foreach (var category in categories) {
+                <div class="@GetButtonClass(allCategory)" @onclick="()=>HandleFilter(category)">
+                    @category.taskTypeDescription
+                </div>
+            }
+        </div>
         <img class="add-new-note" src="/assets/AddNewNote.svg" alt="AddNewNote" />
     </div>
-    <div class="card-container-dash">
-        <DataCards userNote="usersNotes" CurCategory="All" />
+    <div class="card-container-dash" @onclick="HandleNew">
+        <DataCards userNote="filteredNotes" CurCategory="All" />
     </div>
 </div>
 
 
 @code {
     List<Note> usersNotes = new List<Note>();
-    List<string> categories = new List<string>();
-    string currentCategory = "All";
-    string sortOrder = "asc"; // Default sort order is ascending
+    List<Note> filteredNotes = new List<Note>();
+    List<TaskType> categories = new List<TaskType>();
+    TaskType allCategory = new TaskType
+    {
+        taskTypeId = 0,
+        taskTypeDescription = "All"
+    };
+    TaskType currentCategory = new TaskType
+    {
+        taskTypeId=0,
+        taskTypeDescription="All"
+    };
+    string sortOrder = "asc";
     string errorNotes = "";
     string errorCategories = "";
     bool showAscDesc = false;
     bool checkedLoggedIn = false;
     private int UserId = -1;
 
-    protected override async Task OnAfterRenderAsync(bool firstRender) // Redirects to login page if they do not have a token
+    protected override async Task OnInitializedAsync()
+    {
+        await FetchNotesData();
+        await FetchCategoriesData();
+        StateHasChanged();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender && !checkedLoggedIn)
         {
@@ -40,12 +68,7 @@
                 NavigationManager.NavigateTo("/");
             }
             checkedLoggedIn = true;
-            usersNotes = await noteService.GetAllNotes();
-            StateHasChanged();
         }
-
-        // Fetch Categories Data - could hardcode
-   
     }
 
     void HandleNew()
@@ -59,22 +82,36 @@
         HandleSort();
     }
 
-    void FetchNotesData()
+    async Task FetchNotesData()
     {
         errorNotes = "";
-        // Fetch notes data if in view mode
+        usersNotes = await noteService.GetAllNotes();
+        filteredNotes = usersNotes;
     }
 
-    void FetchCategoriesData()
+    async Task FetchCategoriesData()
     {
         errorCategories = "";
-        // Fetch categories data
+        categories = await taskTypeService.GetAllTaskTypes();
     }
 
     void HandleSort()
     {
         sortOrder = sortOrder == "asc" ? "desc" : "asc";
         // Sort usersNotes based on sortOrder
-        // Example: usersNotes = sortOrder == "asc" ? usersNotes.OrderBy(n => n.LastEdited).ToList() : usersNotes.OrderByDescending(n => n.LastEdited).ToList();
     }
+
+    void HandleFilter(TaskType category)
+    {
+        filteredNotes = usersNotes;
+        currentCategory = category; // Update the current category or filter
+        filteredNotes = category.taskTypeDescription == "All" ? usersNotes : filteredNotes.Where(note => note.taskTypeId == category.taskTypeId).ToList();
+        StateHasChanged();
+    }
+
+    string GetButtonClass(TaskType category)
+    {
+        return category.taskTypeDescription == currentCategory.taskTypeDescription ? "categories-button clicked" : "categories-button";
+    }
+
 }

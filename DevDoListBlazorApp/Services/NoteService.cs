@@ -1,6 +1,5 @@
 ﻿using System.Net.Http.Headers;
 using System.Text.Json;
-using DevDoListBlazorApp.Data;
 using DevDoListBlazorApp.Models;
 using DevDoListBlazorApp.Utils;
 
@@ -9,7 +8,6 @@ namespace DevDoListBlazorApp.Services;
 public class NoteService(HttpClient client)
 {
     private readonly string _serverUrl = FuncUtils.GetServerUrl();
-    private readonly MockNotesData mockNotesData = new();
 
     public async Task<List<Note>?> GetAllNotes()
     {
@@ -50,9 +48,7 @@ public class NoteService(HttpClient client)
                null,
                "application/json"
            );
-        Console.WriteLine(content);
         request.Content = content;
-        Console.WriteLine(request.Content);
         var response = await client.SendAsync(request);
         if (!response.IsSuccessStatusCode) return null;
         var newNote = JsonSerializer.Deserialize<Note>(await response.Content.ReadAsStringAsync());
@@ -86,19 +82,10 @@ public class NoteService(HttpClient client)
                null,
                "application/json"
            );
-        Console.WriteLine(content);
         request.Content = content;
-        Console.WriteLine(request.Content);
         var response = await client.SendAsync(request);
         if (!response.IsSuccessStatusCode) return null;
         var newNote = JsonSerializer.Deserialize<Note>(await response.Content.ReadAsStringAsync());
         return newNote;
-    }
-
-    public List<Note> GetAllNotesMock()
-    {
-        var task = mockNotesData.GenerateMockNotes();
-        return task;
-
     }
 }

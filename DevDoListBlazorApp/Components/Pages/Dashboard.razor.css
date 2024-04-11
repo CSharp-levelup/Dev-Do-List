@@ -47,9 +47,46 @@
 .add-new-note-container {
     display: flex;
     align-items: center;
-    justify-content: flex-end;
+    justify-content: space-between;
     height: 5vh;
     width: 90%;
+}
+
+.categories-container {
+    display: flex;
+    width: 40%;
+    gap: 1vh;
+}
+
+.categories-button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #8981D8;
+    font-size: 12px;
+    color: #ffffff;
+    font-weight: 400;
+    height: 4vh;
+    width: 8vw;
+    cursor: pointer;
+}
+
+.categories-button clicked {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #6A61C0;
+    font-size: 12px;
+    color: #ffffff;
+    font-weight: 400;
+    height: 4vh;
+    width: 8vw;
+    cursor: pointer;
+}
+
+.categories-button:hover {
+    background-color: #6A61C0;
+    transform: scale(1.1);
 }
 
 .add-new-note {

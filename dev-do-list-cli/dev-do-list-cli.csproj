@@ -6,6 +6,7 @@
 	<PublishSingleFile>true</PublishSingleFile>
 	<SelfContained>true</SelfContained>
 	<PublishTrimmed>true</PublishTrimmed>
+	<JsonSerializerIsReflectionEnabledByDefault>true</JsonSerializerIsReflectionEnabledByDefault>
     <RootNamespace>dev_do_list_cli</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>

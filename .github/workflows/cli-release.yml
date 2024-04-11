@@ -56,4 +56,15 @@ jobs:
           asset_content_type: application/octet-stream
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Download rel-monkey
+        shell: pwsh
+        run: |
+          Invoke-WebRequest -Uri "https://github.com/Release-Monkey/release-monkey/releases/download/latest/rmk.exe" -OutFile "rel-monkey.exe"
+      - name: Load Release Key
+        run: ./rel-monkey load-release-key "${{ secrets.RELEASE_KEY }}"
+ 
+      - name: Publish Release
+        shell: pwsh
+        run: ./rel-monkey create-release "Release-${{ github.run_number }}" "https://github.com/CSharp-levelup/Dev-Do-List/releases"
     

@@ -24,13 +24,14 @@
         <img class="add-new-note" src="/assets/AddNewNote.svg" alt="AddNewNote" />
     </div>
     <div class="card-container-dash" @onclick="HandleNew">
-        <DataCards userNote="usersNotes" CurCategory="All" />
+        <DataCards userNote="filteredNotes" CurCategory="All" />
     </div>
 </div>
 
 
 @code {
     List<Note> usersNotes = new List<Note>();
+    List<Note> filteredNotes = new List<Note>();
     List<TaskType> categories = new List<TaskType>();
     TaskType allCategory = new TaskType
     {
@@ -51,8 +52,8 @@
 
     protected override async Task OnInitializedAsync()
     {
-        FetchNotesData();
-        FetchCategoriesData();
+        await FetchNotesData();
+        await FetchCategoriesData();
         StateHasChanged();
     }
 
@@ -81,13 +82,14 @@
         HandleSort();
     }
 
-    async void FetchNotesData()
+    async Task FetchNotesData()
     {
         errorNotes = "";
         usersNotes = await noteService.GetAllNotes();
+        filteredNotes = usersNotes;
     }
 
-    async void FetchCategoriesData()
+    async Task FetchCategoriesData()
     {
         errorCategories = "";
         categories = await taskTypeService.GetAllTaskTypes();
@@ -101,8 +103,9 @@
 
     void HandleFilter(TaskType category)
     {
+        filteredNotes = usersNotes;
         currentCategory = category; // Update the current category or filter
-        usersNotes = category.taskTypeDescription == "All" ? usersNotes : usersNotes.Where(note => note.taskTypeId == category.taskTypeId).ToList();
+        filteredNotes = category.taskTypeDescription == "All" ? usersNotes : filteredNotes.Where(note => note.taskTypeId == category.taskTypeId).ToList();
         StateHasChanged();
     }
 

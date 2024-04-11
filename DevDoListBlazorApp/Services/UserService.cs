@@ -12,7 +12,7 @@ public class UserService(HttpClient client, AuthService authService)
     public async Task<User?> GetUserByUsername()
     {
         var request = new HttpRequestMessage(HttpMethod.Get, _serverUrl + "api/v1/user/loggedIn");
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", authService.accessToken);
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", await authService.GetAccessToken());
         var response = await client.SendAsync(request);
         if (!response.IsSuccessStatusCode) return null;
         var user = JsonSerializer.Deserialize<User>(await response.Content.ReadAsStringAsync())!;

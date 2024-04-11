@@ -127,7 +127,7 @@
     {
         if (firstRender)
         {
-            if (!AuthService.IsLoggedIn())
+            if (!await AuthService.IsLoggedIn())
             {
                 NavigationManager.NavigateTo("/");
             }
@@ -136,7 +136,7 @@
 
     private async Task UpdateNote()
     {
-        if (AuthService.IsLoggedIn())
+        if (await AuthService.IsLoggedIn())
         {
             currNote = new Note
                 {
@@ -154,7 +154,7 @@
 
     private async Task GetNoteData()
     {
-        if (AuthService.IsLoggedIn())
+        if (await AuthService.IsLoggedIn())
         {
             currNote = await NoteService.GetNoteById(taskId);
 
@@ -173,7 +173,7 @@
 
     private async Task GetDropDownData()
     {
-        if (AuthService.IsLoggedIn())
+        if (await AuthService.IsLoggedIn())
         {
             statuses = await StatusService.GetAllStatuses();
             taskTypes = await TaskTypeService.GetAllTaskTypes();
@@ -182,7 +182,7 @@
 
     private async Task GetCommentData()
     {
-        if (AuthService.IsLoggedIn())
+        if (await AuthService.IsLoggedIn())
         {
             comments = await CommentService.GetUserComments(taskId);
             if (comments == null)
@@ -194,7 +194,7 @@
 
     private async void DeleteNote()
     {
-        if (AuthService.IsLoggedIn())
+        if (await AuthService.IsLoggedIn())
         {
             if (currNote is null) return;
             var ans = await NoteService.DeleteNote(currNote.taskId);
@@ -204,7 +204,7 @@
 
     private async void HandleSaveComment()
     {
-        if (AuthService.IsLoggedIn())
+        if (await AuthService.IsLoggedIn())
         {
             currComment = new Comment
                 {

@@ -28,7 +28,7 @@
     {
         if (firstRender)
         {
-            if (!AuthService.IsLoggedIn())
+            if (!await AuthService.IsLoggedIn())
             {
                 NavigationManager.NavigateTo("/");
             }

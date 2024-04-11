@@ -56,7 +56,7 @@
         if (firstRender && !checkedLoggedIn)
         {
             // Check if the user is already logged in
-            if (AuthService.IsLoggedIn())
+            if (await AuthService.IsLoggedIn())
             {
                 NavigationManager.NavigateTo("/dashboard");
             }
@@ -173,7 +173,7 @@
             var jsonResponse = JsonSerializer.Deserialize<AuthToken>(responseContent)!;
             
             var jwtToken = jsonResponse.access_token;
-            AuthService.accessToken = jwtToken;
+            AuthService.SetAccessToken(jwtToken);
         }
     }
 }

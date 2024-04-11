@@ -11,7 +11,7 @@ builder.Services.AddScoped<NoteService>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<StatusService>();
 builder.Services.AddScoped<TaskTypeService>();
-builder.Services.AddSingleton<AuthService>();
+builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<CommentService>();
 
 var app = builder.Build();

@@ -37,7 +37,7 @@
     {
         if (firstRender)
         {
-            if (!AuthService.IsLoggedIn()) NavigationManager.NavigateTo("/");
+            if (!await AuthService.IsLoggedIn()) NavigationManager.NavigateTo("/");
         }
     }
 

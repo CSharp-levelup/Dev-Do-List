@@ -51,23 +51,20 @@
     bool checkedLoggedIn = false;
     private int UserId = -1;
 
-    protected override async Task OnInitializedAsync()
-    {
-        await FetchNotesData();
-        await FetchCategoriesData();
-        StateHasChanged();
-    }
-
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender && !checkedLoggedIn)
         {
-            if (!AuthService.IsLoggedIn())
+            if (!await AuthService.IsLoggedIn())
             {
                 NavigationManager.NavigateTo("/");
             }
             checkedLoggedIn = true;
         }
+
+        await FetchNotesData();
+        await FetchCategoriesData();
+        StateHasChanged();
     }
 
     void HandleNew()
@@ -79,7 +76,7 @@
 
     async Task FetchNotesData()
     {
-        if (AuthService.IsLoggedIn())
+        if (await AuthService.IsLoggedIn())
         {
             errorNotes = "";
             usersNotes = await noteService.GetAllNotes();
@@ -89,7 +86,7 @@
 
     async Task FetchCategoriesData()
     {
-        if (AuthService.IsLoggedIn())
+        if (await AuthService.IsLoggedIn())
         {
             errorCategories = "";
             categories = await taskTypeService.GetAllTaskTypes();
@@ -100,13 +97,10 @@
 
     void HandleFilter(TaskType category)
     {
-        if (AuthService.IsLoggedIn())
-        {
-            filteredNotes = usersNotes;
-            currentCategory = category;
-            filteredNotes = category.taskTypeDescription == "All" ? usersNotes : filteredNotes.Where(note => note.taskTypeId == category.taskTypeId).ToList();
-            StateHasChanged();
-        }
+        filteredNotes = usersNotes;
+        currentCategory = category;
+        filteredNotes = category.taskTypeDescription == "All" ? usersNotes : filteredNotes.Where(note => note.taskTypeId == category.taskTypeId).ToList();
+        StateHasChanged();
     }
 
 

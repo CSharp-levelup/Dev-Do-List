@@ -10,11 +10,25 @@
 
 .note-container {
     display: flex;
-    height: 92vh;
-    width: 100vw;
-    background-color: #FFF;
     align-items: center;
     justify-content: center;
+    background-color: #FFF;
+    width: 70vw;
+    height: 75vh;
+    border-radius: 5px;
+    border: 0.5px solid rgba(158, 158, 158, 0.50);
+    background-color: #FFF;
+    box-shadow: 4px 0px 4px 0px rgba(0, 0, 0, 0.25);
+}
+
+.side-panel {
+    width: 25%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #6A61C0;
+    padding-top: 4vh;
 }
 
 .input-container-note {
@@ -22,22 +36,19 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    width: 70vw;
-    height: 75vh;
-    border-radius: 5px;
-    border: 0.5px solid rgba(158, 158, 158, 0.50);
+    width: 75%;
+    height: 100%;
     background-color: #FFF;
-    box-shadow: 4px 0px 4px 0px rgba(0, 0, 0, 0.25);
     gap: 2vh;
     padding: 4vh;
 }
 
 .title-container {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     height: 10vh;
     width: 100%;
-    justify-content: left;
+    justify-content: space-between;
 }
 
 .status-container {
@@ -51,15 +62,17 @@
 .task-type-container {
     display: flex;
     flex-direction: column;
+    justify-content: center;
+    align-items: center;
     height: 10vh;
-    width: 100%;
+    width: 18%;
     gap: 1vh;
 }
 
 .input-container {
     display: flex;
     flex-direction: column;
-    height: 10vh;
+    height: 20vh;
     width: 100%;
     gap: 1vh;
 }
@@ -68,7 +81,7 @@
     display: flex;
     flex-direction: column;
     height: 10vh;
-    width: 50%;
+    width: 45%;
     gap: 1vh;
 }
 
@@ -82,14 +95,11 @@
 }
 
 .input-title {
-    font-size: 30px;
-    font-weight: 500;
-    height: 7vh;
-    width: 50%;
+    font-size: 2.5rem;
+    font-weight: 600;
     background-color: #FFF;
     padding: 1vh;
-    border: 0.5px solid rgba(158, 158, 158, 0.50);
-    box-shadow: 4px 0px 4px 0px rgba(0, 0, 0, 0.25);
+    border: none;
 }
 
 .input {
@@ -104,6 +114,29 @@
     padding: 1vh;
 }
 
+.input-status {
+    height: 5vh;
+    width: 100%;
+    box-shadow: 4px 0px 4px 0px rgba(0, 0, 0, 0.25);
+    border: none;
+    background-color: #8CF192;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1vh;
+    border-radius: 20px;
+    cursor: pointer;
+}
+
+select {
+    font-size: 12px;
+    font-weight: 500;
+}
+
+option {
+    background-color: #f2f2f2;
+}
+
 label {
     font-size: 15px;
 }
@@ -111,6 +144,7 @@ label {
 textarea {
     height: 40vh;
     width: 100%;
+    font-size: 11px;
     box-shadow: 4px 0px 4px 0px rgba(0, 0, 0, 0.25);
     border: 0.5px solid rgba(158, 158, 158, 0.50);
     background-color: #FFF;
@@ -119,23 +153,37 @@ textarea {
 
 .input-text-area {
     height: 40vh;
-    width: 100%;
+    width: 100%
 }
 
-.button-container {
+.buttons-container {
     display: flex;
     height: 10vh;
     width: 100%;
     align-items: center;
     justify-content: flex-end;
+    gap: 4vh;
 }
 
-.save-button {
+.button {
+    display: flex;
+    height: 10vh;
+    justify-content: center;
+    align-items: center;
+}
+
+.delete-button {
     background-color: #6A61C0;
     color: #FFF;
     height: 5vh;
     width: 7vw;
+    border: none;
+    font-weight: 500;
 }
+
+    .delete-button:hover {
+        transform: scale(1.1);
+    }
 
 .error-message {
     color: red;

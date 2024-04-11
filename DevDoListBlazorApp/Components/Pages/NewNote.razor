@@ -10,65 +10,75 @@
 @inject AuthService AuthService
 
 <div class="new-page">
-    <div class="input-container-note">
 
-        <div class="title-container">
-            <input class="input-title" @bind="title" />
+    <div class="note-container">
+        <div class="side-panel">
         </div>
+        <div class="input-container-note">
 
-        <div class="date-container">
-            <div class="status-container">
-                <label>Status:</label>
-                <select class="input" @bind="statusId">
-                    <option value="-1">Select Status</option>
-                    @foreach (var status in statuses)
-                    {
-                        <option value="@status.statusId">@status.statusType</option>
-                    }
-                </select>
+            <div class="title-container">
+                <input class="input-title" @bind="title" />
+                <div class="task-type-container">
+                    <select class="input-status" @bind="statusId">
+                        <option value="-1">Select Status</option>
+                        @foreach (var status in statuses)
+                        {
+                            <option value="@status.statusId">@status.statusType</option>
+                        }
+                    </select>
+                </div>
             </div>
-            <div class="task-type-container">
-                <label>Task Type:</label>
-                <select class="input" @bind="taskTypeId">
-                    <option value="-1">Select Task Type</option>
-                    @foreach (var taskType in taskTypes)
-                    {
-                        <option value="@taskType.taskTypeId">@taskType.taskTypeDescription</option>
-                    }
-                </select>
-            </div>
-        </div>
-        
-        <div class="input-container">
-            <label>Description:</label>
-            <textarea class="input-text-area" @bind="description"></textarea>
-        </div>
 
-        <div class="date-container">
-            <div class="input-container-short">
-                <label>Due Date:</label>
-                <input class="input" type="date" @bind="dueDate" />
+            <div class="date-container">
+                <div class="input-container-short">
+                    <label>Task Type:</label>
+                    <select class="input" @bind="taskTypeId">
+                        <option value="-1">Select Task Type</option>
+                        @foreach (var taskType in taskTypes)
+                        {
+                            <option value="@taskType.taskTypeId">@taskType.taskTypeDescription</option>
+                        }
+                    </select>
+                </div>
             </div>
-        </div>
 
-        <div class="button-container">
-            <button class="save-button" @onclick="SaveNote">Save</button>
-            <div class="error-message">@saveErrorMsg</div>
+            <div class="input-container">
+                <label>Description:</label>
+                <textarea class="input-text-area" @bind="description"></textarea>
+            </div>
+
+            <div class="date-container">
+                <div class="input-container-short">
+                    <label>Created Date:</label>
+                    <input class="input" readonly type="date" @bind="createdDate" />
+                </div>
+                <div class="input-container-short">
+                    <label>Due Date:</label>
+                    <input class="input" type="date" @bind="dueDate" />
+                </div>
+            </div>
+
+            <div class="buttons-container">
+                <div class="button">
+                    <button class="delete-button" @onclick="SaveNote">Save</button>
+                </div>
+            </div>
+
         </div>
-       
     </div>
+
 </div>
 
 @code {
-    private string mode = "";
     private Note currNote = new Note();
-    string title = "Title";
+    string title = "Untitled";
     string saveErrorMsg = "";
-    string description = "";
+    string description = "Enter Note Description Here ...";
     DateTime dueDate = DateTime.Now;
+    DateTime createdDate = DateTime.Now;
     int userId = 1;
-    int statusId = -1;
-    int taskTypeId = -1;
+    int statusId = 1;
+    int taskTypeId = 1;
     private string _accessToken = string.Empty;
     List<Status> statuses = new();
     List<TaskType> taskTypes = new();

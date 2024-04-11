@@ -58,6 +58,16 @@
     overflow: auto;
 }
 
+.comments-container {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.comments-container::-webkit-scrollbar {
+    display: none;
+}
+
+
 .comments-input-contaier {
     padding: 2vh;
     width: 100%;

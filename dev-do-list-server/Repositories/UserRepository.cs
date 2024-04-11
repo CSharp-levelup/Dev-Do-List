@@ -1,5 +1,6 @@
 ﻿using DevDoListServer.Data;
 using DevDoListServer.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace DevDoListServer.Repositories
 {
@@ -7,7 +8,7 @@ namespace DevDoListServer.Repositories
     {
         public async Task<User?> FindByUsername(string username)
         {
-            return await base.FindSingle(u => u.Username == username);
+            return await context.Users.FirstOrDefaultAsync(u => u.Username == username);
         }
     }
 }

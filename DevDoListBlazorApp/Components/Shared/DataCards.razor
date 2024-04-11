@@ -1,5 +1,7 @@
 @using DevDoListBlazorApp.Models
 @using DevDoListBlazorApp.Services
+@inject AuthService AuthService
+
 @* 
    DataCards Razor Component:
    - This component represents a collection of cards displaying user notes.
@@ -33,7 +35,7 @@
     {
         if (firstRender)
         {
-            if (!AuthService.IsLoggedIn()) NavigationManager.NavigateTo("/");
+            if (!await AuthService.IsLoggedIn()) NavigationManager.NavigateTo("/");
         }
     }
 

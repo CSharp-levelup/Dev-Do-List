@@ -4,6 +4,8 @@
 @rendermode InteractiveServer
 @inject NavigationManager NavigationManager
 @inject UserService UserService
+@inject AuthService AuthService
+
 <div class="profile-page">
     @if (_user is not null)
     {
@@ -26,7 +28,7 @@
     {
         if (firstRender)
         {
-            if (!AuthService.IsLoggedIn())
+            if (!await AuthService.IsLoggedIn())
             {
                 NavigationManager.NavigateTo("/");
             }

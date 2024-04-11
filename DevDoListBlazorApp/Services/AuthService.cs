@@ -1,11 +1,23 @@
-﻿namespace DevDoListBlazorApp.Services;
+﻿using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 
-public static class AuthService
+namespace DevDoListBlazorApp.Services;
+
+public class AuthService(ProtectedLocalStorage protectedLocalStorage)
 {
-    public static string? accessToken { get; set; }
+    private readonly string _accessTokenKey = "JWT_TOKEN";
 
-    public static bool IsLoggedIn()
+    public async Task<string?> GetAccessToken()
     {
-        return accessToken is not null;
+        return (await protectedLocalStorage.GetAsync<string>(_accessTokenKey)).Value;
+    }
+
+    public async Task SetAccessToken(string token)
+    {
+        await protectedLocalStorage.SetAsync(_accessTokenKey, token);
+    }
+
+    public async Task<bool> IsLoggedIn()
+    {
+        return (await protectedLocalStorage.GetAsync<string>(_accessTokenKey)).Success;
     }
 }

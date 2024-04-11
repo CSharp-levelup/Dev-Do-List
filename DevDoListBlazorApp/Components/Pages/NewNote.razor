@@ -6,7 +6,8 @@
 @inject IJSRuntime JsRuntime
 @inject NoteService NoteService
 @inject StatusService StatusService
-@inject TaskTypeService TaskTypeService 
+@inject TaskTypeService TaskTypeService
+@inject AuthService AuthService
 
 <div class="new-page">
 
@@ -81,22 +82,18 @@
     private string _accessToken = string.Empty;
     List<Status> statuses = new();
     List<TaskType> taskTypes = new();
-
-    protected override async Task OnInitializedAsync()
-    {
-        await GetDropDownData();
-        StateHasChanged();
-    }
-
-
+    
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            if (!AuthService.IsLoggedIn())
+            if (!await AuthService.IsLoggedIn())
             {
                 NavigationManager.NavigateTo("/");
             }
+
+            await GetDropDownData();
+            StateHasChanged();
         }
     }
 

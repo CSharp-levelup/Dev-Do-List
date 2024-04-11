@@ -13,6 +13,7 @@
 @inject ProtectedSessionStorage ProtectedSessionStorage
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JsRuntime
+@inject AuthService AuthService
 
 <div class="login-page">
     <div class="side-panel">
@@ -56,7 +57,7 @@
         if (firstRender && !checkedLoggedIn)
         {
             // Check if the user is already logged in
-            if (AuthService.IsLoggedIn())
+            if (await AuthService.IsLoggedIn())
             {
                 NavigationManager.NavigateTo("/dashboard");
             }
@@ -173,7 +174,7 @@
             var jsonResponse = JsonSerializer.Deserialize<AuthToken>(responseContent)!;
             
             var jwtToken = jsonResponse.access_token;
-            AuthService.accessToken = jwtToken;
+            AuthService.SetAccessToken(jwtToken);
         }
     }
 }

@@ -82,14 +82,7 @@
     private string _accessToken = string.Empty;
     List<Status> statuses = new();
     List<TaskType> taskTypes = new();
-
-    protected override async Task OnInitializedAsync()
-    {
-        await GetDropDownData();
-        StateHasChanged();
-    }
-
-
+    
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
@@ -98,6 +91,9 @@
             {
                 NavigationManager.NavigateTo("/");
             }
+
+            await GetDropDownData();
+            StateHasChanged();
         }
     }
 

@@ -113,16 +113,7 @@
     List<Status> statuses = new();
     List<Comment> comments = new();
     Comment currComment = new();
-
-    protected override async Task OnInitializedAsync()
-    {
-        taskId = int.Parse(task_id);
-        await GetNoteData();
-        await GetDropDownData();
-        await GetCommentData();
-        StateHasChanged();
-    }
-
+    
     protected override async Task OnAfterRenderAsync(bool firstRender) // Redirects to login page if they do not have a token
     {
         if (firstRender)
@@ -131,6 +122,12 @@
             {
                 NavigationManager.NavigateTo("/");
             }
+
+            taskId = int.Parse(task_id);
+            await GetNoteData();
+            await GetDropDownData();
+            await GetCommentData();
+            StateHasChanged();
         }
     }
 

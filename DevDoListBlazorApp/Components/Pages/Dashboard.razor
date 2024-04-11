@@ -60,11 +60,11 @@
                 NavigationManager.NavigateTo("/");
             }
             checkedLoggedIn = true;
+            await FetchNotesData();
+            await FetchCategoriesData();
+            StateHasChanged();
         }
 
-        await FetchNotesData();
-        await FetchCategoriesData();
-        StateHasChanged();
     }
 
     void HandleNew()

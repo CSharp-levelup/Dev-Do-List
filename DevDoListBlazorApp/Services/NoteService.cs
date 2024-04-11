@@ -5,14 +5,14 @@ using DevDoListBlazorApp.Utils;
 
 namespace DevDoListBlazorApp.Services;
 
-public class NoteService(HttpClient client)
+public class NoteService(HttpClient client, AuthService authService)
 {
     private readonly string _serverUrl = FuncUtils.GetServerUrl();
 
     public async Task<List<Note>?> GetAllNotes()
     {
         var request = new HttpRequestMessage(HttpMethod.Get, _serverUrl + "api/v1/task");
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", AuthService.accessToken);
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", authService.accessToken);
         var response = await client.SendAsync(request);
         if (!response.IsSuccessStatusCode) return null;
         var task = JsonSerializer.Deserialize<List<Note>>(await response.Content.ReadAsStringAsync())!;
@@ -22,7 +22,7 @@ public class NoteService(HttpClient client)
     public async Task<Note?> GetNoteById(int id)
     {
         var request = new HttpRequestMessage(HttpMethod.Get, _serverUrl + "api/v1/task/" + id);
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", AuthService.accessToken);
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", authService.accessToken);
         var response = await client.SendAsync(request);
         if (!response.IsSuccessStatusCode) return null;
         var task = JsonSerializer.Deserialize<Note>(await response.Content.ReadAsStringAsync())!;
@@ -32,7 +32,7 @@ public class NoteService(HttpClient client)
     public async void UpdateNote(Note newTask, int id)
     {
         var request = new HttpRequestMessage(HttpMethod.Put, _serverUrl + "api/v1/task/" + id);
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", AuthService.accessToken);
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", authService.accessToken);
         var data = new
         {
             taskId = id,
@@ -55,7 +55,7 @@ public class NoteService(HttpClient client)
     public async Task<bool> DeleteNote(int id)
     {
         var request = new HttpRequestMessage(HttpMethod.Delete, _serverUrl + "api/v1/task/" + id);
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", AuthService.accessToken);
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", authService.accessToken);
         
         var response = await client.SendAsync(request);
         return response.IsSuccessStatusCode;
@@ -64,7 +64,7 @@ public class NoteService(HttpClient client)
     public async Task<Note?> CreateNote(Note newTask)
     {
         var request = new HttpRequestMessage(HttpMethod.Post, _serverUrl + "api/v1/task");
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", AuthService.accessToken);
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", authService.accessToken);
         var data = new
         {
             title = newTask.title,

@@ -1,10 +1,10 @@
 ﻿namespace DevDoListBlazorApp.Services;
 
-public static class AuthService
+public class AuthService
 {
-    public static string? accessToken { get; set; }
+    public string? accessToken { get; set; }
 
-    public static bool IsLoggedIn()
+    public bool IsLoggedIn()
     {
         return accessToken is not null;
     }
